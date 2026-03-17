@@ -1,12 +1,15 @@
 const express = require('express');
-require('dotenv').config();
+const cors = require('cors');
+
+const authRoutes = require('./routes/auth.routes');
 
 const app = express();
 
-app.get('/', (req, res) => {
-  res.send('SmartCoach API funcionando!');
-});
+app.use(cors());
+app.use(express.json());
 
-app.listen(process.env.PORT, () => {
-  console.log(`Server corriendo en el puerto ${process.env.PORT}`);
+app.use('/api', authRoutes);
+
+app.listen(3006, () => {
+  console.log('Servidor corriendo en puerto 3006');
 });

@@ -1,0 +1,52 @@
+<div class="content">
+    <header class="hero-video min-h-screen">
+        <img src="assets/images/image.jpeg" alt="Login image" class="bg-image w-full h-full object-cover" />
+    </header>
+    <div>
+        <nav class="navbar navbar-expand-lg shadow bg-white">
+            <div class="container">
+                <a class="navbar-brand fw-bold" href="index.html">🏐 Smart Coach</a>
+            </div>
+        </nav>
+    </div>
+    <div class="page-transition">
+        <div class="form-overlay">
+            <div class="form-card animate_animated animate_fadeIn">
+                <div class="titulo">
+                    <span class="icon"><i class="bi bi-person-plus"></i></span>
+                    <h2>¡Crea tu cuenta!</h2>
+                    <p class="text-muted">Únete a Smart Coach y lleva tu juego al siguiente nivel.</p>
+                </div>
+                <form (ngSubmit)="register()">
+                    <div class="mb-2">
+                        <label for="rol" class="form-label">Selecciona tu rol</label>
+                        <select class="form-select" id="rol" required>
+                            <option value="" selected disabled>Elige una opción</option>
+                            <option value="jugador">Jugador</option>
+                            <option value="entrenador">Entrenador</option>
+                        </select>
+                    </div>
+                    <div class="mb-2">
+                        <label for="nombre" class="form-label">Nombre completo</label>
+                        <input type="text" class="form-control" id="nombre" required placeholder="Ej: Juan Pérez">
+                    </div>
+                    <div class="mb-2">
+                        <label for="email" class="form-label">Correo electrónico</label>
+                        <input type="email" class="form-control" id="email" required
+                            placeholder="Ej: correo@ejemplo.com">
+                    </div>
+                    <div class="mb-2">
+                        <label for="password" class="form-label">Contraseña</label>
+                        <input type="password" class="form-control" id="password" required
+                            placeholder="Mínimo 6 caracteres">
+                    </div>
+                    <button type="submit" class="btn btn-dark mt-2 ">Registrarme</button>
+                </form>
+                <div class="text-center mt-3">
+                    <span class="text-muted">¿Ya tienes cuenta? <a routerLink="/login" class="text-primary">Ingresa
+                            aquí</a></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
