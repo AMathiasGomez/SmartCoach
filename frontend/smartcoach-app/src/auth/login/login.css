@@ -39,6 +39,10 @@ body {
   width: 100%;
 }
 
+.container {
+  padding: 0;
+}
+
 .form-select, .form-control{
   background: #1a1f25;
   color: gray;
@@ -100,7 +104,7 @@ body {
   }
 
   .form-card{
-    padding: 2rem;
+    padding: 3rem;
     max-width: 90%;
   }
 

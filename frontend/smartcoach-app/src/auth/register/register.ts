@@ -10,23 +10,4 @@ import { RouterLink } from '@angular/router';
 })
 export class Register {
 
-  form= {
-    rol: '',
-    nombre: '',
-    email: '',
-    password: ''
-  };
-
-  constructor(private http: HttpClient) {}
-    register(){
-      this.http.post('http://localhost:3000/api/register', this.form)
-      .subscribe({
-        next: (response) => {
-          console.log('Registro exitoso', response);
-        },
-        error: (error) => {
-          console.error('Error en el registro', error);
-        }
-      });
-    }
-  }
+}

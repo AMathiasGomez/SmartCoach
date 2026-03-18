@@ -15,7 +15,7 @@
 }
 
 .page-left {
-  animation: slideIn 0.45s cubic-bezier(0.4,0,0.2,1);
+  animation: slideLeft 0.45s cubic-bezier(0.4,0,0.2,1);
 }
 
 @keyframes slideLeft {
