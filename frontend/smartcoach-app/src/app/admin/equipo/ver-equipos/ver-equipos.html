@@ -1,0 +1,70 @@
+<div class="app-container">
+
+  <header class="navbar">
+    <div class="navbar-left">
+      <div class="logo-icon">
+        <span class="material-symbols-outlined">sports_volleyball</span>
+      </div>
+      <h2 class="logo-text">SmartCoach</h2>
+    </div>
+
+    <nav class="navbar-center">
+      <a>Panel de Control</a>
+      <a class="active">Equipos</a>
+      <a>Jugadores</a>
+      <a>Entrenamientos</a>
+      <a>Partidos</a>
+    </nav>
+
+    <div class="navbar-right">
+      <button class="icon-btn">
+        <span class="material-symbols-outlined">notifications</span>
+      </button>
+      <div class="avatar">
+        <img
+          src="https://lh3.googleusercontent.com/aida-public/AB6AXuBmvyAmGsUQW2mGy1v-UEsT89qG6BqVxQ-vVuyEEqVAEBwNm0gTg-I9ZUhI0JMZF1GdOpwKKVVBgdaHg8Eiu-DAxu7OLIt1h-C0cjvVU_o2u5syUmsaaie8CLv7IlmxCGzCOYZjkwKuz0O5nz0NlYKha-iTIlIFni274J-nRFOODXfHylkQfTF_710WWFH_H-9FBuRfc7TJObuKXHJmbA9_3cGkkT9-ijgMtAydzbskGQTvk1zRRyCevLkPROl_p771KhcGpscLQZ-q">
+      </div>
+    </div>
+  </header>
+
+  <main class="main-content">
+
+
+    <section class="header-section">
+      <h1>Lista de equipos</h1>
+      <p>Aquí podrás ver la información esencial de los equipos registrados.</p>
+    </section>
+
+    <section class="card">
+      <div class="column">
+        <h5><span class="material-symbols-outlined text-primary">person_add</span>Equipos</h5>
+              <button class="crear-equipo" (click)="router.navigate(['/crear-equipo'])"><span class="material-symbols-outlined">add</span>Crea equipo
+        </button>
+      </div>
+        <hr>
+      <table ngIf="!loading">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Categoria</th>
+            <th>Año fundación</th>
+            <th>Descripción</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let equipo of equipos">
+            <td>{{ equipo.nombre }}</td>
+            <td>{{ equipo.categoria }}</td>
+            <td>{{ equipo.ano_fundacion }}</td>
+            <td><span class="status active">{{ equipo.descripcion }}</span></td>
+            <td>
+                <button class="btn-edit" (click)="editar(equipo.id!)">Editar</button>
+                <button class="btn-delete" (click)="eliminar(equipo.id!)">Eliminar</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</div>

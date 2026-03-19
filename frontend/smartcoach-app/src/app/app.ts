@@ -1,11 +1,13 @@
 import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { CrearJugador } from '../admin/crear-jugador/crear-jugador';
-import { HTTP_INTERCEPTORS } from '@angular/common/http';
-import { authInterceptor } from '../interceptors/auth-interceptor';
+import { CrearJugador } from '../app/admin/jugador/crear-jugador/crear-jugador';
+import { CrearEquipo } from '../app/admin/equipo/crear-equipo/crear-equipo';
+import { VerEquipos } from '../app/admin/equipo/ver-equipos/ver-equipos';
+
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, CrearJugador],
+  standalone: true,
+  imports: [RouterOutlet, CrearJugador, CrearEquipo, VerEquipos],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })

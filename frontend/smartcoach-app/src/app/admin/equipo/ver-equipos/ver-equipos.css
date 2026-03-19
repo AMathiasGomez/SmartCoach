@@ -1,0 +1,268 @@
+/* CONTENEDOR GENERAL */
+.app-container {
+  min-height: 100vh;
+  background: #f8fafc;
+  color: #0f172a;
+  font-family: 'Lexend', sans-serif;
+}
+
+h1 {
+  font-weight: bold;
+}
+
+a {
+  font-weight: bold;
+}
+
+label {
+  font-weight: bold;
+  font-size: 14px;
+  margin-bottom: 0.5rem;
+}
+
+input::placeholder {
+  font-size: 14px;
+}
+
+/* NAVBAR */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 40px;
+  background: white;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-icon {
+  background: #2563eb1a;
+  padding: 8px;
+  border-radius: 8px;
+}
+
+.logo-text {
+  font-weight: bold;
+  font-size: 20px;
+}
+
+.navbar-center {
+  display: flex;
+  gap: 20px;
+}
+
+.navbar-center a {
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.navbar-center .active {
+  border-bottom: 2px solid #2563eb;
+}
+
+/* RIGHT */
+.navbar-right {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.icon-btn {
+  background: #f1f5f9;
+  border: none;
+  padding: 8px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.avatar img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+/* MAIN */
+.main-content {
+  padding: 30px;
+  max-width: 900px;
+  margin: auto;
+}
+
+/* HEADER */
+.header-section h1 {
+  font-size: 28px;
+  font-weight: bold;
+}
+
+/* BOTONES */
+.btn-edit {
+  background-color: #fbbf24; /* Amarillo */
+  color: white; /* Texto negro para contraste */
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-right: 8px;
+}
+
+.btn-edit:hover {
+  background-color: #f59e0b; /* Amarillo más oscuro al hover */
+}
+
+.column { 
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.crear-equipo {
+  display: flex;
+  justify-content: end;
+  align-items: end;
+  background-color: #2563eb; /* Rojo */
+  color: #fff; /* Texto blanco */
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.btn-delete {
+  background-color: #ef4444; /* Rojo */
+  color: #fff; /* Texto blanco */
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.btn-delete:hover {
+  background-color: #dc2626; /* Rojo más oscuro al hover */
+}
+
+.header-section p {
+  color: #64748b;
+}
+
+/* CARD */
+.card {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  margin-top: 20px;
+}
+
+/* FORM */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+input, select, textarea {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  font-size: 14px;
+}
+
+/* ACTIONS */
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.btn-outline {
+  border: 1px solid #cbd5e1;
+  background: white;
+  padding: 10px 20px;
+  font-weight: bold;
+  border-radius: 0.5rem;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-weight: bold;
+  border-radius: 0.5rem;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.btn-primary span {
+  font-size: 18px;
+}
+
+textarea::placeholder {
+  font-size: 14px;
+}
+
+.input-container {
+  position: relative;
+}
+
+.input-container .icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+}
+
+.input-container input {
+  width: 100%;
+  padding: 10px 10px 10px 40px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+}
+
+.input-container span {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  pointer-events: none;
+}
+
+.input-container select {
+  width: 100%;
+  padding: 10px 10px 10px 40px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  appearance: none; 
+  background-color: white;
+}
+
+tr {
+    text-align: center;
+    height: 3rem;
+}

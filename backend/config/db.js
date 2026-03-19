@@ -1,19 +1,12 @@
-const mysql = require("mysql2");
+const mysql = require('mysql2/promise');
 
-const connection = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "159951",
-  database: "smartcoach"
+const db = mysql.createPool({
+  host: 'localhost',
+  user: 'root',
+  password: '159951',
+  database: 'smartcoach',
 });
 
-connection.connect((error) => {
-  if (error) {
-    console.error("Error de conexión:", error);
-  } else {
-    console.log("Conectado a la base de datos SmartCoach");
-  }
-});
+console.log(db)
 
-
-module.exports = connection;
+module.exports = db;

@@ -1,0 +1,87 @@
+<div class="app-container">
+
+  <header class="navbar">
+    <div class="navbar-left">
+      <div class="logo-icon">
+        <span class="material-symbols-outlined">sports_volleyball</span>
+      </div>
+      <h2 class="logo-text">SmartCoach</h2>
+    </div>
+
+    <nav class="navbar-center">
+      <a>Panel de Control</a>
+      <a class="active">Equipos</a>
+      <a>Jugadores</a>
+      <a>Entrenamientos</a>
+      <a>Partidos</a>
+    </nav>
+
+    <div class="navbar-right">
+      <button class="icon-btn">
+        <span class="material-symbols-outlined">notifications</span>
+      </button>
+      <div class="avatar">
+        <img
+          src="https://lh3.googleusercontent.com/aida-public/AB6AXuBmvyAmGsUQW2mGy1v-UEsT89qG6BqVxQ-vVuyEEqVAEBwNm0gTg-I9ZUhI0JMZF1GdOpwKKVVBgdaHg8Eiu-DAxu7OLIt1h-C0cjvVU_o2u5syUmsaaie8CLv7IlmxCGzCOYZjkwKuz0O5nz0NlYKha-iTIlIFni274J-nRFOODXfHylkQfTF_710WWFH_H-9FBuRfc7TJObuKXHJmbA9_3cGkkT9-ijgMtAydzbskGQTvk1zRRyCevLkPROl_p771KhcGpscLQZ-q">
+      </div>
+    </div>
+  </header>
+
+  <main class="main-content">
+
+    <section class="header-section">
+      <h1>Registrar nuevo equipo</h1>
+      <p>Complete el perfil técnico del equipo.</p>
+    </section>
+
+    <section class="card">
+      <h5><span class="material-symbols-outlined text-primary">person_add</span>Información del Equipo</h5>
+
+      <form class="form" [formGroup]="form" (ngSubmit)="guardar()">
+
+        <div class="grid-2">
+          <div class="form-group">
+            <label>Nombre</label>
+            <div class="input-container">
+              <span class="material-symbols-outlined icon">badge</span>
+              <input type="text" placeholder="Ej. Halcones Black" formControlName="nombre">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Año Fundacion</label>
+            <div class="input-container">
+              <span class="material-symbols-outlined text-xl">calendar_today</span>
+              <input type="text" placeholder="Ej. 1998" formControlName="ano_fundacion">
+            </div>
+          </div>
+        </div>
+
+          <div class="form-group">
+            <label>Categoria</label>
+            <div class="input-container">
+              <span class="material-symbols-outlined">date_range</span>
+              <input type="text" placeholder="Ej. Juvenil" formControlName="categoria">
+            </div>
+          </div>
+
+
+        <div class="form-group">
+          <label>Descripcion</label>
+          <textarea placeholder="Descripción del equipo a crear" formControlName="descripcion"></textarea>
+        </div>
+
+        <div class="actions">
+          <button type="button" class="btn-outline">Cancelar</button>
+          <button type="submit" class="btn-primary">
+            <span class="material-symbols-outlined text-lg">save</span>
+            Guardar Equipo
+        </button>
+        </div>
+
+      </form>
+    </section>
+
+  </main>
+
+</div>

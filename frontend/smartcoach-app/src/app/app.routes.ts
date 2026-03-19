@@ -1,12 +1,15 @@
 import { Routes } from '@angular/router';
-import { Login } from '../auth/login/login';
-import { Register } from '../auth/register/register';
-import { CrearJugador } from '../admin/crear-jugador/crear-jugador';
-import { AuthGuard } from '../guards/auth-guard';
+import { Login } from './auth/login/login';
+import { Register } from './auth/register/register';
+import { EditarEquipo } from './admin/equipo/editar-equipo/editar-equipo';
+import { CrearEquipo } from './admin/equipo/crear-equipo/crear-equipo';
+import { VerEquipos } from './admin/equipo/ver-equipos/ver-equipos';
 
 export const routes: Routes = [
   { path: 'login', component: Login},
   { path: 'register', component: Register},
-  { path: '', redirectTo: 'login', pathMatch: 'full'},
-  { path: 'dashboard-admin', component: CrearJugador, canActivate: [AuthGuard]},
+  { path: '', redirectTo: 'ver-equipos', pathMatch: 'full'},
+  { path: 'ver-equipos', component: VerEquipos },
+  { path: 'crear-equipo', component: CrearEquipo },
+  { path: 'editar-equipo/:id', component: EditarEquipo }
 ];
