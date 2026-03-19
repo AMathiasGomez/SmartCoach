@@ -1,1 +1,101 @@
-<p>dashboard-entrenador works!</p>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartCoach Analyst</title>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+
+
+  <!-- Config Tailwind -->
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            primary: "#000613",
+            secondary: "#515f74",
+            background: "#f7f9fb",
+            "primary-container": "#001f3f",
+            "surface-container-lowest": "#ffffff"
+          },
+          fontFamily: {
+            headline: ["Manrope"],
+            body: ["Inter"]
+          }
+        }
+      }
+    }
+  </script>
+</head>
+
+<body class="bg-background text-on-surface">
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="logo">
+    <span class="material-symbols-outlined filled">sports_soccer</span>
+    <div>
+      <h1>SmartCoach</h1>
+      <p>Elite Performance</p>
+    </div>
+  </div>
+
+  <nav>
+    <a class="active">Dashboard</a>
+    <a>Jugadores</a>
+    <a>Entrenamientos</a>
+    <a>Asistencia</a>
+    <a>Estadísticas</a>
+    <a>Partidos</a>
+    <a>Predicciones IA</a>
+  </nav>
+</aside>
+
+<!-- Topbar -->
+<header class="topbar">
+  <input type="text" placeholder="Buscar..." class="search">
+
+  <div class="user">
+    <span>Perfil del Entrenador</span>
+    <img src="https://via.placeholder.com/40">
+  </div>
+</header>
+
+<!-- Main -->
+<main class="main">
+
+  <h2>Panel de Control Estratégico</h2>
+  <p>Estado actual del rendimiento del equipo</p>
+
+  <!-- Cards -->
+  <div class="grid">
+    <div class="card">
+      <span>Rendimiento Medio</span>
+      <h3>82.4%</h3>
+    </div>
+
+    <div class="card">
+      <span>Asistencia</span>
+      <h3>92%</h3>
+    </div>
+
+    <div class="card">
+      <span>Carga</span>
+      <h3>Moderada</h3>
+    </div>
+  </div>
+
+</main>
+
+</body>
+</html>

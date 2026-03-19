@@ -1,0 +1,96 @@
+/* Base */
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background: #f7f9fb;
+}
+
+h1, h2, h3 {
+  font-family: 'Manrope', sans-serif;
+}
+
+/* Icons */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 300;
+}
+
+.material-symbols-outlined.filled {
+  font-variation-settings: 'FILL' 1;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 250px;
+  height: 100vh;
+  position: fixed;
+  background: #001f3f;
+  color: white;
+  padding: 20px;
+}
+
+.sidebar .logo {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 30px;
+}
+
+.sidebar nav a {
+  display: block;
+  padding: 12px;
+  color: #94a3b8;
+  cursor: pointer;
+}
+
+.sidebar nav a.active {
+  background: rgba(255,255,255,0.1);
+  color: white;
+  border-left: 3px solid #d4e3ff;
+}
+
+/* Topbar */
+.topbar {
+  margin-left: 250px;
+  height: 60px;
+  background: rgba(255,255,255,0.8);
+  backdrop-filter: blur(10px);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 30px;
+  border-bottom: 1px solid #ddd;
+}
+
+.search {
+  padding: 8px 12px;
+  border-radius: 20px;
+  border: none;
+  background: #eceef0;
+}
+
+.user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Main */
+.main {
+  margin-left: 250px;
+  padding: 30px;
+}
+
+/* Grid */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  margin-top: 20px;
+}
+
+/* Cards */
+.card {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}

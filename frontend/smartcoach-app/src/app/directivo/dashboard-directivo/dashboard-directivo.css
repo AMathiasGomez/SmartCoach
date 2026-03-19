@@ -1,0 +1,112 @@
+/* Base */
+.content {
+  margin: 0;
+  font-family: 'Lexend', sans-serif;
+  background: #f7f9fb;
+}
+
+h1, h2, h3 {
+  font-family: 'Manrope', sans-serif;
+}
+
+/* Icons */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 260px;
+  height: 100vh;
+  position: fixed;
+  background: #001f3f;
+  color: white;
+  padding: 20px;
+}
+
+.sidebar h1 {
+  font-size: 22px;
+  margin-bottom: 5px;
+}
+
+.sidebar .subtitle {
+  font-size: 10px;
+  color: #94a3b8;
+  margin-bottom: 20px;
+}
+
+.sidebar nav a {
+  display: block;
+  padding: 10px;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.sidebar nav a:hover {
+  background: rgba(255,255,255,0.1);
+  color: white;
+}
+
+.sidebar nav a.active {
+  background: rgba(255,255,255,0.1);
+  border-left: 4px solid #d4e3ff;
+  color: white;
+}
+
+/* Topbar */
+.topbar {
+  margin-left: 260px;
+  height: 60px;
+  background: #f2f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 25px;
+}
+
+/* Search */
+.search {
+  padding: 8px 12px;
+  border-radius: 20px;
+  border: none;
+  background: #eceef0;
+}
+
+/* Profile */
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.avatar {
+  width: 35px;
+  height: 35px;
+  background: #001f3f;
+  border-radius: 50%;
+}
+
+/* Main */
+.main {
+  margin-left: 260px;
+  padding: 30px;
+}
+
+/* Cards */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.card {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.card.highlight {
+  background: linear-gradient(135deg, #001f3f, #000613);
+  color: white;
+}
