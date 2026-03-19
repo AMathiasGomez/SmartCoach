@@ -54,24 +54,10 @@ const login = (req, res) => {
       return res.status(401).json({ error: 'Usuario no encontrado' });
     }
 
-    const user = result[0];
-
-    const valid = await bcrypt.compare(password, user.password);
-
     if (!valid){
       return res.status(401).json({ error: 'Contraseña incorrecta' });
     }
 
-    const token = jwt.sign(
-      { id: user.id, rol: user.rol },
-      'CLAVE_SECRETA',
-      { expiresIn: '2h' }
-    );
-
-    res.json({
-      message: 'Login exitoso',
-      token
-    });
 
   });
 };

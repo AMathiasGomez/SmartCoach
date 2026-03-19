@@ -17,7 +17,7 @@ export class CrearEquipo {
   constructor(
     private fb: FormBuilder,
     private equipoService: EquipoService,
-    private router: Router
+    public   router: Router
   ) {
     this.form = this.fb.group({
       nombre: ['', Validators.required],

@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { Equipo } from '../../../models/equipo.model';
 import { EquipoService } from '../../../services/equipo/equipo-service';
 import { CommonModule } from '@angular/common';
+import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
   selector: 'app-ver-equipos',
@@ -17,7 +18,8 @@ export class VerEquipos implements OnInit {
 
   constructor(
     private equipoService: EquipoService,
-    public router: Router
+    public router: Router,
+    private cd: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -26,7 +28,7 @@ export class VerEquipos implements OnInit {
 
   cargarEquipos() {
     console.log("cargando equipos...");
-    
+
     this.loading = true;
 
     this.equipoService.getEquipos().subscribe({
@@ -34,6 +36,7 @@ export class VerEquipos implements OnInit {
         console.log("datos recibidos del servicio:", data);
         this.equipos = data;
         this.loading = false;
+        this.cd.detectChanges();
       },
       error: (err) => {
         console.error('Error al cargar equipos', err);

@@ -7,7 +7,7 @@ import { VerEquipos } from '../app/admin/equipo/ver-equipos/ver-equipos';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, CrearJugador, CrearEquipo, VerEquipos],
+  imports: [RouterOutlet],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
