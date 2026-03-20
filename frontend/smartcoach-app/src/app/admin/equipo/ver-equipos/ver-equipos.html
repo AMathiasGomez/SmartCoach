@@ -1,14 +1,15 @@
 <div class="app-container">
 
-  <header class="navbar">
-    <div class="navbar-left">
+  <aside class="sidebar">
+
+    <div class="logo">
       <div class="logo-icon">
         <span class="material-symbols-outlined">sports_volleyball</span>
       </div>
       <h2 class="logo-text">SmartCoach</h2>
     </div>
 
-    <nav class="navbar-center">
+    <nav>
       <a class="non-active" routerLink="/dashboard-admin">Panel de Control</a>
       <a class="active">Equipos</a>
       <a>Jugadores</a>
@@ -16,13 +17,14 @@
       <a>Partidos</a>
     </nav>
 
-    <div class="navbar-right">
-      <button class="logout" (click)="logout()"><span class="logout-icon material-symbols-outlined">logout</span>Cerrar sesión</button>
-    </div>
-  </header>
+    <button class="logout" (click)="logout()">
+      <span class="material-symbols-outlined logout-icon">logout</span>
+      Cerrar sesión
+    </button>
+
+  </aside>
 
   <main class="main-content">
-
 
     <section class="header-section">
       <h1>Lista de equipos</h1>
@@ -30,12 +32,21 @@
     </section>
 
     <section class="card">
+
       <div class="column">
-        <h5><span class="material-symbols-outlined text-primary">person_add</span>Equipos</h5>
-              <button class="crear-equipo" (click)="router.navigate(['/crear-equipo'])"><span class="material-symbols-outlined">add</span>Crea equipo
+        <h5>
+          <span class="material-symbols-outlined">person_add</span>
+          Equipos
+        </h5>
+
+        <button class="crear-equipo" (click)="router.navigate(['/crear-equipo'])">
+          <span class="material-symbols-outlined">add</span>
+          Crear equipo
         </button>
       </div>
-        <hr>
+
+      <hr>
+
       <table>
         <thead>
           <tr>
@@ -46,19 +57,23 @@
             <th>Acciones</th>
           </tr>
         </thead>
+
         <tbody>
           <tr *ngFor="let equipo of equipos">
             <td>{{ equipo.nombre }}</td>
             <td>{{ equipo.categoria }}</td>
             <td>{{ equipo.ano_fundacion }}</td>
-            <td><span class="status active">{{ equipo.descripcion }}</span></td>
+            <td>{{ equipo.descripcion }}</td>
             <td>
-                <button class="btn-edit" (click)="editar(equipo.id!)">Editar</button>
-                <button class="btn-delete" (click)="eliminar(equipo.id!)">Eliminar</button>
+              <button class="btn-edit" (click)="editar(equipo.id!)">Editar</button>
+              <button class="btn-delete" (click)="eliminar(equipo.id!)">Eliminar</button>
             </td>
           </tr>
         </tbody>
       </table>
+
     </section>
+
   </main>
+
 </div>

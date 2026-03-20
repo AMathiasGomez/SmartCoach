@@ -1,14 +1,16 @@
 <div class="app-container">
 
-  <header class="navbar">
-    <div class="navbar-left">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+
+    <div class="logo">
       <div class="logo-icon">
         <span class="material-symbols-outlined">sports_volleyball</span>
       </div>
       <h2 class="logo-text">SmartCoach</h2>
     </div>
 
-    <nav class="navbar-center">
+    <nav>
       <a class="non-active" routerLink="/ver-equipos">Panel de Control</a>
       <a class="active" routerLink="/ver-equipos">Equipos</a>
       <a>Jugadores</a>
@@ -16,17 +18,19 @@
       <a>Partidos</a>
     </nav>
 
-    <div class="navbar-right">
+    <div class="sidebar-bottom">
       <button class="icon-btn">
         <span class="material-symbols-outlined">notifications</span>
       </button>
+
       <div class="avatar">
-        <img
-          src="https://lh3.googleusercontent.com/aida-public/AB6AXuBmvyAmGsUQW2mGy1v-UEsT89qG6BqVxQ-vVuyEEqVAEBwNm0gTg-I9ZUhI0JMZF1GdOpwKKVVBgdaHg8Eiu-DAxu7OLIt1h-C0cjvVU_o2u5syUmsaaie8CLv7IlmxCGzCOYZjkwKuz0O5nz0NlYKha-iTIlIFni274J-nRFOODXfHylkQfTF_710WWFH_H-9FBuRfc7TJObuKXHJmbA9_3cGkkT9-ijgMtAydzbskGQTvk1zRRyCevLkPROl_p771KhcGpscLQZ-q">
+        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBmvyAmGsUQW2mGy1v-UEsT89qG6BqVxQ-vVuyEEqVAEBwNm0gTg-I9ZUhI0JMZF1GdOpwKKVVBgdaHg8Eiu-DAxu7OLIt1h-C0cjvVU_o2u5syUmsaaie8CLv7IlmxCGzCOYZjkwKuz0O5nz0NlYKha-iTIlIFni274J-nRFOODXfHylkQfTF_710WWFH_H-9FBuRfc7TJObuKXHJmbA9_3cGkkT9-ijgMtAydzbskGQTvk1zRRyCevLkPROl_p771KhcGpscLQZ-q">
       </div>
     </div>
-  </header>
 
+  </aside>
+
+  <!-- CONTENIDO -->
   <main class="main-content">
 
     <section class="header-section">
@@ -35,29 +39,29 @@
     </section>
 
     <section class="card">
-      <h5><span class="material-symbols-outlined text-primary">person_add</span>Información del Equipo</h5>
+      <h5><span class="material-symbols-outlined text-primary">person_add</span> Información del Equipo</h5>
 
-      <div *ngIf="!cargando">
+      <div>
 
-              <form class="form" (ngSubmit)="actualizarEquipo()">
+        <form class="form" (ngSubmit)="actualizarEquipo()">
 
-        <div class="grid-2">
-          <div class="form-group">
-            <label>Nombre</label>
-            <div class="input-container">
-              <span class="material-symbols-outlined icon">badge</span>
-              <input type="text" [(ngModel)]="equipo.nombre" name="nombre" placeholder="Ej. Halcones Black">
+          <div class="grid-2">
+            <div class="form-group">
+              <label>Nombre</label>
+              <div class="input-container">
+                <span class="material-symbols-outlined icon">badge</span>
+                <input type="text" [(ngModel)]="equipo.nombre" name="nombre" placeholder="Ej. Halcones Black">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Año Fundacion</label>
+              <div class="input-container">
+                <span class="material-symbols-outlined">calendar_today</span>
+                <input type="text" [(ngModel)]="equipo.ano_fundacion" name="ano_fundacion" placeholder="Ej. 1998">
+              </div>
             </div>
           </div>
-
-          <div class="form-group">
-            <label>Año Fundacion</label>
-            <div class="input-container">
-              <span class="material-symbols-outlined text-xl">calendar_today</span>
-              <input type="text" [(ngModel)]="equipo.ano_fundacion" name="ano_fundacion" placeholder="Ej. 1998">
-            </div>
-          </div>
-        </div>
 
           <div class="form-group">
             <label>Categoria</label>
@@ -67,25 +71,23 @@
             </div>
           </div>
 
+          <div class="form-group">
+            <label>Descripcion</label>
+            <textarea [(ngModel)]="equipo.descripcion" name="descripcion" placeholder="Descripción del equipo"></textarea>
+          </div>
 
-        <div class="form-group">
-          <label>Descripcion</label>
-          <textarea [(ngModel)]="equipo.descripcion" name="descripcion" placeholder="Descripción del equipo a crear"></textarea>
-        </div>
+          <div class="actions">
+            <button type="button" class="btn-outline" (click)="router.navigate(['/ver-equipos'])">Cancelar</button>
+            <button type="submit" class="btn-primary" (click)="router.navigate(['/ver-equipos'])">
+              <span class="material-symbols-outlined">save</span>
+              Guardar Equipo
+            </button>
+          </div>
 
-        <div class="actions">
-          <button type="button" class="btn-outline" (click)="router.navigate(['/ver-equipos'])">Cancelar</button>
-          <button type="submit" class="btn-primary">
-            <span class="material-symbols-outlined text-lg">save</span>
-            Guardar Equipo
-        </button>
-        </div>
-      </form>
+        </form>
+
       </div>
-      <div *ngIf="cargando">
-        <p>Cargando datos del equipo...</p>
-      </div>
-      
+
     </section>
 
   </main>

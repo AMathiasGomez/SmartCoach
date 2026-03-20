@@ -1,43 +1,27 @@
-/* CONTENEDOR GENERAL */
 .app-container {
   min-height: 100vh;
   background: #f8fafc;
-  color: #0f172a;
   font-family: 'Lexend', sans-serif;
 }
 
-h1 {
-  font-weight: bold;
-}
-
-a {
-  font-weight: bold;
-}
-
-label {
-  font-weight: bold;
-  font-size: 14px;
-  margin-bottom: 0.5rem;
-}
-
-input::placeholder {
-  font-size: 14px;
-}
-
-/* NAVBAR */
-.navbar {
+.sidebar {
+  width: 250px;
+  height: 100vh;
+  background: #020617;
+  color: white;
+  position: fixed;
+  top: 0;
+  left: 0;
+  padding: 20px;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px 40px;
-  background: white;
-  border-bottom: 1px solid #e2e8f0;
+  flex-direction: column;
 }
 
-.navbar-left {
+.logo {
   display: flex;
   align-items: center;
   gap: 10px;
+  margin-bottom: 30px;
 }
 
 .logo-icon {
@@ -51,33 +35,45 @@ input::placeholder {
   font-size: 20px;
 }
 
-.navbar-center {
+.sidebar nav {
   display: flex;
-  gap: 20px;
+  flex-direction: column;
+  gap: 10px;
 }
 
-.navbar-center a {
+.sidebar nav a {
+  padding: 10px;
+  color: #94a3b8;
+  text-decoration: none;
+  border-radius: 6px;
   cursor: pointer;
-  font-size: 14px;
 }
 
-.navbar-center .active {
-  border-bottom: 2px solid #2563eb;
+.sidebar nav a:hover {
+  background: rgba(255,255,255,0.1);
+  color: white;
 }
 
-/* RIGHT */
-.navbar-right {
+.sidebar nav a.active {
+  background: rgba(255,255,255,0.15);
+  color: white;
+  border-left: 4px solid #2563eb;
+}
+
+.sidebar-bottom {
+  margin-top: auto;
   display: flex;
-  gap: 12px;
   align-items: center;
+  gap: 10px;
 }
 
 .icon-btn {
-  background: #f1f5f9;
+  background: #1e293b;
   border: none;
   padding: 8px;
   border-radius: 50%;
   cursor: pointer;
+  color: white;
 }
 
 .avatar img {
@@ -86,14 +82,12 @@ input::placeholder {
   border-radius: 50%;
 }
 
-/* MAIN */
 .main-content {
+  margin-left: 250px;
   padding: 30px;
   max-width: 900px;
-  margin: auto;
 }
 
-/* HEADER */
 .header-section h1 {
   font-size: 28px;
   font-weight: bold;
@@ -103,7 +97,6 @@ input::placeholder {
   color: #64748b;
 }
 
-/* CARD */
 .card {
   background: white;
   padding: 25px;
@@ -112,7 +105,6 @@ input::placeholder {
   margin-top: 20px;
 }
 
-/* FORM */
 .form {
   display: flex;
   flex-direction: column;
@@ -130,14 +122,30 @@ input::placeholder {
   flex-direction: column;
 }
 
-input, select, textarea {
+input, textarea {
   padding: 10px;
   border-radius: 8px;
   border: 1px solid #cbd5e1;
   font-size: 14px;
 }
 
-/* ACTIONS */
+.input-container {
+  position: relative;
+}
+
+.input-container span {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+}
+
+.input-container input {
+  width: 100%;
+  padding: 10px 10px 10px 40px;
+}
+
 .actions {
   display: flex;
   justify-content: flex-end;
@@ -156,58 +164,26 @@ input, select, textarea {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-
   background: #2563eb;
   color: white;
   border: none;
   padding: 10px 20px;
   font-weight: bold;
   border-radius: 0.5rem;
-  font-size: 14px;
   cursor: pointer;
 }
 
-.btn-primary span {
-  font-size: 18px;
-}
-
-textarea::placeholder {
+.logout {
+  margin-top: auto;
+  font-family: 'Lexend', sans-serif;
+  border: none;
+  height: 2.5rem;
   font-size: 14px;
-}
-
-.input-container {
-  position: relative;
-}
-
-.input-container .icon {
-  position: absolute;
-  left: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #94a3b8;
-}
-
-.input-container input {
-  width: 100%;
-  padding: 10px 10px 10px 40px;
-  border: 1px solid #cbd5e1;
-  border-radius: 10px;
-}
-
-.input-container span {
-  position: absolute;
-  left: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #94a3b8;
-  pointer-events: none;
-}
-
-.input-container select {
-  width: 100%;
-  padding: 10px 10px 10px 40px;
-  border: 1px solid #cbd5e1;
-  border-radius: 10px;
-  appearance: none; 
-  background-color: white;
+  border-radius: 7px;
+  background-color: #2563eb;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
 }

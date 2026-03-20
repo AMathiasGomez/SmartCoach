@@ -12,5 +12,5 @@ app.use('/api/auth', require('./routes/auth.routes'))
 app.use('/api/equipos', require('./routes/equipo.routes'));
 
 app.listen(3006, () => {
-  console.log('Servidor corriendo en puerto 3306');
+  console.log('Servidor corriendo en puerto 3006');
 });

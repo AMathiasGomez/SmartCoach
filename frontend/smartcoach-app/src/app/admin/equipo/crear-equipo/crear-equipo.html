@@ -1,31 +1,28 @@
 <div class="app-container">
 
-  <header class="navbar">
-    <div class="navbar-left">
+  <aside class="sidebar">
+
+    <div class="logo">
       <div class="logo-icon">
         <span class="material-symbols-outlined">sports_volleyball</span>
       </div>
       <h2 class="logo-text">SmartCoach</h2>
     </div>
 
-    <nav class="navbar-center">
-      <a>Panel de Control</a>
-      <a class="active">Equipos</a>
+    <nav>
+      <a routerLink="/dashboard-admin"> Panel de Control</a>
+      <a class="active" routerLink="/ver-equipos">Equipos</a>
       <a>Jugadores</a>
       <a>Entrenamientos</a>
       <a>Partidos</a>
     </nav>
 
-    <div class="navbar-right">
-      <button class="icon-btn">
-        <span class="material-symbols-outlined">notifications</span>
-      </button>
-      <div class="avatar">
-        <img
-          src="https://lh3.googleusercontent.com/aida-public/AB6AXuBmvyAmGsUQW2mGy1v-UEsT89qG6BqVxQ-vVuyEEqVAEBwNm0gTg-I9ZUhI0JMZF1GdOpwKKVVBgdaHg8Eiu-DAxu7OLIt1h-C0cjvVU_o2u5syUmsaaie8CLv7IlmxCGzCOYZjkwKuz0O5nz0NlYKha-iTIlIFni274J-nRFOODXfHylkQfTF_710WWFH_H-9FBuRfc7TJObuKXHJmbA9_3cGkkT9-ijgMtAydzbskGQTvk1zRRyCevLkPROl_p771KhcGpscLQZ-q">
-      </div>
-    </div>
-  </header>
+    <button class="logout" (click)="logout()">
+      <span class="material-symbols-outlined logout-icon">logout</span>
+      Cerrar sesión
+    </button>
+
+  </aside>
 
   <main class="main-content">
 
@@ -35,7 +32,10 @@
     </section>
 
     <section class="card">
-      <h5><span class="material-symbols-outlined text-primary">person_add</span>Información del Equipo</h5>
+      <h5>
+        <span class="material-symbols-outlined text-primary">person_add</span>
+        Información del Equipo
+      </h5>
 
       <form class="form" [formGroup]="form" (ngSubmit)="guardar()">
 
@@ -51,20 +51,19 @@
           <div class="form-group">
             <label>Año Fundacion</label>
             <div class="input-container">
-              <span class="material-symbols-outlined text-xl">calendar_today</span>
+              <span class="material-symbols-outlined">calendar_today</span>
               <input type="text" placeholder="Ej. 1998" formControlName="ano_fundacion">
             </div>
           </div>
         </div>
 
-          <div class="form-group">
-            <label>Categoria</label>
-            <div class="input-container">
-              <span class="material-symbols-outlined">date_range</span>
-              <input type="text" placeholder="Ej. Juvenil" formControlName="categoria">
-            </div>
+        <div class="form-group">
+          <label>Categoria</label>
+          <div class="input-container">
+            <span class="material-symbols-outlined">date_range</span>
+            <input type="text" placeholder="Ej. Juvenil" formControlName="categoria">
           </div>
-
+        </div>
 
         <div class="form-group">
           <label>Descripcion</label>
@@ -72,11 +71,14 @@
         </div>
 
         <div class="actions">
-          <button type="button" class="btn-outline" (click)="router.navigate(['/ver-equipos'])">Cancelar</button>
+          <button type="button" class="btn-outline" (click)="router.navigate(['/ver-equipos'])">
+            Cancelar
+          </button>
+
           <button type="submit" class="btn-primary">
-            <span class="material-symbols-outlined text-lg">save</span>
+            <span class="material-symbols-outlined">save</span>
             Guardar Equipo
-        </button>
+          </button>
         </div>
 
       </form>

@@ -43,18 +43,22 @@ export class EditarEquipo implements OnInit {
   }
 
   obtenerEquipo() {
+  this.equipoService.getEquipo(this.id).subscribe({
+    next: (res: any) => {
 
-    
-    this.equipoService.getEquipo(this.id).subscribe({
-      next: (res: any) => {
+      console.log('✅ respuesta:', res);
 
-        this.equipo = res[0]; 
+      this.equipo = res[0];
 
-        this.cargando = false;
-        
-      },
+      console.log('✅ equipo asignado:', this.equipo);
+
+      this.cargando = false;
+
+      console.log('✅ cargando en false');
+
+    },
       error: (err: any) => {
-        console.error('Error al obtener equipo', err);
+        console.error('❌ error:', err);
         this.router.navigate(['/ver-equipos']);
       }
     });

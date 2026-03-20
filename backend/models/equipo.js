@@ -26,6 +26,10 @@ const Equipo = {
 
   delete: (id) => {
     return db.query('DELETE FROM equipos WHERE id = ?', [id]);
+  },
+
+  getById: (id) => {
+    return db.query('SELECT * FROM equipos WHERE id = ?', [id]);
   }
 };
 

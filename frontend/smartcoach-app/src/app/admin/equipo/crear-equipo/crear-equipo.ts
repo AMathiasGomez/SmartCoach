@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { EquipoService } from '../../../services/equipo/equipo-service';
+import { AuthService } from '../../../services/auth/auth-service';
 
 @Component({
   selector: 'app-crear-equipo',
@@ -17,7 +18,8 @@ export class CrearEquipo {
   constructor(
     private fb: FormBuilder,
     private equipoService: EquipoService,
-    public   router: Router
+    public router: Router,
+    private  authService: AuthService
   ) {
     this.form = this.fb.group({
       nombre: ['', Validators.required],
@@ -38,5 +40,9 @@ export class CrearEquipo {
     }
   });
 }
+    logout() {
+    this.authService.logOut();
+    this.router.navigate(['/login']);
+  }
 
 }

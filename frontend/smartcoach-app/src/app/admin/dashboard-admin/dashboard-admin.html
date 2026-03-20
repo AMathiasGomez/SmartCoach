@@ -1,50 +1,105 @@
+HTML
 <div class="app-container">
 
-  <header class="navbar">
-    <div class="navbar-left">
+  <aside class="sidebar">
+    <div class="logo">
       <div class="logo-icon">
         <span class="material-symbols-outlined">sports_volleyball</span>
       </div>
       <h2 class="logo-text">SmartCoach</h2>
     </div>
 
-    <nav class="navbar-center">
-      <a class="active" routerLink="/ver-equipos">Panel de Control</a>
-      <a class="non-active" routerLink="/ver-equipos">Equipos</a>
+    <nav>
+      <a class="active" routerLink="/dashboard-admin">Panel de Control</a>
+      <a routerLink="/ver-equipos">Equipos</a>
       <a>Jugadores</a>
       <a>Entrenamientos</a>
       <a>Partidos</a>
     </nav>
 
-    <div class="navbar-right">
-      <button class="logout" (click)="logout()"><span class="logout-icon material-symbols-outlined">logout</span>Cerrar sesión</button>
-    </div>
-  </header>
+    <button class="logout" (click)="logout()">
+      <span class="material-symbols-outlined logout-icon">logout</span>
+      Cerrar sesión
+    </button>
+  </aside>
 
-<main class="main">
-  <h1>Tactical Dashboard</h1>
-  <p>Real-time performance metrics and strategic management.</p>
+  <main class="main">
+    <h1>Vista General del Equipo</h1>
+    <p class="sub">Última actualización: hace 5 minutos</p>
 
-  <div class="cards">
-    <div class="card">
-      <p>Total Players</p>
-      <h2>124</h2>
+    <div class="cards">
+      <div class="card">
+        <p>Total de jugadores</p>
+        <h2>124</h2>
+      </div>
+
+      <div class="card">
+        <p>Partidos registrados</p>
+        <h2>48</h2>
+      </div>
+
+      <div class="card">
+        <p>Rendimiento</p>
+        <h2>82%</h2>
+      </div>
+
+      <div class="card">
+        <p>Asistencia promedio</p>
+        <h2>94%</h2>
+      </div>
     </div>
 
-    <div class="card">
-      <p>Active Teams</p>
-      <h2>8</h2>
+    <div class="charts">
+
+      <div class="chart-card">
+        <h3>Rendimiento Mensual</h3>
+        <p>Evolución del desempeño</p>
+
+        <svg viewBox="0 0 400 150">
+          <path d="M0,120 C50,110 80,40 120,60 C160,80 180,20 240,40 C300,60 350,10 400,30"
+                fill="none" stroke="#2563eb" stroke-width="3"/>
+        </svg>
+      </div>
+
+      <div class="chart-card">
+        <h3>Comparativa de Equipo</h3>
+        <p>Métricas por categoría</p>
+
+        <div class="bars">
+          <div style="height:80%"></div>
+          <div style="height:95%"></div>
+          <div style="height:60%"></div>
+          <div style="height:40%"></div>
+          <div style="height:75%"></div>
+        </div>
+      </div>
+
     </div>
 
-    <div class="card">
-      <p>Matches Played</p>
-      <h2>42</h2>
+    <div class="table-card">
+      <div class="table-header">
+        <h3>Jugadores Destacados</h3>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Jugador</th>
+            <th>Posición</th>
+            <th>Partidos</th>
+            <th>Eficiencia</th>
+            <th>Tendencia</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr>
+            <td colspan="5" class="empty">Sin datos disponibles</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
-    <div class="card">
-      <p>Win Rate</p>
-      <h2>68%</h2>
-    </div>
-  </div>
-</main>
+  </main>
+
 </div>
