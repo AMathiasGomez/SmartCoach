@@ -1,14 +1,16 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { Equipo } from '../../../models/equipo.model';
 import { EquipoService } from '../../../services/equipo/equipo-service';
-import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef } from '@angular/core';
+import { AuthService } from '../../../services/auth/auth-service';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-ver-equipos',
   standalone: true,
-  imports: [CommonModule],
+  imports: [FormsModule, RouterLink, CommonModule],
   templateUrl: './ver-equipos.html',
   styleUrls: ['./ver-equipos.css'],
 })
@@ -19,7 +21,8 @@ export class VerEquipos implements OnInit {
   constructor(
     private equipoService: EquipoService,
     public router: Router,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -62,5 +65,10 @@ export class VerEquipos implements OnInit {
         }
       });
     }
+  }
+
+  logout() {
+    this.authService.logOut();
+    this.router.navigate(['/login']);
   }
 }

@@ -4,7 +4,7 @@
   background: #f8fafc;
   color: #0f172a;
   font-family: 'Lexend', sans-serif;
-}
+} 
 
 h1 {
   font-weight: bold;
@@ -12,6 +12,15 @@ h1 {
 
 a {
   font-weight: bold;
+}
+
+.non-active {
+  color: black;
+  text-decoration: none;
+}
+
+.active { 
+  text-decoration: none;
 }
 
 label {
@@ -24,7 +33,6 @@ input::placeholder {
   font-size: 14px;
 }
 
-/* NAVBAR */
 .navbar {
   display: flex;
   justify-content: space-between;
@@ -65,7 +73,6 @@ input::placeholder {
   border-bottom: 2px solid #2563eb;
 }
 
-/* RIGHT */
 .navbar-right {
   display: flex;
   gap: 12px;
@@ -86,25 +93,18 @@ input::placeholder {
   border-radius: 50%;
 }
 
-/* MAIN */
 .main-content {
   padding: 30px;
   max-width: 900px;
   margin: auto;
 }
 
-/* Fonts */
 body {
   font-family: 'Inter', sans-serif;
   margin: 0;
   background: #f7f9fb;
 }
 
-h1, h2, h3 {
-  font-family: 'Manrope', sans-serif;
-}
-
-/* Sidebar */
 .sidebar {
   width: 250px;
   height: 100vh;
@@ -132,7 +132,6 @@ h1, h2, h3 {
   color: white;
 }
 
-/* Header */
 .topbar {
   margin-left: 250px;
   height: 60px;
@@ -144,13 +143,11 @@ h1, h2, h3 {
   border-bottom: 1px solid #ddd;
 }
 
-/* Main */
 .main {
   margin-left: 250px;
   padding: 30px;
 }
 
-/* Cards */
 .cards {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -163,4 +160,23 @@ h1, h2, h3 {
   padding: 20px;
   border-left: 4px solid #2563eb;
   border-radius: 10px;
+}
+
+.logout {
+  font-family: 'Lexend', sans-serif;
+  border-style: none;
+  width: 10rem;
+  height: 2.5rem;
+  font-size: 14px;
+  border-radius: 7px;
+  background-color: #2563eb;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.logout-icon { 
+  font-size: 18px;
+  margin-right: 0.5rem;
 }

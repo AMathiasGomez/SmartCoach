@@ -9,7 +9,7 @@
     </div>
 
     <nav class="navbar-center">
-      <a>Panel de Control</a>
+      <a class="non-active" routerLink="/dashboard-admin">Panel de Control</a>
       <a class="active">Equipos</a>
       <a>Jugadores</a>
       <a>Entrenamientos</a>
@@ -17,13 +17,7 @@
     </nav>
 
     <div class="navbar-right">
-      <button class="icon-btn">
-        <span class="material-symbols-outlined">notifications</span>
-      </button>
-      <div class="avatar">
-        <img
-          src="https://lh3.googleusercontent.com/aida-public/AB6AXuBmvyAmGsUQW2mGy1v-UEsT89qG6BqVxQ-vVuyEEqVAEBwNm0gTg-I9ZUhI0JMZF1GdOpwKKVVBgdaHg8Eiu-DAxu7OLIt1h-C0cjvVU_o2u5syUmsaaie8CLv7IlmxCGzCOYZjkwKuz0O5nz0NlYKha-iTIlIFni274J-nRFOODXfHylkQfTF_710WWFH_H-9FBuRfc7TJObuKXHJmbA9_3cGkkT9-ijgMtAydzbskGQTvk1zRRyCevLkPROl_p771KhcGpscLQZ-q">
-      </div>
+      <button class="logout" (click)="logout()"><span class="logout-icon material-symbols-outlined">logout</span>Cerrar sesión</button>
     </div>
   </header>
 

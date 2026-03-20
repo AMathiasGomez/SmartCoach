@@ -1,4 +1,3 @@
-/* CONTENEDOR GENERAL */
 .app-container {
   min-height: 100vh;
   background: #f8fafc;
@@ -24,7 +23,15 @@ input::placeholder {
   font-size: 14px;
 }
 
-/* NAVBAR */
+.non-active {
+  color: black;
+  text-decoration: none;
+}
+
+.active { 
+  text-decoration: none;
+}
+
 .navbar {
   display: flex;
   justify-content: space-between;
@@ -65,7 +72,6 @@ input::placeholder {
   border-bottom: 2px solid #2563eb;
 }
 
-/* RIGHT */
 .navbar-right {
   display: flex;
   gap: 12px;
@@ -86,14 +92,12 @@ input::placeholder {
   border-radius: 50%;
 }
 
-/* MAIN */
 .main-content {
   padding: 30px;
   max-width: 900px;
   margin: auto;
 }
 
-/* HEADER */
 .header-section h1 {
   font-size: 28px;
   font-weight: bold;
@@ -103,7 +107,6 @@ input::placeholder {
   color: #64748b;
 }
 
-/* CARD */
 .card {
   background: white;
   padding: 25px;
@@ -112,7 +115,6 @@ input::placeholder {
   margin-top: 20px;
 }
 
-/* FORM */
 .form {
   display: flex;
   flex-direction: column;
@@ -137,7 +139,6 @@ input, select, textarea {
   font-size: 14px;
 }
 
-/* ACTIONS */
 .actions {
   display: flex;
   justify-content: flex-end;

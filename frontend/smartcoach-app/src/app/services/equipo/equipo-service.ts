@@ -34,4 +34,8 @@ export class EquipoService {
   eliminarEquipo(id: number) {
     return this.http.delete(`${this.api}/${id}`);
   }
+
+  getEquipo(id: number) {
+  return this.http.get(`${this.api}/${id}`);
+}
 }

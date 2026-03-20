@@ -1,10 +1,80 @@
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { EquipoService } from '../../../services/equipo/equipo-service';
+import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-editar-equipo',
-  imports: [CommonModule],
+  standalone: true,
+  imports: [FormsModule, CommonModule],
   templateUrl: './editar-equipo.html',
-  styleUrl: './editar-equipo.css',
+  styleUrls: ['./editar-equipo.css']
 })
-export class EditarEquipo {}
+export class EditarEquipo implements OnInit {
+
+  id!: number;
+
+  equipo = {
+    nombre: '',
+    categoria: '',
+    ano_fundacion: 0,
+    descripcion: ''
+  };
+
+  cargando = true;
+
+  constructor(
+    private route: ActivatedRoute,
+    public router: Router,
+    private equipoService: EquipoService
+  ) {}
+
+  ngOnInit(): void {
+    this.id = this.route.snapshot.params['id'];
+
+    if (!this.id) {
+      console.error('ID no válido');
+      this.router.navigate(['/ver-equipos']);
+      return;
+    }
+
+    this.obtenerEquipo();
+  }
+
+  obtenerEquipo() {
+
+    
+    this.equipoService.getEquipo(this.id).subscribe({
+      next: (res: any) => {
+
+        this.equipo = res[0]; 
+
+        this.cargando = false;
+        
+      },
+      error: (err: any) => {
+        console.error('Error al obtener equipo', err);
+        this.router.navigate(['/ver-equipos']);
+      }
+    });
+  }
+
+  actualizarEquipo() {
+
+    if (!this.equipo.nombre || !this.equipo.categoria) {
+      console.error('Campos obligatorios');
+      return;
+    }
+
+    this.equipoService.actualizarEquipo(this.id, this.equipo).subscribe({
+      next: () => {
+        console.log('Equipo actualizado correctamente');
+        this.router.navigate(['/equipos']);
+      },
+      error: (err: any) => {
+        console.error('Error al actualizar equipo', err);
+      }
+    });
+  }
+}

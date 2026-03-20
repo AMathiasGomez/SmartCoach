@@ -9,8 +9,8 @@
     </div>
 
     <nav class="navbar-center">
-      <a>Panel de Control</a>
-      <a class="active">Equipos</a>
+      <a class="non-active" routerLink="/ver-equipos">Panel de Control</a>
+      <a class="active" routerLink="/ver-equipos">Equipos</a>
       <a>Jugadores</a>
       <a>Entrenamientos</a>
       <a>Partidos</a>
@@ -37,14 +37,16 @@
     <section class="card">
       <h5><span class="material-symbols-outlined text-primary">person_add</span>Información del Equipo</h5>
 
-      <form class="form">
+      <div *ngIf="!cargando">
+
+              <form class="form" (ngSubmit)="actualizarEquipo()">
 
         <div class="grid-2">
           <div class="form-group">
             <label>Nombre</label>
             <div class="input-container">
               <span class="material-symbols-outlined icon">badge</span>
-              <input type="text" placeholder="Ej. Halcones Black">
+              <input type="text" [(ngModel)]="equipo.nombre" name="nombre" placeholder="Ej. Halcones Black">
             </div>
           </div>
 
@@ -52,7 +54,7 @@
             <label>Año Fundacion</label>
             <div class="input-container">
               <span class="material-symbols-outlined text-xl">calendar_today</span>
-              <input type="text" placeholder="Ej. 1998">
+              <input type="text" [(ngModel)]="equipo.ano_fundacion" name="ano_fundacion" placeholder="Ej. 1998">
             </div>
           </div>
         </div>
@@ -61,25 +63,29 @@
             <label>Categoria</label>
             <div class="input-container">
               <span class="material-symbols-outlined">date_range</span>
-              <input type="text" placeholder="Ej. Juvenil">
+              <input type="text" [(ngModel)]="equipo.categoria" name="categoria" placeholder="Ej. Juvenil">
             </div>
           </div>
 
 
         <div class="form-group">
           <label>Descripcion</label>
-          <textarea placeholder="Descripción del equipo a crear"></textarea>
+          <textarea [(ngModel)]="equipo.descripcion" name="descripcion" placeholder="Descripción del equipo a crear"></textarea>
         </div>
 
         <div class="actions">
-          <button type="button" class="btn-outline">Cancelar</button>
+          <button type="button" class="btn-outline" (click)="router.navigate(['/ver-equipos'])">Cancelar</button>
           <button type="submit" class="btn-primary">
             <span class="material-symbols-outlined text-lg">save</span>
             Guardar Equipo
         </button>
         </div>
-
       </form>
+      </div>
+      <div *ngIf="cargando">
+        <p>Cargando datos del equipo...</p>
+      </div>
+      
     </section>
 
   </main>

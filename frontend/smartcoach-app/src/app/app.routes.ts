@@ -7,6 +7,7 @@ import { VerEquipos } from './admin/equipo/ver-equipos/ver-equipos';
 import { CrearJugador } from './admin/jugador/crear-jugador/crear-jugador';
 import { DashboardAdmin } from './admin/dashboard-admin/dashboard-admin';
 import { DashboardDirectivo } from './directivo/dashboard-directivo/dashboard-directivo';
+import { authGuard } from './guards/auth-guard';
 
 export const routes: Routes = [
   { path: 'login', component: Login},
@@ -16,6 +17,7 @@ export const routes: Routes = [
   { path: 'crear-equipo', component: CrearEquipo },
   { path: 'editar-equipo/:id', component: EditarEquipo },
   { path: 'crear-jugador', component: CrearJugador },
-  { path: 'dashboard-admin', component: DashboardAdmin},
-  { path: 'dashboard-directivo', component: DashboardDirectivo},
+  { path: 'dashboard-admin', component: DashboardAdmin, canActivate: [authGuard], data: { roles: ['Administrador'] } },
+  { path: 'dashboard-directivo', component: DashboardDirectivo, canActivate: [authGuard], data: { roles: ['Directivo'] } },
+  { path: 'dashboard-entrenador', component: DashboardDirectivo, canActivate: [authGuard], data: { roles: ['Entrenador'] } },
 ];

@@ -2,12 +2,12 @@ import { HttpClient } from '@angular/common/http';
 import { Component, NgModule } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth/auth-service';
-import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 
 @Component({
   selector: 'app-login',
-  imports: [RouterLink, CommonModule],
+  imports: [RouterLink, FormsModule,],
   templateUrl: './login.html',
   styleUrl: './login.css',
 })
@@ -22,39 +22,54 @@ export class Login {
     public router: Router,
   ) {}
 
-  login() {
-    console.log('Datos enviados:', this.rol, this.email, this.password);
+login() {
 
-    if(!this.email || !this.password || !this.rol) {
-      console.log('Completa todos los campos');
-      return;
-    }
+  const data = {
+    rol: this.rol,
+    email: this.email,
+    password: this.password
+  };
 
-    const data = {
-      rol: this.rol,
-      email: this.email,
-      password: this.password,
-    };
+  console.log('Enviando login:', data);
 
-    this.authService.login(data).subscribe({
-      next: (res: any)=> {
-        console.log('Login correcto', res);
+  this.authService.login(data).subscribe({
+    next: (res: any) => {
+      console.log('Login exitoso', res);
 
-        localStorage.setItem('user', JSON.stringify(res.user))
+      localStorage.setItem('token', res.token);
 
-        this.router.navigate(['/dashboard'])
-      },
-      error: (err: any) => {
-        console.log('Error login', err);
+      const rol = this.authService.getRol();
 
-        if(err.status === 0) {
-          console.log('El backend no está corriendo o el puerto es incorrecto');
-        } else {
-          console.log('Credenciales incorrectas o error del servidor');
+      console.log('ROL DESDE TOKEN:', rol);
 
-        }
+      const rutas: any = {
+        Administrador: '/dashboard-admin',
+        Directivo: '/dashboard-directivo',
+        Entrenador: '/dashboard-entrenador'
       }
-    })
 
-  }
+      const ruta = rutas[rol!];
+
+      console.log('RUTA:', ruta);
+
+      if (ruta) {
+        this.router.navigate([ruta]);
+      } else {
+        console.log('Rol no válido:', rol);
+        
+      }
+    },
+    error: (err) => {
+      console.error('Error login', err);
+
+      if (err.status === 401) {
+        alert('Credenciales incorrectas');
+      } else if (err.status === 0) {
+        alert('No hay conexión con el servidor');
+      } else {
+        alert('Error en el servidor');
+      }
+    }
+  });
+}
 }
