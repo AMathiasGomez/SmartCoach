@@ -1,20 +1,18 @@
-HTML
 <div class="app-container">
 
   <aside class="sidebar">
     <div class="logo">
-      <div class="logo-icon">
-        <span class="material-symbols-outlined">sports_volleyball</span>
-      </div>
-      <h2 class="logo-text">SmartCoach</h2>
+      <h3 class="logo-text">SmartCoach</h3>
+      <p class="logo-subtext">GESTIÓN DEPORTIVA</p>
     </div>
 
     <nav>
-      <a class="active" routerLink="/dashboard-admin">Panel de Control</a>
-      <a routerLink="/ver-equipos">Equipos</a>
-      <a>Jugadores</a>
-      <a>Entrenamientos</a>
-      <a>Partidos</a>
+      <a class="active" routerLink="/dashboard-admin"><span class="material-symbols-outlined">space_dashboard</span>Panel de Control</a>
+      <a routerLink="/ver-equipos"><span class="material-symbols-outlined">group</span>Equipos</a>
+      <a routerLink="/ver-jugadores"><span class="material-symbols-outlined">person</span>Jugadores</a>
+      <a routerLink="/ver-entrenamientos"><span class="material-symbols-outlined">fitness_center</span>Entrenamientos</a>
+      <a routerLink="/ver-partidos"><span class="material-symbols-outlined">sports_soccer</span>Partidos</a>
+      <a routerLink="/ver-usuarios"><span class="material-symbols-outlined">emoji_people</span>Usuarios</a>
     </nav>
 
     <button class="logout" (click)="logout()">

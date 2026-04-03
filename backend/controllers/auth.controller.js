@@ -26,12 +26,14 @@ const register = async (req, res) => {
 const login = async (req, res) => {
   const jwt = require('jsonwebtoken');
 
-  const { rol, email, password } = req.body;
+  const { email, password } = req.body;  
 
   try {
+
+    console.log('BODY: ', req.body);
     const [rows] = await db.query(
-      'SELECT * FROM usuarios WHERE email = ? AND rol = ?',
-      [email, rol]
+      'SELECT * FROM usuarios WHERE email = ? ',
+      [email]
     );
 
     if (rows.length === 0) {

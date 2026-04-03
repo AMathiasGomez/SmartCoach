@@ -3,18 +3,19 @@
   <aside class="sidebar">
 
     <div class="logo">
-      <div class="logo-icon">
-        <span class="material-symbols-outlined">sports_volleyball</span>
-      </div>
-      <h2 class="logo-text">SmartCoach</h2>
+      <h3 class="logo-text">SmartCoach</h3>
+      <p class="logo-subtext">GESTIÓN DEPORTIVA</p>
     </div>
 
     <nav>
-      <a routerLink="/dashboard-admin"> Panel de Control</a>
-      <a class="active" routerLink="/ver-equipos">Equipos</a>
-      <a>Jugadores</a>
-      <a>Entrenamientos</a>
-      <a>Partidos</a>
+      <a routerLink="/dashboard-admin"><span class="material-symbols-outlined">space_dashboard</span>Panel de
+        Control</a>
+      <a class="active" routerLink="/ver-equipos"><span class="material-symbols-outlined">group</span>Equipos</a>
+      <a routerLink="/ver-jugadores"><span class="material-symbols-outlined">person</span>Jugadores</a>
+      <a routerLink="/ver-entrenamientos"><span
+          class="material-symbols-outlined">fitness_center</span>Entrenamientos</a>
+      <a routerLink="/ver-partidos"><span class="material-symbols-outlined">sports_soccer</span>Partidos</a>
+      <a routerLink="/ver-usuarios"><span class="material-symbols-outlined">emoji_people</span>Usuarios</a>
     </nav>
 
     <button class="logout" (click)="logout()">
@@ -44,8 +45,15 @@
             <label>Nombre</label>
             <div class="input-container">
               <span class="material-symbols-outlined icon">badge</span>
-              <input type="text" placeholder="Ej. Halcones Black" formControlName="nombre">
+              <input type="text" placeholder="Nombre del equipo" formControlName="nombre">
             </div>
+
+            <div *ngIf="form.get('nombre')?.invalid && form.get('nombre')?.touched">
+              <small *ngIf="form.get('nombre')?.errors?.['required']">El nombre es obligatorio</small>
+              <small *ngIf="form.get('nombre')?.errors?.['minlength']">Mínimo 3 caracteres</small>
+              <small *ngIf="form.get('nombre')?.errors?.['maxlength']">Máximo 50 caracteres</small>
+            </div>
+
           </div>
 
           <div class="form-group">
@@ -54,6 +62,14 @@
               <span class="material-symbols-outlined">calendar_today</span>
               <input type="text" placeholder="Ej. 1998" formControlName="ano_fundacion">
             </div>
+
+            <div *ngIf="form.get('ano_fundacion')?.invalid && form.get('ano_fundacion')?.touched">
+              <small *ngIf="form.get('ano_fundacion')?.errors?.['required']">El año es obligatorio</small>
+              <small *ngIf="form.get('ano_fundacion')?.errors?.['pattern']">Debe ser un año válido (4 dígitos)</small>
+              <small *ngIf="form.get('ano_fundacion')?.errors?.['min']">No puede ser menor a 1900</small>
+              <small *ngIf="form.get('ano_fundacion')?.errors?.['max']">No puede ser mayor al año actual</small>
+            </div>
+
           </div>
         </div>
 

@@ -38,7 +38,6 @@
 }
 
 .form-card h2{
-    font-family: 'Bebas Neue','Roboto Condensed',sans-serif;
     font-size: 2rem;
     color: #1e293b;
     font-weight: bold;
@@ -84,6 +83,7 @@ h2{
     flex-direction: column;
     height: 100vh;
     overflow: hidden;
+    font-family: 'Lexend', sans-serif;
 }
 
 @media (max-width: 768px){

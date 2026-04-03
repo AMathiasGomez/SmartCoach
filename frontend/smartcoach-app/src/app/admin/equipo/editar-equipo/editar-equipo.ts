@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EquipoService } from '../../../services/equipo/equipo-service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { AuthService } from '../../../services/auth/auth-service';
 
 @Component({
   selector: 'app-editar-equipo',
@@ -25,9 +26,11 @@ export class EditarEquipo implements OnInit {
   cargando = true;
 
   constructor(
-    private route: ActivatedRoute,
     public router: Router,
-    private equipoService: EquipoService
+    private route: ActivatedRoute,
+    private equipoService: EquipoService,
+    private authService: AuthService,
+    private cd: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
@@ -49,6 +52,8 @@ export class EditarEquipo implements OnInit {
       console.log('✅ respuesta:', res);
 
       this.equipo = res[0];
+
+      this.cd.detectChanges();
 
       console.log('✅ equipo asignado:', this.equipo);
 
@@ -80,5 +85,10 @@ export class EditarEquipo implements OnInit {
         console.error('Error al actualizar equipo', err);
       }
     });
+  }
+
+  logout() {
+    this.authService.logOut();
+    this.router.navigate(['/login']);
   }
 }

@@ -1,6 +1,5 @@
 const express = require('express');
 const cors = require('cors');
-
 const authRoutes = require('./routes/auth.routes');
 
 const app = express();
@@ -10,6 +9,8 @@ app.use(express.json());
 
 app.use('/api/auth', require('./routes/auth.routes'))
 app.use('/api/equipos', require('./routes/equipo.routes'));
+app.use('/api/jugadores', require('./routes/jugador.routes'))
+app.use('/api/usuarios', require('./routes/user.routes'));
 
 app.listen(3006, () => {
   console.log('Servidor corriendo en puerto 3006');

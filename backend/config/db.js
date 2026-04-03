@@ -7,6 +7,4 @@ const db = mysql.createPool({
   database: 'smartcoach',
 });
 
-console.log(db)
-
 module.exports = db;

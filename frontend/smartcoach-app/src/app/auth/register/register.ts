@@ -3,17 +3,18 @@ import { Component } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth/auth-service';
 import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-register',
 
-  imports: [RouterLink, FormsModule],
+  imports: [RouterLink, FormsModule, CommonModule],
   templateUrl: './register.html',
   styleUrl: './register.css',
 })
 export class Register {
 
-  rol = '';
+  rol = 'usuario';
   email = '';
   nombre = '';
   password = ''
@@ -23,7 +24,22 @@ export class Register {
     public router: Router
   ) {}
 
+  isValidEmail(email: string): boolean {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+  }
+
   register() {
+
+    if (!this.email || !this.password) {
+      alert('Todos los campos son obligatorios');
+      return;
+    }
+
+    if (!this.isValidEmail(this.email)) {
+      alert('El correo no tiene un formato válido');
+      return;
+    }
 
     const data = {
       rol: this.rol,

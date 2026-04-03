@@ -1,0 +1,46 @@
+.espera-container {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #f5f5f5;
+    font-family: 'Lexend', sans-serif;
+}
+
+.card {
+    background: white;
+    padding: 40px;
+    border-radius: 12px;
+    text-align: center;
+    width: 40rem;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+}
+
+.estado {
+    margin: 20px 0;
+    font-size: 18px;
+}   
+
+.logout {
+    margin-top: auto;
+    font-family: 'Lexend', sans-serif;
+    border: none;
+    height: 2.5rem;
+    font-size: 14px;
+    border-radius: 7px;
+    background-color: #2563eb;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.logout-icon {
+    font-size: 18px;
+    margin-right: 0.5rem;
+}
+
+h1 {
+    font-family: 'Lexend', sans-serif;
+}

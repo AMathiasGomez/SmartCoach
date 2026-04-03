@@ -19,22 +19,14 @@
                 </div>
                 <form (ngSubmit)="register()">
                     <div class="mb-2">
-                        <label for="rol" class="form-label">Selecciona tu rol</label>
-                        <select class="form-select" [(ngModel)]="rol" name="rol" required>
-                            <option value="" selected disabled>Elige una opción</option>
-                            <option value="Administrador">Administrador</option>
-                            <option value="Directivo">Directivo</option>
-                            <option value="Entrenador">Entrenador</option>
-                        </select>
-                    </div>
-                    <div class="mb-2">
                         <label for="nombre" class="form-label">Nombre completo</label>
-                        <input type="text" class="form-control" [(ngModel)]="nombre" name="nombre" required placeholder="Ej: Juan Pérez">
+                        <input type="text" class="form-control" [(ngModel)]="nombre" name="nombre" required
+                            placeholder="Ej: Juan Pérez">
                     </div>
                     <div class="mb-2">
                         <label for="email" class="form-label">Correo electrónico</label>
-                        <input type="email" class="form-control" [(ngModel)]="email" name="email" required
-                            placeholder="Ej: correo@ejemplo.com">
+                        <input type="email" class="form-control" [(ngModel)]="email" name="email" #emailInput="ngModel"
+                            required email placeholder="Ej: correo@ejemplo.com">
                     </div>
                     <div class="mb-2">
                         <label for="password" class="form-label">Contraseña</label>
@@ -48,6 +40,16 @@
                             aquí</a></span>
                 </div>
             </div>
+
+            <div *ngIf="emailInput.invalid && emailInput.touched">
+                <small *ngIf="emailInput.errors?.['required']">
+                    El correo es obligatorio
+                </small>
+                <small *ngIf="emailInput.errors?.['email']">
+                    Formato de correo inválido
+                </small>
+            </div>
+
         </div>
     </div>
 </div>

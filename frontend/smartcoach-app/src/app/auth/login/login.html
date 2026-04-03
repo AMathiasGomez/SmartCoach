@@ -23,17 +23,8 @@
             </div>
             <form (ngSubmit)="login()">
               <div class="mb-3">
-                <label for="rol" class="form-label">Rol</label>
-                <select class="form-select" [(ngModel)]="rol" name="rol" required>
-                  <option value="" selected disabled> Selecciona tu rol</option>
-                  <option value="administrador">Administrador</option>
-                  <option value="directtivo">Directivo</option>
-                  <option value="entrenador">Entrenador</option>
-                </select>
-              </div>
-              <div class="mb-3">
                 <label for="email" class="form-label">Correo electrónico</label>
-                <input type="email" class="form-control" [(ngModel)]="email" name="email" required placeholder="Ingresa tu email" />
+                <input type="email" class="form-control" [(ngModel)]="email" name="email" #emailInput="ngModel" required email placeholder="Ingresa tu email" />
               </div>
               <div class="mb-3">
                 <label for="password" class="form-label">Contraseña</label>
@@ -47,6 +38,16 @@
                   class="text-primary">Regístrate aquí</a></span>
             </div>
           </div>
+
+          <div *ngIf="emailInput.invalid && emailInput.touched">
+            <small *ngIf="emailInput.errors?.['required']">
+              El correo es obligatorio
+            </small>
+            <small *ngIf="emailInput.errors?.['email']">
+              Formato de correo inválido
+            </small>
+          </div>
+
         </div>
       </section>
     </div>

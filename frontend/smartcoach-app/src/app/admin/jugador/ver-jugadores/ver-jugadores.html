@@ -1,0 +1,80 @@
+<div class="app-container">
+
+    <aside class="sidebar">
+
+        <div class="logo">
+            <h3 class="logo-text">SmartCoach</h3>
+            <p class="logo-subtext">GESTIÓN DEPORTIVA</p>
+        </div>
+
+        <nav>
+            <a routerLink="/dashboard-admin"><span class="material-symbols-outlined">space_dashboard</span>Panel
+                deControl</a>
+            <a routerLink="/ver-equipos"><span class="material-symbols-outlined">group</span>Equipos</a>
+            <a class="active" routerLink="/ver-jugadores"><span
+                    class="material-symbols-outlined">person</span>Jugadores</a>
+            <a routerLink="/ver-entrenamientos"><span
+                    class="material-symbols-outlined">fitness_center</span>Entrenamientos</a>
+            <a routerLink="/ver-partidos"><span class="material-symbols-outlined">sports_soccer</span>Partidos</a>
+            <a routerLink="/ver-usuarios"><span class="material-symbols-outlined">emoji_people</span>Usuarios</a>
+        </nav>
+
+        <button class="logout" (click)="logout()">
+            <span class="material-symbols-outlined logout-icon">logout</span>
+            Cerrar sesión
+        </button>
+    </aside>
+
+    <main class="main-content">
+
+        <h1>Lista de jugadores</h1>
+        <p class="sub">Aquí podrás ver la información esencial de los jugadores registrados.</p>
+
+        <section class="card">
+            <div class="column">
+                <h5>
+                    <span class="material-symbols-outlined">person_add</span>
+                    Jugadores
+                </h5>
+
+                <button class="crear-jugador" (click)="router.navigate(['/crear-jugador'])">
+                    <span class="material-symbols-outlined">add</span>
+                    Crear jugador
+                </button>
+            </div>
+
+            <hr>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Posición</th>
+                        <th>Dorsal</th>
+                        <th>Equipo</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr *ngFor="let jugador of jugadores">
+                        <td>{{ jugador.nombre }}</td>
+                        <td>{{ jugador.posicion }}</td>
+                        <td>{{ jugador.numero }}</td>
+                        <td>{{ jugador.equipo_nombre }}</td>
+
+                        <td>
+                            <button class="btn-edit" (click)="editar(jugador.id!)">Editar</button>
+                            <button class="btn-delete" (click)="eliminar(jugador.id!)">Eliminar</button>
+                        </td>
+                    </tr>
+
+
+                </tbody>
+            </table>
+
+            <hr>
+
+        </section>
+    </main>
+</div>
