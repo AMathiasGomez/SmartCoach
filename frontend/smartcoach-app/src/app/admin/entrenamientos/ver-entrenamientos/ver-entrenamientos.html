@@ -1,66 +1,140 @@
 <div class="app-content">
   <!-- SIDEBAR -->
-  <aside class="sidebar">
+    <aside class="sidebar">
+        <div class="logo">
+            <div class="logo-icon">SC</div>
+            <div class="logo-text-wrapper">
+                <h3 class="logo-text">SmartCoach</h3>
+                <p class="logo-subtext">GESTIÓN DEPORTIVA</p>
+            </div>
+        </div>
 
-    <div class="logo">
-      <h3 class="logo-text">SmartCoach</h3>
-      <p class="logo-subtext">GESTIÓN DEPORTIVA</p>
-    </div>
+        <nav>
+            <a routerLink="/dashboard-admin">
+                <span class="material-symbols-outlined">space_dashboard</span>
+                <span>Panel de Control</span>
+            </a>
+            <a routerLink="/ver-equipos">
+                <span class="material-symbols-outlined">group</span>
+                <span>Equipos</span>
+            </a>
+            <a routerLink="/ver-jugadores">
+                <span class="material-symbols-outlined">person</span>
+                <span>Jugadores</span>
+            </a>
+            <a class="active" routerLink="/ver-entrenamientos">
+                <span class="material-symbols-outlined">fitness_center</span>
+                <span>Entrenamientos</span>
+            </a>
+            <a routerLink="/ver-partidos">
+                <span class="material-symbols-outlined">sports_soccer</span>
+                <span>Partidos</span>
+            </a>
+            <a routerLink="/ver-usuarios">
+                <span class="material-symbols-outlined">emoji_people</span>
+                <span>Usuarios</span>
+            </a>
+        </nav>
 
-    <nav>
-      <a routerLink="/dashboard-admin"><span class="material-symbols-outlined">space_dashboard</span>Panel deControl</a>
-      <a routerLink="/ver-equipos"><span class="material-symbols-outlined">group</span>Equipos</a>
-      <a routerLink="/ver-jugadores"><span class="material-symbols-outlined">person</span>Jugadores</a>
-      <a class="active" routerLink="/ver-entrenamientos"><span
-          class="material-symbols-outlined">fitness_center</span>Entrenamientos</a>
-      <a routerLink="/ver-partidos"><span class="material-symbols-outlined">sports_soccer</span>Partidos</a>
-      <a routerLink="/ver-usuarios"><span class="material-symbols-outlined">emoji_people</span>Usuarios</a>
-    </nav>
-
-    <button class="logout" (click)="logout()">
-      <span class="material-symbols-outlined logout-icon">logout</span>
-      Cerrar sesión
-    </button>
-  </aside>
+        <button class="logout" (click)="logout()">
+            <span class="material-symbols-outlined">logout</span>
+            Cerrar sesión
+        </button>
+    </aside>
 
   <!-- MAIN -->
   <main class="main-content">
 
-    <section class="content">
-      <div class="page-header">
-        <div>
-          <h1>Training Sessions</h1>
-          <p class="sub">Manage and analyze team practices</p>
+        <h1>Lista de entrenamientos</h1>
+        <p class="sub">Aquí podrás gestionar y consultar los entrenamientos registrados.</p>
+
+        <!-- 🔥 RESUMEN -->
+        <div class="stats">
+            <div class="stat-card">
+                <h4>{{ totalEntrenamientos }}</h4>
+                <p>Total</p>
+            </div>
+
+            <div class="stat-card">
+                <h4>{{ entrenamientosSemana }}</h4>
+                <p>Esta semana</p>
+            </div>
         </div>
 
-        <button class="btn-primary">Create Training</button>
-      </div>
+        <section class="card">
 
-      <!-- Cards -->
-      <div class="stats">
-        <div class="card">
-          <p class="label">Monthly Practice Volume</p>
-          <h3>42 Hours</h3>
-        </div>
+            <div class="column">
+                <h5>
+                    <span class="material-symbols-outlined">fitness_center</span>
+                    Entrenamientos
+                </h5>
 
-        <div class="card primary">
-          <p class="label">Intensity Factor</p>
-          <h3>High (8.4)</h3>
-        </div>
-      </div>
+                <button class="crear-jugador" (click)="router.navigate(['/crear-entrenamiento'])">
+                    <span class="material-symbols-outlined">add</span>
+                    Crear entrenamiento
+                </button>
+            </div>
 
-      <!-- List -->
-      <div class="list">
-        <div class="list-item active">
-          <h4>Defense Drill - Team A</h4>
-          <span class="badge success">Completed</span>
-        </div>
+            <hr>
 
-        <div class="list-item">
-          <h4>Attack & Block - Team B</h4>
-          <span class="badge warning">Pending</span>
-        </div>
-      </div>
-    </section>
-  </main>
+            <!-- 🔍 FILTROS -->
+            <div class="filtros">
+                <select [(ngModel)]="filtroEquipo">
+                    <option value="">Todos los equipos</option>
+                    <option *ngFor="let equipo of equipos" [value]="equipo.id">
+                        {{ equipo.nombre }}
+                    </option>
+                </select>
+
+                <input type="date" [(ngModel)]="filtroFecha">
+
+                <select [(ngModel)]="filtroEstado">
+                    <option value="">Todos</option>
+                    <option value="completado">Completado</option>
+                    <option value="pendiente">Pendiente</option>
+                </select>
+
+                <button class="btn-filtrar" (click)="filtrar()">Filtrar</button>
+            </div>
+
+            <hr>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Equipo</th>
+                        <th>Tipo</th>
+                        <th>Duración</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr *ngFor="let entrenamiento of entrenamientos">
+                        <td>{{ entrenamiento.fecha }}</td>
+                        <td>{{ entrenamiento.equipo_nombre }}</td>
+                        <td>{{ entrenamiento.tipo }}</td>
+                        <td>{{ entrenamiento.duracion }} min</td>
+
+                        <td>
+                            <span [ngClass]="{
+                                'estado-completado': entrenamiento.estado === 'completado',
+                                'estado-pendiente': entrenamiento.estado === 'pendiente'
+                            }">
+                                {{ entrenamiento.estado }}
+                            </span>
+                        </td>
+
+                        <td>
+                            <button class="btn-edit" (click)="editar(entrenamiento.id)">Editar</button>
+                            <button class="btn-delete" (click)="eliminar(entrenamiento.id)">Eliminar</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+        </section>
+    </main>
 </div>

@@ -11,4 +11,6 @@ router.get('/:id', jugadorController.getJugadorById);
 
 router.get('/', equipoController.getEquipos);
 
+router.get('/equipo/:id', jugadorController.getJugadoresByEquipo);
+
 module.exports = router; 

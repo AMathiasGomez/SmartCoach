@@ -1,1 +1,114 @@
-<p>crear-entrenamiento works!</p>
+<div class="app-content">
+    <aside class="sidebar">
+        <div class="logo">
+            <div class="logo-icon">SC</div>
+            <div class="logo-text-wrapper">
+                <h3 class="logo-text">SmartCoach</h3>
+                <p class="logo-subtext">GESTIÓN DEPORTIVA</p>
+            </div>
+        </div>
+
+        <nav>
+            <a routerLink="/dashboard-admin">
+                <span class="material-symbols-outlined">space_dashboard</span>
+                <span>Panel de Control</span>
+            </a>
+            <a routerLink="/ver-equipos">
+                <span class="material-symbols-outlined">group</span>
+                <span>Equipos</span>
+            </a>
+            <a routerLink="/ver-jugadores">
+                <span class="material-symbols-outlined">person</span>
+                <span>Jugadores</span>
+            </a>
+            <a class="active" routerLink="/ver-entrenamientos">
+                <span class="material-symbols-outlined">fitness_center</span>
+                <span>Entrenamientos</span>
+            </a>
+            <a routerLink="/ver-partidos">
+                <span class="material-symbols-outlined">sports_soccer</span>
+                <span>Partidos</span>
+            </a>
+            <a routerLink="/ver-usuarios">
+                <span class="material-symbols-outlined">emoji_people</span>
+                <span>Usuarios</span>
+            </a>
+        </nav>
+
+        <button class="logout" (click)="logout()">
+            <span class="material-symbols-outlined">logout</span>
+            Cerrar sesión
+        </button>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main-content">
+        <h1>Registrar nuevo entrenamiento</h1>
+        <p class="sub">Completa la información del entrenamiento para programarlo correctamente.</p>
+
+        <section class="card">
+            <h5><span class="material-symbols-outlined text-primary">fitness_center</span>Información del Entrenamiento
+            </h5>
+
+            <form class="form" [formGroup]="formEntrenamiento" (ngSubmit)="crearEntrenamiento()">
+
+                <div class="grid-2">
+
+                    <div class="form-group">
+                        <label>Equipo</label>
+                        <select formControlName="equipo_id">
+                            <option value="" disabled>Selecciona un equipo</option>
+                            <option *ngFor="let equipo of equipos" [ngValue]="equipo.id">{{ equipo.nombre }}</option>
+                            <option *ngIf="equipos.length === 0" disabled>No hay equipos disponibles</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Fecha</label>
+                        <input type="date" formControlName="fecha">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Hora</label>
+                        <input type="time" formControlName="hora">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Tipo de entrenamiento</label>
+                        <select formControlName="tipo">
+                            <option value="" disabled>Selecciona tipo</option>
+                            <option value="Táctico">Táctico</option>
+                            <option value="Físico">Físico</option>
+                            <option value="Técnico">Técnico</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Duración (minutos)</label>
+                        <input type="number" formControlName="duracion" placeholder="Ej. 90">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Estado</label>
+                        <select formControlName="estado">
+                            <option value="" disabled>Selecciona estado</option>
+                            <option value="pendiente">Pendiente</option>
+                            <option value="completado">Completado</option>
+                        </select>
+                    </div>
+
+                </div>
+
+                <div class="actions">
+                    <button type="button" class="btn-outline" routerLink="/ver-entrenamientos">
+                        Cancelar
+                    </button>
+
+                    <button type="submit" class="btn-primary">
+                        Guardar entrenamiento
+                    </button>
+                </div>
+            </form>
+        </section>
+    </main>
+</div>

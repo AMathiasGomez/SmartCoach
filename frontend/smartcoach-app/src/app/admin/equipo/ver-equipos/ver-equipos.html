@@ -1,78 +1,88 @@
 <div class="app-container">
-
   <aside class="sidebar">
-
     <div class="logo">
-      <h3 class="logo-text">SmartCoach</h3>
-      <p class="logo-subtext">GESTIÓN DEPORTIVA</p>
+      <div class="logo-icon">SC</div>
+      <div class="logo-text-wrapper">
+        <h3 class="logo-text">SmartCoach</h3>
+        <p class="logo-subtext">GESTIÓN DEPORTIVA</p>
+      </div>
     </div>
 
     <nav>
-      <a routerLink="/dashboard-admin"><span class="material-symbols-outlined">space_dashboard</span>Panel de
-        Control</a>
-      <a class="active" routerLink="/ver-equipos"><span class="material-symbols-outlined">group</span>Equipos</a>
-      <a routerLink="/ver-jugadores"><span class="material-symbols-outlined">person</span>Jugadores</a>
-      <a routerLink="/ver-entrenamientos"><span
-          class="material-symbols-outlined">fitness_center</span>Entrenamientos</a>
-      <a routerLink="/ver-partidos"><span class="material-symbols-outlined">sports_soccer</span>Partidos</a>
-      <a routerLink="/ver-usuarios"><span class="material-symbols-outlined">emoji_people</span>Usuarios</a>
+      <a routerLink="/dashboard-admin">
+        <span class="material-symbols-outlined">space_dashboard</span>
+        <span>Panel de Control</span>
+      </a>
+      <a class="active" routerLink="/ver-equipos">
+        <span class="material-symbols-outlined">group</span>
+        <span>Equipos</span>
+      </a>
+      <a routerLink="/ver-jugadores">
+        <span class="material-symbols-outlined">person</span>
+        <span>Jugadores</span>
+      </a>
+      <a routerLink="/ver-entrenamientos">
+        <span class="material-symbols-outlined">fitness_center</span>
+        <span>Entrenamientos</span>
+      </a>
+      <a routerLink="/ver-partidos">
+        <span class="material-symbols-outlined">sports_soccer</span>
+        <span>Partidos</span>
+      </a>
+      <a routerLink="/ver-usuarios">
+        <span class="material-symbols-outlined">emoji_people</span>
+        <span>Usuarios</span>
+      </a>
     </nav>
 
     <button class="logout" (click)="logout()">
-      <span class="material-symbols-outlined logout-icon">logout</span>
+      <span class="material-symbols-outlined">logout</span>
       Cerrar sesión
     </button>
-
   </aside>
 
   <main class="main-content">
-
-    <h1>Lista de equipos</h1>
-    <p class="sub">Aquí podrás ver la información esencial de los equipos registrados.</p>
-
-    <section class="card">
-
-      <div class="column">
-        <h5>
-          <span class="material-symbols-outlined">person_add</span>
-          Equipos
-        </h5>
-
-        <button class="crear-equipo" (click)="router.navigate(['/crear-equipo'])">
-          <span class="material-symbols-outlined">add</span>
-          Crear equipo
-        </button>
+    <header class="page-header">
+      <div>
+        <h1>Lista de equipos</h1>
+        <p class="sub">Gestiona y visualiza la información de tus clubes registrados.</p>
       </div>
+      <button class="btn-primary" (click)="router.navigate(['/crear-equipo'])">
+        <span class="material-symbols-outlined">add_circle</span>
+        Crear nuevo equipo
+      </button>
+    </header>
 
-      <hr>
-
+    <section class="card table-container">
       <table>
         <thead>
           <tr>
-            <th>Nombre</th>
-            <th>Categoria</th>
-            <th>Año fundación</th>
+            <th>Nombre del Equipo</th>
+            <th>Categoría</th>
+            <th>Fundación</th>
             <th>Descripción</th>
-            <th>Acciones</th>
+            <th class="text-right">Acciones</th>
           </tr>
         </thead>
-
         <tbody>
           <tr *ngFor="let equipo of equipos">
-            <td>{{ equipo.nombre }}</td>
-            <td>{{ equipo.categoria }}</td>
+            <td class="font-bold text-blue">{{ equipo.nombre }}</td>
+            <td><span class="badge">{{ equipo.categoria }}</span></td>
             <td>{{ equipo.ano_fundacion }}</td>
-            <td>{{ equipo.descripcion }}</td>
-            <td>
-              <button class="btn-edit" (click)="editar(equipo.id!)">Editar</button>
-              <button class="btn-delete" (click)="eliminar(equipo.id!)">Eliminar</button>
+            <td class="text-muted">{{ equipo.descripcion }}</td>
+            <td class="text-right">
+              <div class="action-buttons">
+                <button class="btn-icon btn-edit" title="Editar" (click)="editar(equipo.id!)">
+                  <span class="material-symbols-outlined">edit</span>
+                </button>
+                <button class="btn-icon btn-delete" title="Eliminar" (click)="eliminar(equipo.id!)">
+                  <span class="material-symbols-outlined">delete</span>
+                </button>
+              </div>
             </td>
           </tr>
         </tbody>
       </table>
-
     </section>
-
   </main>
-
 </div>

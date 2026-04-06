@@ -198,3 +198,20 @@ exports.getJugadorById = async (req, res) => {
     res.status(500).json({ message: 'Error' });
   }
 };
+
+exports.getJugadoresByEquipo = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const [rows] = await db.query(`
+      SELECT * FROM jugadores
+      WHERE equipo_id = ?
+    `, [id]);
+
+    res.json(rows);
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error al obtener jugadores' });
+  }
+};

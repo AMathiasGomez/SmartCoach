@@ -1,25 +1,45 @@
 <div class="app-container">
 
-  <aside class="sidebar">
+    <aside class="sidebar">
     <div class="logo">
-      <h3 class="logo-text">SmartCoach</h3>
-      <p class="logo-subtext">GESTIÓN DEPORTIVA</p>
+      <div class="logo-icon">SC</div>
+      <div class="logo-text-wrapper">
+        <h3 class="logo-text">SmartCoach</h3>
+        <p class="logo-subtext">GESTIÓN DEPORTIVA</p>
+      </div>
     </div>
 
     <nav>
-      <a routerLink="/dashboard-admin"><span class="material-symbols-outlined">space_dashboard</span>Panel deControl</a>
-      <a routerLink="/ver-equipos"><span class="material-symbols-outlined">group</span>Equipos</a>
-      <a class="active" routerLink="/ver-jugadores"><span class="material-symbols-outlined">person</span>Jugadores</a>
-      <a routerLink="/ver-entrenamientos"><span class="material-symbols-outlined">fitness_center</span>Entrenamientos</a>
-      <a routerLink="/ver-partidos"><span class="material-symbols-outlined">sports_soccer</span>Partidos</a>
-      <a routerLink="/ver-usuarios"><span class="material-symbols-outlined">emoji_people</span>Usuarios</a>
+      <a routerLink="/dashboard-admin">
+        <span class="material-symbols-outlined">space_dashboard</span>
+        <span>Panel de Control</span>
+      </a>
+      <a routerLink="/ver-equipos">
+        <span class="material-symbols-outlined">group</span>
+        <span>Equipos</span>
+      </a>
+      <a class="active" routerLink="/ver-jugadores">
+        <span class="material-symbols-outlined">person</span>
+        <span>Jugadores</span>
+      </a>
+      <a routerLink="/ver-entrenamientos">
+        <span class="material-symbols-outlined">fitness_center</span>
+        <span>Entrenamientos</span>
+      </a>
+      <a routerLink="/ver-partidos">
+        <span class="material-symbols-outlined">sports_soccer</span>
+        <span>Partidos</span>
+      </a>
+      <a routerLink="/ver-usuarios">
+        <span class="material-symbols-outlined">emoji_people</span>
+        <span>Usuarios</span>
+      </a>
     </nav>
 
     <button class="logout" (click)="logout()">
-      <span class="material-symbols-outlined logout-icon">logout</span>
+      <span class="material-symbols-outlined">logout</span>
       Cerrar sesión
     </button>
-
   </aside>
 
   <main class="main-content">

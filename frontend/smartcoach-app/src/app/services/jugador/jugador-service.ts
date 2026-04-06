@@ -1,21 +1,14 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { Equipo } from '../equipo/equipo-service';
-
-export interface Jugador {
-  id?: number;
-  nombre: string;
-  fecha_nacimiento: string;
-  posicion: string;
-  numero: number;
-  equipo_id: number;
-}
+import { Jugador } from '../../models/jugador.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class JugadorService {
+
+  jugador: Jugador[] = [];
 
   private apiUrl = 'http://localhost:3006/api/jugadores';
 

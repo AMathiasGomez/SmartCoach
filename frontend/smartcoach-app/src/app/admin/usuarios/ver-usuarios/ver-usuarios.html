@@ -1,61 +1,89 @@
 <div class="app-container">
     <aside class="sidebar">
         <div class="logo">
-            <h3 class="logo-text">SmartCoach</h3>
-            <p class="logo-subtext">GESTIÓN DEPORTIVA</p>
+            <div class="logo-icon">SC</div>
+            <div class="logo-text-wrapper">
+                <h3 class="logo-text">SmartCoach</h3>
+                <p class="logo-subtext">GESTIÓN DEPORTIVA</p>
+            </div>
         </div>
 
         <nav>
-            <a routerLink="/dashboard-admin"><span class="material-symbols-outlined">space_dashboard</span>Panel de
-                Control</a>
-            <a routerLink="/ver-equipos"><span class="material-symbols-outlined">group</span>Equipos</a>
-            <a routerLink="/ver-jugadores"><span class="material-symbols-outlined">person</span>Jugadores</a>
-            <a routerLink="/ver-entrenamientos"><span
-                    class="material-symbols-outlined">fitness_center</span>Entrenamientos</a>
-            <a routerLink="/ver-partidos"><span class="material-symbols-outlined">sports_soccer</span>Partidos</a>
-            <a class="active" routerLink="/ver-usuarios"><span
-                    class="material-symbols-outlined">emoji_people</span>Usuarios</a>
+            <a routerLink="/dashboard-admin">
+                <span class="material-symbols-outlined">space_dashboard</span>
+                <span>Panel de Control</span>
+            </a>
+            <a routerLink="/ver-equipos">
+                <span class="material-symbols-outlined">group</span>
+                <span>Equipos</span>
+            </a>
+            <a routerLink="/ver-jugadores">
+                <span class="material-symbols-outlined">person</span>
+                <span>Jugadores</span>
+            </a>
+            <a routerLink="/ver-entrenamientos">
+                <span class="material-symbols-outlined">fitness_center</span>
+                <span>Entrenamientos</span>
+            </a>
+            <a routerLink="/ver-partidos">
+                <span class="material-symbols-outlined">sports_soccer</span>
+                <span>Partidos</span>
+            </a>
+            <a class="active" routerLink="/ver-usuarios">
+                <span class="material-symbols-outlined">emoji_people</span>
+                <span>Usuarios</span>
+            </a>
         </nav>
 
         <button class="logout" (click)="logout()">
-            <span class="material-symbols-outlined logout-icon">logout</span>
+            <span class="material-symbols-outlined">logout</span>
             Cerrar sesión
         </button>
     </aside>
 
     <div class="main-content">
-        <h1>Lista de usuarios</h1>
-        <p class="sub">Aquí podrás ver la información esencial de los usuarios registrados.</p>
+        <header class="page-header">
+            <div>
+                <h1>Lista de usuarios</h1>
+                <p class="sub">Administra los permisos y roles de los miembros de la plataforma.</p>
+            </div>
+        </header>
 
-        <section class="card">
+        <section class="card table-container">
             <table>
                 <thead>
                     <tr>
-                        <th>Nombre</th>
-                        <th>Correo</th>
-                        <th>Fecha Registro</th>
-                        <th>Rol</th>
+                        <th>Usuario</th>
+                        <th>Correo Electrónico</th>
+                        <th>Fecha de Registro</th>
+                        <th>Asignar Rol</th>
                     </tr>
                 </thead>
-
                 <tbody>
                     <tr *ngFor="let user of usuarios">
-                        <td>{{ user.nombre }}</td>
-                        <td>{{ user.email }}</td>
-                        <td>{{ user.fecha_registro | date:'short' }}</td>
                         <td>
-                            <select [value]="user.rol" (change)="cambiarRol(user.id, $event)" [disabled]="user.cargando"
-                                [ngClass]="user.rol">
-                                <option value="administrador">Administrador</option>
-                                <option value="entrenador">Entrenador</option>
-                                <option value="directivo">Directivo</option>
-                                <option value="usuario">Usuario</option>
-                            </select>
+                            <div class="user-info">
+                                <div class="user-avatar">{{ user.nombre | slice:0:1 }}</div>
+                                <span class="font-bold">{{ user.nombre }}</span>
+                            </div>
+                        </td>
+                        <td class="text-muted">{{ user.email }}</td>
+                        <td>{{ user.fecha_registro | date:'mediumDate' }}</td>
+                        <td>
+                            <div class="select-wrapper">
+                                <select [value]="user.rol" (change)="cambiarRol(user.id, $event)"
+                                    [disabled]="user.cargando" [ngClass]="user.rol">
+                                    <option value="administrador">Administrador</option>
+                                    <option value="entrenador">Entrenador</option>
+                                    <option value="directivo">Directivo</option>
+                                    <option value="usuario">Usuario</option>
+                                </select>
+                                <span class="loader" *ngIf="user.cargando"></span>
+                            </div>
                         </td>
                     </tr>
                 </tbody>
             </table>
         </section>
-
     </div>
 </div>
