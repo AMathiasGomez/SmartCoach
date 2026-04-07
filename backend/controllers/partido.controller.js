@@ -69,37 +69,44 @@ exports.getPartidoById = async (req, res) => {
   res.json(rows[0]);
 };
 
-exports.updatePartido = (req, res) => {
+exports.updatePartido = async (req, res) => {
+  try {
     const { id } = req.params;
-    const { nombre, rival, fecha, ubicacion, tipo, sets } = req.body;
+    const { nombre, rival, fecha, ubicacion, tipo } = req.body;
 
-    const query = `
-    UPDATE partidos 
-    SET nombre=?, rival=?, fecha=?, ubicacion=?, tipo=?, sets=?
-    WHERE id=?
-  `;
+    await db.query(`
+      UPDATE partidos
+      SET nombre=?, rival=?, fecha=?, ubicacion=?, tipo=?
+      WHERE id=?
+    `, [nombre, rival, fecha, ubicacion, tipo, id]);
 
-    db.query(query, [nombre, rival, fecha, ubicacion, tipo, sets, id], (err) => {
-        if (err) {
-            return res.status(500).json({ message: 'Error al actualizar' });
-        }
+    res.json({ message: 'Partido actualizado' });
 
-        res.json({ message: 'Partido actualizado' });
-    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error al actualizar partido' });
+  }
 };
 
-exports.deletePartido = (req, res) => {
+exports.deletePartido = async (req, res) => {
+  try {
     const { id } = req.params;
 
-    const query = `DELETE FROM partidos WHERE id = ?`;
+    const [result] = await db.query(
+      'DELETE FROM partidos WHERE id = ?',
+      [id]
+    );
 
-    db.query(query, [id], (err) => {
-        if (err) {
-            return res.status(500).json({ message: 'Error al eliminar' });
-        }
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Partido no encontrado' });
+    }
 
-        res.json({ message: 'Partido eliminado' });
-    });
+    res.json({ message: 'Partido eliminado' });
+
+  } catch (error) {
+    console.error('ERROR DELETE:', error);
+    res.status(500).json({ message: error.message });
+  }
 };
 
 exports.updateEstado = async (req, res) => {

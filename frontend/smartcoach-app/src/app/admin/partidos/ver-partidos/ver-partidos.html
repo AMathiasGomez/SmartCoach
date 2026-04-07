@@ -82,7 +82,7 @@
                         <td>{{ partido.fecha | date:'shortDate' }}</td>
 
                         <td>
-                            <span [class]="getEstado(partido.estado)">
+                            <span [class]="getEstado(partido.estado)" class="badge">
                                 {{ partido.estado }}
                             </span>
                         </td>
@@ -94,10 +94,10 @@
                                         scoreboard
                                     </span>
                                 </button>
-                                <button class="btn-icon btn-edit" title="Editar">
+                                <button class="btn-icon btn-edit" [title]="partido.estado === 'finalizado' ? 'No se puede editar un partido finalizado' : ''" [routerLink]="['/editar-partido', partido.id]" [disabled]="partido.estado === 'finalizado'">
                                     <span class="material-symbols-outlined">edit</span>
                                 </button>
-                                <button class="btn-icon btn-delete" title="Eliminar">
+                                <button class="btn-icon btn-delete" title="Eliminar" (click)="eliminar(partido.id!)">
                                     <span class="material-symbols-outlined">delete</span>
                                 </button>
                             </div>

@@ -1,101 +1,74 @@
 const db = require('../config/db');
 const Jugador = require('../models/jugador');
 
-exports.createJugador = (req, res) => {
-  console.log('REQ BODY:', req.body);
+exports.createJugador = async (req, res) => {
+  try {
+    console.log('REQ BODY:', req.body);
 
-  let { nombre, fecha_nacimiento, posicion, numero, equipo_id } = req.body;
+    let { nombre, fecha_nacimiento, posicion, numero, equipo_id } = req.body;
 
-  nombre = nombre?.trim();
-  posicion = posicion?.trim();
-  equipo_id = Number(equipo_id);
-  numero = Number(numero);
+    nombre = nombre?.trim();
+    posicion = posicion?.trim();
+    equipo_id = Number(equipo_id);
+    numero = Number(numero);
 
-  if (!nombre || !fecha_nacimiento || !posicion || !numero || !equipo_id) {
-    return res.status(400).json({
-      message: 'Todos los campos son obligatorios'
-    });
-  }
-
-  if (isNaN(numero) || numero <= 0) {
-    return res.status(400).json({
-      message: 'El número (dorsal) debe ser válido'
-    });
-  }
-
-  if (isNaN(equipo_id)) {
-    return res.status(400).json({
-      message: 'El equipo es inválido'
-    });
-  }
-
-  if (isNaN(Date.parse(fecha_nacimiento))) {
-    return res.status(400).json({
-      message: 'Fecha de nacimiento inválida'
-    });
-  }
-
-  const posicionesValidas = ['Libero', 'Punta', 'Central', 'Opuesto', 'Armador'];
-
-  if (!posicionesValidas.includes(posicion)) {
-    return res.status(400).json({
-      message: 'Posición inválida'
-    });
-  }
-
-  const sqlEquipo = 'SELECT id FROM equipos WHERE id = ?';
-
-  db.query(sqlEquipo, [equipo_id], (err, resultEquipo) => {
-    if (err) {
-      console.error('ERROR SQL (equipo):', err);
-      return res.status(500).json({ message: 'Error en el servidor' });
+    if (!nombre || !fecha_nacimiento || !posicion || !numero || !equipo_id) {
+      return res.status(400).json({ message: 'Todos los campos son obligatorios' });
     }
 
-    if (resultEquipo.length === 0) {
+    if (isNaN(numero) || numero <= 0) {
+      return res.status(400).json({ message: 'El número (dorsal) debe ser válido' });
+    }
+
+    if (isNaN(equipo_id)) {
+      return res.status(400).json({ message: 'El equipo es inválido' });
+    }
+
+    if (isNaN(Date.parse(fecha_nacimiento))) {
+      return res.status(400).json({ message: 'Fecha de nacimiento inválida' });
+    }
+
+    const posicionesValidas = ['Libero', 'Punta', 'Central', 'Opuesto', 'Armador'];
+
+    if (!posicionesValidas.includes(posicion)) {
+      return res.status(400).json({ message: 'Posición inválida' });
+    }
+
+    const [equipo] = await db.query(
+      'SELECT id FROM equipos WHERE id = ?',
+      [equipo_id]
+    );
+
+    if (equipo.length === 0) {
+      return res.status(400).json({ message: 'El equipo no existe' });
+    }
+
+    const [dorsal] = await db.query(
+      'SELECT id FROM jugadores WHERE numero = ? AND equipo_id = ?',
+      [numero, equipo_id]
+    );
+
+    if (dorsal.length > 0) {
       return res.status(400).json({
-        message: 'El equipo no existe'
+        message: 'Ya existe un jugador con ese dorsal en este equipo'
       });
     }
 
-    const sqlDorsal = 'SELECT id FROM jugadores WHERE numero = ? AND equipo_id = ?';
+    const [result] = await db.query(`
+      INSERT INTO jugadores 
+      (nombre, fecha_nacimiento, posicion, numero, equipo_id)
+      VALUES (?, ?, ?, ?, ?)
+    `, [nombre, fecha_nacimiento, posicion, numero, equipo_id]);
 
-    db.query(sqlDorsal, [numero, equipo_id], (err, resultDorsal) => {
-      if (err) {
-        console.error('ERROR SQL (dorsal):', err);
-        return res.status(500).json({ message: 'Error en el servidor' });
-      }
-
-      if (resultDorsal.length > 0) {
-        return res.status(400).json({
-          message: 'Ya existe un jugador con ese dorsal en este equipo'
-        });
-      }
-
-      const sqlInsert = `
-        INSERT INTO jugadores 
-        (nombre, fecha_nacimiento, posicion, numero, equipo_id)
-        VALUES (?, ?, ?, ?, ?)
-      `;
-
-      db.query(
-        sqlInsert,
-        [nombre, fecha_nacimiento, posicion, numero, equipo_id],
-        (err, result) => {
-          if (err) {
-            console.error('ERROR SQL (insert):', err);
-            return res.status(500).json({
-              message: 'Error al crear jugador'
-            });
-          }
-
-          res.status(201).json({
-            message: 'Jugador creado correctamente',
-            id: result.insertId
-          });
-        }
-      );
+    res.status(201).json({
+      message: 'Jugador creado correctamente',
+      id: result.insertId
     });
-  });
+
+  } catch (error) {
+    console.error('ERROR CREATE JUGADOR:', error);
+    res.status(500).json({ message: error.message });
+  }
 };
 
 exports.getJugadores = async (req, res) => {

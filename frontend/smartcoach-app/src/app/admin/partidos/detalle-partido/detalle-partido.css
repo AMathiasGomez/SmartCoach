@@ -1,3 +1,13 @@
+:root {
+  --primary: #2563eb;
+  --primary-dark: #1e40af;
+  --danger: #ef4444;
+  --success: #22c55e;
+  --border: #e2e8f0;
+  --bg-light: #f8fafc;
+  --text-main: #1e293b;
+}
+
 .app-container {
   min-height: 100vh;
   background: #f8fafc;
@@ -287,24 +297,21 @@ h3 {
   font-weight: bold;
 }
 
-.btn-danger {
-  padding: 15px;
-  font-size: 1.1rem;
-  font-weight: bold;
-  border-radius: 12px;
-  margin-top: 20px;
-}
-
 
 .set-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
   gap: 1rem;
   margin: 2rem;
 }
 
+
 .set-card {
   background: white;
+  width: 7rem;
   padding: 12px;
   border-radius: 12px;
   text-align: center;
@@ -510,13 +517,13 @@ button {
   width: 100%;
   padding: 1rem;
   background: transparent;
-  border: 2px solid var(--danger);
-  color: var(--danger);
+  border: 2px solid #ef4444;
+  color: #ef4444;
   border-radius: 12px;
   font-weight: 700;
 }
 
 .btn-danger-outline:hover {
-  background: var(--danger);
+  background: #ef4444;
   color: white;
 }

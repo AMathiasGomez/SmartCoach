@@ -17,6 +17,7 @@ import { VerEntrenamientos } from './admin/entrenamientos/ver-entrenamientos/ver
 import { CrearPartidos } from './admin/partidos/crear-partidos/crear-partidos';
 import { DetallePartido } from './admin/partidos/detalle-partido/detalle-partido';
 import { CrearEntrenamiento } from './admin/entrenamientos/crear-entrenamiento/crear-entrenamiento';
+import { EditarPartido } from './admin/partidos/editar-partido/editar-partido';
 
 export const routes: Routes = [
   // AUTENTICACION
@@ -25,13 +26,13 @@ export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full'},
 
   // EQUIPOS
-  { path: 'ver-equipos', component: VerEquipos, canActivate: [authGuard], data: { roles: ['administrador'] } },
+  { path: 'ver-equipos', component: VerEquipos, canActivate: [authGuard], data: { roles: ['administrador', 'entrenador'] } },
   { path: 'crear-equipo', component: CrearEquipo, canActivate: [authGuard], data: { roles: ['administrador'] } },
   { path: 'editar-equipo/:id', component: EditarEquipo, canActivate: [authGuard], data: { roles: ['administrador'] } },
 
   // JUGADORES
   { path: 'crear-jugador', component: CrearJugador, canActivate: [authGuard], data: { roles: ['administrador'] } },
-  { path: 'ver-jugadores', component: VerJugadores, canActivate: [authGuard], data: { roles: ['administrador'] }},
+  { path: 'ver-jugadores', component: VerJugadores, canActivate: [authGuard], data: { roles: ['administrador', 'entrenador'] }},
   { path: 'editar-jugador/:id', component: EditarJugador, canActivate: [authGuard], data: { roles: ['administrador'] }},
 
   // USUARIOS
@@ -39,9 +40,10 @@ export const routes: Routes = [
 
 
   //PARTIDOS
-  { path: 'ver-partidos', component: VerPartidos, canActivate: [authGuard], data: { roles: ['administrador'] } },
+  { path: 'ver-partidos', component: VerPartidos, canActivate: [authGuard], data: { roles: ['administrador', 'entrenador'] } },
   { path: 'crear-partido', component: CrearPartidos, canActivate: [authGuard], data: { roles: ['administrador'] } },
-  { path: 'detalle-partido/:id', component: DetallePartido, canActivate: [authGuard], data: { roles: ['administrador'] } },
+  { path: 'detalle-partido/:id', component: DetallePartido, canActivate: [authGuard], data: { roles: ['administrador', 'entrenador'] } },
+  { path: 'editar-partido/:id', component: EditarPartido, canActivate: [authGuard], data: { roles: ['administrador'] } },
 
   // ENTRENAMIENTOS
   { path: 'ver-entrenamientos', component: VerEntrenamientos, canActivate: [authGuard], data: { roles: ['administrador'] } },

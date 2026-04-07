@@ -14,10 +14,6 @@ h3{
   font-weight: bold;
 }
 
-body {
-  overflow-x: hidden;
-}
-
 .hero-image {
   position: fixed;
   top: 0;
@@ -106,7 +102,7 @@ body {
 
   .form-card{
     padding: 3rem;
-    max-width: 90%;
+    max-width: 90%; 
   }
 
   h2{

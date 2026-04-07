@@ -23,7 +23,7 @@ export class PartidoService {
     return this.http.get(`${this.apiUrl}/${id}`);
   }
 
-  updatePartido(id: number, data: any): Observable<any> {
+  updatePartido(id: number, data: any) {
     return this.http.put(`${this.apiUrl}/${id}`, data);
   }
 
