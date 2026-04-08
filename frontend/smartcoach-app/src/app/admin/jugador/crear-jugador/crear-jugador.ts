@@ -10,7 +10,7 @@ import { Equipo } from '../../../models/equipo.model';
 
 @Component({
   selector: 'app-crear-jugador',
-  imports: [ ReactiveFormsModule, RouterLink, CommonModule ],
+  imports: [ReactiveFormsModule, RouterLink, CommonModule],
   templateUrl: './crear-jugador.html',
   styleUrl: './crear-jugador.css',
 })
@@ -20,6 +20,7 @@ export class CrearJugador implements OnInit {
   equipos: Equipo[] = [];
 
   formJugador!: FormGroup;
+  errorMessage: string = ''
 
   constructor(
     private fb: FormBuilder,
@@ -43,13 +44,13 @@ export class CrearJugador implements OnInit {
         alert('Error al cargar equipos');
       }
     });
-        
+
 
 
     this.http.get('http://localhost:3006/api/equipos')
-    .subscribe((data: any) => {
-      this.equipos = data;
-    })
+      .subscribe((data: any) => {
+        this.equipos = data;
+      })
 
 
     this.formJugador = this.fb.group({
@@ -62,21 +63,26 @@ export class CrearJugador implements OnInit {
   }
 
   crearJugador() {
+
     if (this.formJugador.invalid) {
       this.formJugador.markAllAsTouched();
       return;
     }
 
-    this.http.post('http://localhost:3006/api/jugadores', this.formJugador.value)
-      .subscribe({
-        next: (res) => {
-          alert('Jugador creado correctamente');
-          this.router.navigate(['/ver-jugadores']);
-        },
-        error: (err) => {
-          console.error('Error', err);
-        }
-      });
+    const data = this.formJugador.value; 
+
+    this.jugadorService.crearJugador(data).subscribe({
+      next: (res) => {
+        alert('Jugador creado correctamente');
+        this.router.navigate(['/ver-jugadores']);
+        this.formJugador.reset();
+      },
+      error: (err) => {
+        console.error(err);
+        this.errorMessage = err.error?.message || 'Error al crear jugador';
+        alert(err.error.message);
+      }
+    });
   }
 
   logout() {

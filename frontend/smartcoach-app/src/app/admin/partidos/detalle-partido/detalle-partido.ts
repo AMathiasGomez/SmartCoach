@@ -12,29 +12,19 @@ interface EstadoPuntos {
 
 @Component({
   selector: 'app-detalle-partido',
+  standalone: true,
   imports: [RouterLink, NgClass, FormsModule, CommonModule],
   templateUrl: './detalle-partido.html',
-  styleUrl: './detalle-partido.css',
+  styleUrls: ['./detalle-partido.css'],
 })
 export class DetallePartido implements OnInit {
 
-  modalAbierto = false;
-  jugadorSeleccionado: any = null;
-
-  stats = {
-    ataques: 0,
-    recepciones: 0,
-    errores: 0,
-    bloqueos: 0
-  };
-
   partidoId!: number;
   partido: any;
-  sets: any[] = [];
 
+  sets: any[] = [];
   jugadores: any[] = [];
   estadisticas: any[] = [];
-
   tablaJugadores: any[] = [];
 
   puntosEquipo: number = 0;
@@ -42,17 +32,13 @@ export class DetallePartido implements OnInit {
 
   private historialPuntos: EstadoPuntos[] = [];
 
-  get puedeDeshacer(): boolean {
-    return this.historialPuntos.length > 0;
-  }
-
   constructor(
     private route: ActivatedRoute,
     private partidoService: PartidoService,
+    public authService: AuthService,
     private router: Router,
-    private authService: AuthService,
     private cd: ChangeDetectorRef
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     this.partidoId = Number(this.route.snapshot.paramMap.get('id'));
@@ -61,28 +47,65 @@ export class DetallePartido implements OnInit {
     this.cargarEstadisticas();
   }
 
+  get puedeDeshacer(): boolean {
+    return this.historialPuntos.length > 0;
+  }
+
+  get setsGanadosEquipo(): number {
+    return this.sets.filter(s => s.puntos_equipo > s.puntos_rival).length;
+  }
+
+  get setsGanadosRival(): number {
+    return this.sets.filter(s => s.puntos_rival > s.puntos_equipo).length;
+  }
+
+  get numeroSetActual(): number {
+    return this.sets.length + 1;
+  }
+
+  get esUltimoSet(): boolean {
+    return this.numeroSetActual === this.partido?.cantidad_sets;
+  }
+
+  get puntosObjetivo(): number {
+    return this.esUltimoSet ? 15 : 25;
+  }
+
+  get diferenciaPuntos(): number {
+    return Math.abs(this.puntosEquipo - this.puntosRival);
+  }
+
+  puedeFinalizarSet(): boolean {
+    const max = Math.max(this.puntosEquipo, this.puntosRival);
+
+    if (this.puntosEquipo === this.puntosRival) return false;
+    if (max < this.puntosObjetivo) return false;
+    if (this.diferenciaPuntos < 2) return false;
+
+    return true;
+  }
+
+  // =============================
+  // 🔄 CARGA DE DATOS
+  // =============================
+
   cargarPartido() {
     this.partidoService.getPartidoById(this.partidoId).subscribe({
       next: (data) => {
         this.partido = data;
-        console.log("PARTIDO", data);
-
-
         this.cargarJugadores(this.partido.equipo_id);
       },
-      error: (err) => console.error(err)
+      error: (err: any) => console.error(err)
     });
   }
 
   cargarJugadores(equipoId: number) {
     this.partidoService.getJugadoresByEquipo(equipoId).subscribe({
       next: (data) => {
-        console.log('JUGADORES:', data);
         this.jugadores = data;
         this.construirTabla();
-        this.cd.detectChanges();
       },
-      error: (err) => console.error(err)
+      error: (err: any) => console.error(err)
     });
   }
 
@@ -90,59 +113,36 @@ export class DetallePartido implements OnInit {
     this.partidoService.getEstadisticas(this.partidoId).subscribe({
       next: (data) => {
         this.estadisticas = data;
-        this.intentarConstruirTabla();
+        this.construirTabla();
       },
-      error: (err) => console.error(err)
+      error: (err: any) => console.error(err)
     });
   }
 
-  intentarConstruirTabla() {
-
-  if (this.jugadores.length === 0) return;
-
-  this.tablaJugadores = this.jugadores.map(jugador => {
-
-    const stats = this.estadisticas.find(
-      e => e.jugador_id === jugador.id
-    );
-
-    return {
-      ...jugador,
-      stats: stats || null
-    };
-  });
-
-  console.log('TABLA FINAL:', this.tablaJugadores);
-}
-
   cargarSets() {
     this.partidoService.getSets(this.partidoId).subscribe({
-      next: (data) => {
-        this.sets = data;
-      },
-      error: (err) => console.error(err)
+      next: (data) => this.sets = data,
+      error: (err: any) => console.error(err)
     });
   }
 
   construirTabla() {
+    if (!this.jugadores.length) return;
 
-    // 🔥 NO construyas hasta tener jugadores
-    if (this.jugadores.length === 0) return;
-
-    // 🔥 SI no hay estadísticas, igual construye con null
     this.tablaJugadores = this.jugadores.map(jugador => {
-
-      const stats = this.estadisticas.find(
-        e => e.jugador_id === jugador.id
-      );
-
+      const stats = this.estadisticas.find(e => e.jugador_id === jugador.id);
       return {
         ...jugador,
-        stats: stats || null
+        stats: {
+          ataques: stats?.ataques || 0,
+          recepciones: stats?.recepciones || 0,
+          errores: stats?.errores || 0,
+          bloqueos: stats?.bloqueos || 0
+        }
       };
     });
 
-    console.log('TABLA FINAL:', this.tablaJugadores);
+    this.cd.detectChanges();
   }
 
   iniciarPartido() {
@@ -157,86 +157,72 @@ export class DetallePartido implements OnInit {
     });
   }
 
-  private guardarEstado(): void {
-    this.historialPuntos.push({
-      puntosEquipo: this.puntosEquipo,
-      puntosRival: this.puntosRival
+  cambiarStat(jugador: any, tipo: 'ataques' | 'recepciones' | 'errores' | 'bloqueos', valor: number) {
+    jugador.stats[tipo] = Math.max(0, jugador.stats[tipo] + valor);
+  }
+
+  limpiarEstadisticas(jugador: any) {
+    jugador.stats = { ataques: 0, recepciones: 0, errores: 0, bloqueos: 0 };
+  }
+
+  guardarTodos() {
+    const updates = this.tablaJugadores.map(j => ({
+      jugador_id: j.id,
+      ataques: j.stats.ataques,
+      recepciones: j.stats.recepciones,
+      errores: j.stats.errores,
+      bloqueos: j.stats.bloqueos
+    }));
+
+    this.partidoService.addEstadisticas(this.partidoId, updates).subscribe({
+      next: () => alert('Estadísticas guardadas'),
+      error: (err: any) => console.error(err)
     });
   }
 
-  sumarPuntoEquipo(): void {
-    this.guardarEstado();
+  sumarPuntoEquipo() {
+    this.historialPuntos.push({ puntosEquipo: this.puntosEquipo, puntosRival: this.puntosRival });
     this.puntosEquipo++;
   }
 
-  sumarPuntoRival(): void {
-    this.guardarEstado();
+  sumarPuntoRival() {
+    this.historialPuntos.push({ puntosEquipo: this.puntosEquipo, puntosRival: this.puntosRival });
     this.puntosRival++;
   }
 
-  deshacerUltimoPunto(): void {
-    if (!this.puedeDeshacer) return;
-
-    const estadoAnterior = this.historialPuntos.pop()!;
-    this.puntosEquipo = estadoAnterior.puntosEquipo;
-    this.puntosRival = estadoAnterior.puntosRival;
+  deshacerUltimoPunto() {
+    if (!this.historialPuntos.length) return;
+    const ultimo = this.historialPuntos.pop()!;
+    this.puntosEquipo = ultimo.puntosEquipo;
+    this.puntosRival = ultimo.puntosRival;
   }
 
   agregarSet() {
-    if (!this.puntosEquipo || !this.puntosRival) return;
+    if (!this.puedeFinalizarSet()) {
+      alert('El set no cumple las reglas');
+      return;
+    }
 
     const data = {
       puntos_equipo: this.puntosEquipo,
       puntos_rival: this.puntosRival
     };
 
-    this.partidoService.addSet(this.partidoId, data).subscribe(() => {
-      this.puntosEquipo = 0;
-      this.puntosRival = 0;
-      this.historialPuntos = [];
-      this.cargarSets();
-    });
-  }
-
-  abrirModal(jugador: any) {
-    this.jugadorSeleccionado = jugador;
-    this.modalAbierto = true;
-
-
-    this.stats = {
-      ataques: 0,
-      recepciones: 0,
-      errores: 0,
-      bloqueos: 0
-    };
-  }
-
-  cerrarModal() {
-    this.modalAbierto = false;
-  }
-
-  guardarEstadisticas() {
-    const data = {
-      jugador_id: this.jugadorSeleccionado.id,
-      ataques: this.stats.ataques || 0,
-      recepciones: this.stats.recepciones || 0,
-      errores: this.stats.errores || 0,
-      bloqueos: this.stats.bloqueos || 0
-    };
-
-    this.partidoService.addEstadisticas(this.partidoId, data).subscribe({
+    this.partidoService.addSet(this.partidoId, data).subscribe({
       next: () => {
-        this.cerrarModal();
-        console.log('Estadísticas guardadas');
 
-        this.modalAbierto = false;
-        this.cd.detectChanges();
+        this.puntosEquipo = 0;
+        this.puntosRival = 0;
+        this.historialPuntos = [];
+
+        this.cargarSets();
+        this.cargarPartido(); 
       },
-      error: (err) => console.error(err)
+      error: (err: any) => console.error(err)
     });
   }
 
-  logout() {
+  logOut() {
     this.authService.logOut();
     this.router.navigate(['/login']);
   }

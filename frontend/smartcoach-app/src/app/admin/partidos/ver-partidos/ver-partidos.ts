@@ -60,7 +60,7 @@ export class VerPartidos {
     if (confirm('¿Deseas eliminar este jugador?')) {
       this.partidoService.deletePartido(id).subscribe({
         next: () => {
-          alert('Jugador eliminado');
+          alert('Partido eliminado');
           this.cargarPartidos();
         },
         error: () => {

@@ -1,4 +1,5 @@
 const Equipo = require('../models/equipo');
+const db = require('../config/db');
 
 exports.getEquipos = async (req, res) => {
   try {
@@ -11,9 +12,39 @@ exports.getEquipos = async (req, res) => {
 };
 
 exports.createEquipo = async (req, res) => {
-  const equipo = req.body;
-  await Equipo.create(equipo);
-  res.json({ message: 'Equipo creado' });
+  try {
+    let { nombre, categoria } = req.body;
+
+    nombre = nombre?.trim();
+    categoria = categoria?.trim();
+
+    if (!nombre || !categoria) {
+      return res.status(400).json({
+        message: 'Nombre y categoría son obligatorios'
+      });
+    }
+
+    const [result] = await db.query(`
+      INSERT INTO equipos (nombre, categoria)
+      VALUES (?, ?)
+    `, [nombre, categoria]);
+
+    return res.status(201).json({
+      message: 'Equipo creado',
+      id: result.insertId
+    });
+
+  } catch (error) {
+
+    if (error.code === 'ER_DUP_ENTRY') {
+      return res.status(400).json({
+        message: 'Ya existe un equipo con ese nombre en esta categoría'
+      });
+    }
+
+    console.error('ERROR CREATE EQUIPO:', error);
+    return res.status(500).json({ message: 'Error interno del servidor' });
+  }
 };
 
 exports.updateEquipo = async (req, res) => {

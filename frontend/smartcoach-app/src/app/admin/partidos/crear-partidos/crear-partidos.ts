@@ -27,7 +27,7 @@ export class CrearPartidos implements OnInit {
     private authService: AuthService,
     private http: HttpClient,
     private equipoService: EquipoService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.partidoForm = this.fb.group({
@@ -83,14 +83,18 @@ export class CrearPartidos implements OnInit {
     console.log('DATA ENVIADA:', data);
 
     this.partidoService.createPartido(data).subscribe({
-      next: (res: any) => {
-        console.log('Partido creado:', res);
-
+      next: (res) => {
+        alert('Partido creado correctamente');
         this.router.navigate(['/ver-partidos']);
       },
       error: (err) => {
-        console.error('Error al crear partido:', err);
-        this.loading = false;
+        console.error(err);
+
+        if (err.error?.message) {
+          alert(err.error.message);
+        } else {
+          alert('Error al crear partido');
+        }
       }
     });
   }

@@ -3,8 +3,6 @@ const Jugador = require('../models/jugador');
 
 exports.createJugador = async (req, res) => {
   try {
-    console.log('REQ BODY:', req.body);
-
     let { nombre, fecha_nacimiento, posicion, numero, equipo_id } = req.body;
 
     nombre = nombre?.trim();
@@ -43,31 +41,28 @@ exports.createJugador = async (req, res) => {
       return res.status(400).json({ message: 'El equipo no existe' });
     }
 
-    const [dorsal] = await db.query(
-      'SELECT id FROM jugadores WHERE numero = ? AND equipo_id = ?',
-      [numero, equipo_id]
-    );
-
-    if (dorsal.length > 0) {
-      return res.status(400).json({
-        message: 'Ya existe un jugador con ese dorsal en este equipo'
-      });
-    }
-
+    // 🚨 AQUÍ ESTÁ EL CAMBIO IMPORTANTE
     const [result] = await db.query(`
       INSERT INTO jugadores 
       (nombre, fecha_nacimiento, posicion, numero, equipo_id)
       VALUES (?, ?, ?, ?, ?)
     `, [nombre, fecha_nacimiento, posicion, numero, equipo_id]);
 
-    res.status(201).json({
+    return res.status(201).json({
       message: 'Jugador creado correctamente',
       id: result.insertId
     });
 
   } catch (error) {
+
+    if (error.code === 'ER_DUP_ENTRY') {
+      return res.status(400).json({
+        message: 'Ya existe un jugador con ese dorsal en este equipo'
+      });
+    }
+
     console.error('ERROR CREATE JUGADOR:', error);
-    res.status(500).json({ message: error.message });
+    return res.status(500).json({ message: 'Error interno del servidor' });
   }
 };
 
