@@ -29,6 +29,10 @@
         <span class="material-symbols-outlined">sports_soccer</span>
         <span>Partidos</span>
       </a>
+      <a routerLink="/ver-usuarios">
+        <span class="material-symbols-outlined">emoji_people</span>
+        <span>Usuarios</span>
+      </a>
     </nav>
 
     <button class="logout" (click)="logOut()">
@@ -38,13 +42,13 @@
   </aside>
 
   <div class="main-content" *ngIf="partido">
-    
+
     <!-- HEADER -->
     <div class="header">
       <h1>{{ partido.nombre }}</h1>
       <p class="sub">
-        {{ partido.equipo_nombre }} 
-        <span style="color: #cbd5e1;">VS</span> 
+        {{ partido.equipo_nombre }}
+        <span style="color: #cbd5e1;">VS</span>
         {{ partido.rival }}
       </p>
     </div>
@@ -63,7 +67,7 @@
 
       <!-- 🏆 GANADOR -->
       <div *ngIf="partido.estado === 'finalizado'" class="ganador">
-        🏆 Ganador: 
+        🏆 Ganador:
         {{ partido.ganador === 'equipo' ? partido.equipo_nombre : partido.rival }}
       </div>
     </div>
@@ -108,10 +112,7 @@
                 </div>
 
                 <!-- DESHACER -->
-                <div 
-                  class="deshacerPunto" 
-                  (click)="deshacerUltimoPunto()" 
-                  [class.disabled]="!puedeDeshacer">
+                <div class="deshacerPunto" (click)="deshacerUltimoPunto()" [class.disabled]="!puedeDeshacer">
                   <span class="material-symbols-outlined">undo</span>
                 </div>
 
@@ -128,11 +129,8 @@
             </div>
 
             <!-- FINALIZAR SET -->
-            <div style="text-align: center; margin-top: 20px;">
-              <button 
-                (click)="agregarSet()" 
-                class="btn-primary"
-                [disabled]="!puedeFinalizarSet()"
+            <div style="text-align: center; ">
+              <button (click)="agregarSet()" class="btn-primary" [disabled]="!puedeFinalizarSet()"
                 style="width: 200px;">
                 Finalizar Set
               </button>
@@ -163,7 +161,7 @@
       <!-- DERECHA -->
       <div class="right">
 
-        <div class="estadisticas">
+        <div class="estadisticas" *ngIf="partido.estado === 'en_curso'">
           <h3>Estadísticas - Set {{ sets.length + 1 }}</h3>
 
           <div class="table-responsive">
@@ -181,37 +179,45 @@
 
               <tbody>
                 <tr *ngFor="let j of tablaJugadores">
-                  <td>{{ j.nombre }}</td>
+                  <td class="nombre">{{ shortName(j.nombre) }}</td>
 
                   <td>
                     <div class="counter">
-                      <button (click)="cambiarStat(j,'ataques',-1)">-</button>
+                      <button class="button-minus" (click)="cambiarStat(j,'ataques',-1)"><span
+                          class="material-symbols-outlined">stat_minus_1</span></button>
                       <span>{{ j.stats.ataques }}</span>
-                      <button (click)="cambiarStat(j,'ataques',1)">+</button>
+                      <button class="button-add" (click)="cambiarStat(j,'ataques',1)"><span
+                          class="material-symbols-outlined">stat_1</span></button>
                     </div>
                   </td>
 
                   <td>
                     <div class="counter">
-                      <button (click)="cambiarStat(j,'recepciones',-1)">-</button>
+                      <button class="button-minus" (click)="cambiarStat(j,'recepciones',-1)"><span
+                          class="material-symbols-outlined">stat_minus_1</span></button>
                       <span>{{ j.stats.recepciones }}</span>
-                      <button (click)="cambiarStat(j,'recepciones',1)">+</button>
+                      <button class="button-add" (click)="cambiarStat(j,'recepciones',1)"><span
+                          class="material-symbols-outlined">stat_1</span></button>
                     </div>
                   </td>
 
                   <td>
                     <div class="counter error">
-                      <button (click)="cambiarStat(j,'errores',-1)">-</button>
+                      <button class="button-minus" (click)="cambiarStat(j,'errores',-1)"><span
+                          class="material-symbols-outlined">stat_minus_1</span></button>
                       <span>{{ j.stats.errores }}</span>
-                      <button (click)="cambiarStat(j,'errores',1)">+</button>
+                      <button class="button-add" (click)="cambiarStat(j,'errores',1)"><span
+                          class="material-symbols-outlined">stat_1</span></button>
                     </div>
                   </td>
 
                   <td>
                     <div class="counter">
-                      <button (click)="cambiarStat(j,'bloqueos',-1)">-</button>
+                      <button class="button-minus" (click)="cambiarStat(j,'bloqueos',-1)"><span
+                          class="material-symbols-outlined">stat_minus_1</span></button>
                       <span>{{ j.stats.bloqueos }}</span>
-                      <button (click)="cambiarStat(j,'bloqueos',1)">+</button>
+                      <button class="button-add" (click)="cambiarStat(j,'bloqueos',1)"><span
+                          class="material-symbols-outlined">stat_1</span></button>
                     </div>
                   </td>
 
@@ -231,24 +237,75 @@
             </button>
           </div>
         </div>
+        <div class="cancha-container" *ngIf="partido.estado === 'en_curso'">
+          <h3>Formación de {{ partido.equipo_nombre }}</h3>
+          <div class="formacion">
+            <div class="cancha-grid">
+              <ng-container *ngFor="let posicion of [3, 2, 1, 4, 5, 0]; let i = index">
+                <div class="posicion-celda" [class.ocupada]="formacion[posicion] !== null" (click)="abrirSeleccion(posicion)">
+  
+                  <ng-container *ngIf="formacion[posicion]; else vacia">
+                    <span class="jugador-numero">#{{ formacion[posicion].numero }}</span>
+                    <span class="jugador-nombre">{{ formacion[posicion].nombre.split(' ')[0] }}</span>
+                    <button class="btn-quitar" (click)="$event.stopPropagation(); quitarJugadorDePosicion(posicion)">✕</button>
+                  </ng-container>
+  
+                  <ng-template #vacia>
+                    <span class="numero-posicion">{{ posicion + 1 }}</span>
+                  </ng-template>
+                </div>
+              </ng-container>
+            </div>
+          </div>
 
+        </div>
+
+        <!-- MODAL SELECCIÓN DE JUGADOR -->
+        <div class="modal-overlay" *ngIf="mostrarModalFormacion" (click)="cerrarModal()">
+          <div class="modal-card" (click)="$event.stopPropagation()">
+
+            <div class="modal-header">
+              <h3>Posición {{ posicionSeleccionada !== null ? posicionSeleccionada + 1 : '' }}</h3>
+              <button (click)="cerrarModal()">✕</button>
+            </div>
+
+            <!-- Jugador actual en esa posición -->
+            <div *ngIf="formacion[posicionSeleccionada!] !== null" class="jugador-actual">
+              <span>En cancha: <strong>{{ formacion[posicionSeleccionada!]?.nombre }}</strong></span>
+              <button (click)="quitarJugadorDePosicion(posicionSeleccionada!); cerrarModal()">
+                Quitar
+              </button>
+            </div>
+
+            <!-- Lista de jugadores disponibles -->
+            <p class="modal-subtitulo">Jugadores disponibles</p>
+
+            <div *ngIf="jugadoresEnBanquillo.length === 0" class="sin-jugadores">
+              No hay jugadores disponibles en el banquillo.
+            </div>
+
+            <div *ngFor="let jugador of jugadoresEnBanquillo" class="jugador-item" (click)="asignarJugador(jugador)">
+              <span class="jugador-item-numero">#{{ jugador.numero }}</span>
+              <div>
+                <p class="jugador-item-nombre">{{ jugador.nombre }}</p>
+                <p class="jugador-item-posicion">{{ jugador.posicion }}</p>
+              </div>
+            </div>
+
+          </div>
+        </div>
       </div>
 
     </div>
 
+
     <!-- ACCIONES -->
     <div class="actions">
-      <button 
-        *ngIf="partido.estado === 'pendiente'" 
-        (click)="iniciarPartido()" 
-        class="btn-start-full">
+      <button *ngIf="partido.estado === 'pendiente'" (click)="iniciarPartido()" class="btn-start-full">
         INICIAR PARTIDO
       </button>
 
-      <button 
-        *ngIf="partido.estado === 'en_curso'" 
-        (click)="finalizarPartido()" 
-        class="btn-danger-outline">
+      <button *ngIf="partido.estado === 'en_curso'" (click)="finalizarPartido()" class="btn-danger-outline">
         FINALIZAR PARTIDO
       </button>
     </div>

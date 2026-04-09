@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../services/auth/auth-service';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -20,13 +20,17 @@ export class CrearPartidos implements OnInit {
   equipos: Equipo[] = [];
   loading = false;
 
+  jugadores: any[] = [];
+  convocados: number[] = [];
+
   constructor(
     private fb: FormBuilder,
     private partidoService: PartidoService,
     private router: Router,
     private authService: AuthService,
     private http: HttpClient,
-    private equipoService: EquipoService
+    private equipoService: EquipoService,
+    private cd: ChangeDetectorRef
   ) { }
 
   ngOnInit(): void {
@@ -77,7 +81,8 @@ export class CrearPartidos implements OnInit {
       fecha: this.partidoForm.value.fecha,
       ubicacion: this.partidoForm.value.ubicacion,
       tipo: this.partidoForm.value.tipo,
-      estado: 'pendiente'
+      estado: 'pendiente',
+      convocados: this.convocados
     };
 
     console.log('DATA ENVIADA:', data);
@@ -98,6 +103,34 @@ export class CrearPartidos implements OnInit {
       }
     });
   }
+
+  onEquipoChange() {
+    const equipoId = this.partidoForm.get('equipo_id')?.value;
+
+    if (!equipoId) return;
+
+    this.partidoService.getJugadoresByEquipo(equipoId)
+      .subscribe({
+        next: (data) => {
+          console.log('JUGADORES LISTA', data);
+          
+          this.jugadores = data;
+          this.convocados = [];
+          this.cd.detectChanges();
+        },
+        error: (err) => console.error(err)
+      });
+  }
+
+  toggleConvocado(jugadorId: number, event: any) {
+    if (event.target.checked) {
+      this.convocados.push(jugadorId);
+    } else {
+      this.convocados = this.convocados.filter(id => id !== jugadorId);
+    }
+  }
+
+  minFecha = new Date().toISOString().split('T')[0];
 
   logout() {
     this.authService.logOut();

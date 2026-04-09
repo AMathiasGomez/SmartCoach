@@ -14,7 +14,7 @@
 
 .sidebar {
   width: 280px;
-  background:#0f172a;
+  background: #0f172a;
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
@@ -80,7 +80,7 @@
 }
 
 .sidebar nav a.active {
-  background:#1d4ed8;
+  background: #1d4ed8;
   color: white;
   box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3);
 }
@@ -105,21 +105,6 @@
   color: white;
 }
 
-body.app {
-  display: flex;
-  background: #111318;
-  color: #e2e2e8;
-  font-family: 'Inter', sans-serif;
-}
-
-.user {
-  display: flex;
-  gap: 10px;
-  margin-top: auto;
-}
-
-
-/* GRID */
 .grid {
   display: flex;
   gap: 20px;
@@ -134,13 +119,14 @@ body.app {
   flex: 1;
 }
 
-/* FORM */
 .form-grid {
   display: grid;
   gap: 10px;
 }
 
-input, select, textarea {
+input,
+select,
+textarea {
   padding: 10px;
   border-radius: 8px;
   border: 1px solid #cbd5e1;
@@ -173,14 +159,6 @@ input, select, textarea {
   flex: 2;
 }
 
-.card-right {
-  background: white;
-  padding: 25px;
-  border-radius: 12px;
-  border: 1px solid #e2e8f0;
-  margin-top: 20px;
-  flex: 1;
-}
 
 .actions {
   display: flex;
@@ -211,4 +189,63 @@ input, select, textarea {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 20px;
+}
+
+.convocados-container {
+  background-color: white;
+  padding: 20px;
+  border-radius: 12px;
+  color: #0f172a;
+  font-family: 'Lexend', sans-serif;
+  max-width: 400px;
+  border: 1px solid #cbd5e1;
+}
+
+.convocados-title {
+  display: block;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 15px;
+  color: #0f172a;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.jugador-item {
+  display: flex;
+  align-items: center;
+  background-color: white;
+  margin-bottom: 8px;
+  padding: 12px 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 1px solid transparent;
+}
+
+.jugador-item:hover {
+  background-color: #2563eb;
+  border-color: #cbd5e1;
+}
+
+.jugador-info {
+  color: #0f172a;
+  font-weight: 500;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-left: 12px;
+  font-size: 1.05rem;
+}
+
+.jugador-info:hover {
+  color: white;
+  font-weight: bold;
+}
+
+input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: #2563eb;
 }

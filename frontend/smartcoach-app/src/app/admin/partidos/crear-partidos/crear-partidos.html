@@ -61,7 +61,7 @@
 
                         <div class="form-group">
                             <label>Equipo</label>
-                            <select formControlName="equipo_id">
+                            <select formControlName="equipo_id" (change)="onEquipoChange()">
                                 <option value="" disabled>Selecciona un equipo</option>
                                 <option *ngFor="let equipo of equipos" [value]="equipo.id">
                                     {{ equipo.nombre }}
@@ -76,7 +76,7 @@
 
                         <div class="form-group">
                             <label>Fecha del Partido</label>
-                            <input type="date" formControlName="fecha">
+                            <input type="date" formControlName="fecha" [min]="minFecha">
                         </div>
 
                         <div class="form-group">
@@ -91,6 +91,23 @@
                                 <option value="amistoso">Amistoso</option>
                                 <option value="competencia">Competencia</option>
                             </select>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="convocados-container" *ngIf="jugadores.length > 0">
+                                <label class="convocados-title">Convocados</label>
+
+                                <div *ngFor="let jugador of jugadores" class="jugador-item">
+                                    <label style="display: flex; align-items: center; width: 100%; cursor: pointer;">
+                                        <input type="checkbox" (change)="toggleConvocado(jugador.id, $event)" />
+
+                                        <div class="jugador-info">
+                                            <span class="jugador-numero">{{ jugador.nombre }}</span>
+                                            <span class="jugador-numero">#{{ jugador.numero }}</span>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
                         </div>
                     </div>
 

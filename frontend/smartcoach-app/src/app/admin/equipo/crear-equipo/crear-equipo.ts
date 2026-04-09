@@ -8,13 +8,14 @@ import { CommonModule } from '@angular/common';
 @Component({
   selector: 'app-crear-equipo',
   standalone: true,
-  imports: [ ReactiveFormsModule, RouterLink, CommonModule ],
+  imports: [ReactiveFormsModule, RouterLink, CommonModule],
   templateUrl: './crear-equipo.html',
   styleUrl: './crear-equipo.css',
 })
 export class CrearEquipo {
 
   form: FormGroup;
+  errorMessage: string = ''
 
   constructor(
     private fb: FormBuilder,
@@ -47,19 +48,25 @@ export class CrearEquipo {
   }
 
   guardar() {
+    console.log('CLICK GUARDAR');
+    console.log('FORM VALUE:', this.form.value);
 
     if (this.form.invalid) {
+      console.log('FORM INVALID');
       this.form.markAllAsTouched();
       return;
     }
 
     this.equipoService.crearEquipo(this.form.value).subscribe({
-      next: () => {
+      next: (res) => {
+        console.log("RESPUESTA:", res);
         alert('Equipo creado correctamente');
         this.router.navigate(['/ver-equipos']);
       },
-      error: () => {
-        alert('Error al crear equipo');
+      error: (err) => {
+        console.error('ERROR:', err);
+        this.errorMessage = err.error?.message || 'Error al crear equipo';
+        alert(err.error.message);
       }
     });
   }

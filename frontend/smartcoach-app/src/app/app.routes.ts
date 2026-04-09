@@ -18,6 +18,7 @@ import { CrearPartidos } from './admin/partidos/crear-partidos/crear-partidos';
 import { DetallePartido } from './admin/partidos/detalle-partido/detalle-partido';
 import { CrearEntrenamiento } from './admin/entrenamientos/crear-entrenamiento/crear-entrenamiento';
 import { EditarPartido } from './admin/partidos/editar-partido/editar-partido';
+import { DashboardEntrenador } from './entrenador/dashboard-entrenador/dashboard-entrenador';
 
 export const routes: Routes = [
   // AUTENTICACION
@@ -46,12 +47,12 @@ export const routes: Routes = [
   { path: 'editar-partido/:id', component: EditarPartido, canActivate: [authGuard], data: { roles: ['administrador'] } },
 
   // ENTRENAMIENTOS
-  { path: 'ver-entrenamientos', component: VerEntrenamientos, canActivate: [authGuard], data: { roles: ['administrador'] } },
+  { path: 'ver-entrenamientos', component: VerEntrenamientos, canActivate: [authGuard], data: { roles: ['administrador', 'entrenador'] } },
   { path: 'crear-entrenamiento', component: CrearEntrenamiento, canActivate: [authGuard], data: { roles: ['administrador'] } },
 
   //DASHBOARDS
   { path: 'dashboard-admin', component: DashboardAdmin, canActivate: [authGuard], data: { roles: ['administrador'] } },
   { path: 'dashboard-directivo', component: DashboardDirectivo, canActivate: [authGuard], data: { roles: ['directivo'] } },
-  { path: 'dashboard-entrenador', component: DashboardDirectivo, canActivate: [authGuard], data: { roles: ['entrenador'] } },
+  { path: 'dashboard-entrenador', component: DashboardEntrenador, canActivate: [authGuard], data: { roles: ['entrenador'] } },
   { path: 'dashboard-usuario', component: DashboardUsuario, canActivate: [authGuard], data: { roles: ['usuario'] } },
 ];

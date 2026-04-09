@@ -280,6 +280,7 @@ input, select, textarea {
   font-size: 14px;
 }
 
-textarea::placeholder {
-  font-size: 14px;
+
+label {
+  font-weight: bold;
 }

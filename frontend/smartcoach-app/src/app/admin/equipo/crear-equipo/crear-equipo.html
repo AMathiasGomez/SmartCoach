@@ -1,6 +1,6 @@
 <div class="app-container">
 
-    <aside class="sidebar">
+  <aside class="sidebar">
     <div class="logo">
       <div class="logo-icon">SC</div>
       <div class="logo-text-wrapper">
@@ -94,13 +94,22 @@
           <label>Categoria</label>
           <div class="input-container">
             <span class="material-symbols-outlined">date_range</span>
-            <input type="text" placeholder="Ej. Juvenil" formControlName="categoria">
+            <select formControlName="categoria">
+              <option value="">Seleccione una categoría</option>
+              <option value="Benjamin">Benjamin</option>
+              <option value="Mini">Mini</option>
+              <option value="Infantil">Infantil</option>
+              <option value="Menores">Menores</option>
+              <option value="Juvenil">Juvenil</option>
+              <option value="Mayores">Mayores</option>
+            </select>
           </div>
         </div>
 
         <div class="form-group">
           <label>Descripcion</label>
           <textarea placeholder="Descripción del equipo a crear" formControlName="descripcion"></textarea>
+          <small *ngIf="form.get('descripcion')?.errors?.['minlength']">Mínimo 10 caracteres</small>
         </div>
 
         <div class="actions">

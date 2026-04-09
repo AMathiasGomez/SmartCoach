@@ -1,101 +1,124 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SmartCoach Analyst</title>
+<div class="app-container">
 
-  <!-- Tailwind -->
-  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-
-  <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-
-  <!-- Icons -->
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
-
-
-  <!-- Config Tailwind -->
-  <script>
-    tailwind.config = {
-      darkMode: "class",
-      theme: {
-        extend: {
-          colors: {
-            primary: "#000613",
-            secondary: "#515f74",
-            background: "#f7f9fb",
-            "primary-container": "#001f3f",
-            "surface-container-lowest": "#ffffff"
-          },
-          fontFamily: {
-            headline: ["Manrope"],
-            body: ["Inter"]
-          }
-        }
-      }
-    }
-  </script>
-</head>
-
-<body class="bg-background text-on-surface">
-
-<!-- Sidebar -->
-<aside class="sidebar">
-  <div class="logo">
-    <span class="material-symbols-outlined filled">sports_soccer</span>
-    <div>
-      <h1>SmartCoach</h1>
-      <p>Elite Performance</p>
-    </div>
-  </div>
-
-  <nav>
-    <a class="active">Dashboard</a>
-    <a>Jugadores</a>
-    <a>Entrenamientos</a>
-    <a>Asistencia</a>
-    <a>Estadísticas</a>
-    <a>Partidos</a>
-    <a>Predicciones IA</a>
-  </nav>
-</aside>
-
-<!-- Topbar -->
-<header class="topbar">
-  <input type="text" placeholder="Buscar..." class="search">
-
-  <div class="user">
-    <span>Perfil del Entrenador</span>
-    <img src="https://via.placeholder.com/40">
-  </div>
-</header>
-
-<!-- Main -->
-<main class="main">
-
-  <h2>Panel de Control Estratégico</h2>
-  <p>Estado actual del rendimiento del equipo</p>
-
-  <!-- Cards -->
-  <div class="grid">
-    <div class="card">
-      <span>Rendimiento Medio</span>
-      <h3>82.4%</h3>
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-icon">SC</div>
+      <div class="logo-text-wrapper">
+        <h3 class="logo-text">SmartCoach</h3>
+        <p class="logo-subtext">GESTIÓN DEPORTIVA</p>
+      </div>
     </div>
 
-    <div class="card">
-      <span>Asistencia</span>
-      <h3>92%</h3>
+    <nav>
+      <a class="active" routerLink="/dashboard-admin">
+        <span class="material-symbols-outlined">space_dashboard</span>
+        <span>Panel de Control</span>
+      </a>
+      <a routerLink="/ver-equipos">
+        <span class="material-symbols-outlined">group</span>
+        <span>Equipos</span>
+      </a>
+      <a routerLink="/ver-jugadores">
+        <span class="material-symbols-outlined">person</span>
+        <span>Jugadores</span>
+      </a>
+      <a routerLink="/ver-entrenamientos">
+        <span class="material-symbols-outlined">fitness_center</span>
+        <span>Entrenamientos</span>
+      </a>
+      <a routerLink="/ver-partidos">
+        <span class="material-symbols-outlined">sports_soccer</span>
+        <span>Partidos</span>
+      </a>
+      <a routerLink="/ver-usuarios">
+        <span class="material-symbols-outlined">emoji_people</span>
+        <span>Usuarios</span>
+      </a>
+    </nav>
+
+    <button class="logout" (click)="logout()">
+      <span class="material-symbols-outlined">logout</span>
+      Cerrar sesión
+    </button>
+  </aside>
+
+  <main class="main">
+    <h1>Vista General del Equipo</h1>
+    <p class="sub">Última actualización: hace 5 minutos</p>
+
+    <div class="cards">
+      <div class="card">
+        <p>Total de jugadores</p>
+        <h2>124</h2>
+      </div>
+
+      <div class="card">
+        <p>Partidos registrados</p>
+        <h2>48</h2>
+      </div>
+
+      <div class="card">
+        <p>Rendimiento</p>
+        <h2>82%</h2>
+      </div>
+
+      <div class="card">
+        <p>Asistencia promedio</p>
+        <h2>94%</h2>
+      </div>
     </div>
 
-    <div class="card">
-      <span>Carga</span>
-      <h3>Moderada</h3>
+    <div class="charts">
+
+      <div class="chart-card">
+        <h3>Rendimiento Mensual</h3>
+        <p>Evolución del desempeño</p>
+
+        <svg viewBox="0 0 400 150">
+          <path d="M0,120 C50,110 80,40 120,60 C160,80 180,20 240,40 C300,60 350,10 400,30" fill="none" stroke="#2563eb"
+            stroke-width="3" />
+        </svg>
+      </div>
+
+      <div class="chart-card">
+        <h3>Comparativa de Equipo</h3>
+        <p>Métricas por categoría</p>
+
+        <div class="bars">
+          <div style="height:80%"></div>
+          <div style="height:95%"></div>
+          <div style="height:60%"></div>
+          <div style="height:40%"></div>
+          <div style="height:75%"></div>
+        </div>
+      </div>
+
     </div>
-  </div>
 
-</main>
+    <div class="table-card">
+      <div class="table-header">
+        <h3>Jugadores Destacados</h3>
+      </div>
 
-</body>
-</html>
+      <table>
+        <thead>
+          <tr>
+            <th>Jugador</th>
+            <th>Posición</th>
+            <th>Partidos</th>
+            <th>Eficiencia</th>
+            <th>Tendencia</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr>
+            <td colspan="5" class="empty">Sin datos disponibles</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </main>
+
+</div>

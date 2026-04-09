@@ -4,6 +4,7 @@ import { PartidoService } from '../../../services/partido/partido-service';
 import { AuthService } from '../../../services/auth/auth-service';
 import { CommonModule, NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { forkJoin } from 'rxjs';
 
 interface EstadoPuntos {
   puntosEquipo: number;
@@ -23,12 +24,17 @@ export class DetallePartido implements OnInit {
   partido: any;
 
   sets: any[] = [];
-  jugadores: any[] = [];
+  jugadoresConvocados: any[] = [];
   estadisticas: any[] = [];
+
   tablaJugadores: any[] = [];
+  formacion: (any | null)[] = [null, null, null, null, null, null];
 
   puntosEquipo: number = 0;
   puntosRival: number = 0;
+
+  posicionSeleccionada: number | null = null;
+  mostrarModalFormacion: boolean = false;
 
   private historialPuntos: EstadoPuntos[] = [];
 
@@ -38,13 +44,13 @@ export class DetallePartido implements OnInit {
     public authService: AuthService,
     private router: Router,
     private cd: ChangeDetectorRef
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.partidoId = Number(this.route.snapshot.paramMap.get('id'));
     this.cargarPartido();
     this.cargarSets();
-    this.cargarEstadisticas();
+    this.cargarJugadoresYEstadisticas();
   }
 
   get puedeDeshacer(): boolean {
@@ -75,47 +81,76 @@ export class DetallePartido implements OnInit {
     return Math.abs(this.puntosEquipo - this.puntosRival);
   }
 
+  get jugadoresEnBanquillo(): any[] {
+    const enCancha = this.formacion.filter(j => j !== null).map(j => j.id);
+    return this.jugadoresConvocados.filter(j => !enCancha.includes(j.id));
+  }
+
+  abrirSeleccion(indicePosicion: number): void {
+    this.posicionSeleccionada = indicePosicion;
+    this.mostrarModalFormacion = true;
+  }
+
+  asignarJugador(jugador: any): void {
+    if (this.posicionSeleccionada === null) return;
+
+    // Si el jugador ya estaba en otra posición, lo quitamos de ahí
+    const posAnterior = this.formacion.findIndex(j => j?.id === jugador.id);
+    if (posAnterior !== -1) {
+      this.formacion[posAnterior] = null;
+    }
+
+    this.formacion[this.posicionSeleccionada] = jugador;
+    this.cerrarModal();
+  }
+
+  quitarJugadorDePosicion(indicePosicion: number): void {
+    this.formacion[indicePosicion] = null;
+  }
+
+  cerrarModal(): void {
+    this.mostrarModalFormacion = false;
+    this.posicionSeleccionada = null;
+  }
+
+  shortName(fullName: string): string {
+    if (!fullName) return '';
+    return fullName.split(' ').slice(0, 2).join(' ');
+  }
+
   puedeFinalizarSet(): boolean {
     const max = Math.max(this.puntosEquipo, this.puntosRival);
+    const diferencia = Math.abs(this.puntosEquipo - this.puntosRival);
 
     if (this.puntosEquipo === this.puntosRival) return false;
     if (max < this.puntosObjetivo) return false;
-    if (this.diferenciaPuntos < 2) return false;
+    if (diferencia < 2) return false;
 
     return true;
   }
-
-  // =============================
-  // 🔄 CARGA DE DATOS
-  // =============================
 
   cargarPartido() {
     this.partidoService.getPartidoById(this.partidoId).subscribe({
       next: (data) => {
         this.partido = data;
-        this.cargarJugadores(this.partido.equipo_id);
+        this.cargarJugadoresYEstadisticas();
       },
       error: (err: any) => console.error(err)
     });
   }
 
-  cargarJugadores(equipoId: number) {
-    this.partidoService.getJugadoresByEquipo(equipoId).subscribe({
-      next: (data) => {
-        this.jugadores = data;
-        this.construirTabla();
+  cargarJugadoresYEstadisticas(): void {
+    forkJoin({
+      jugadores: this.partidoService.getJugadoresByPartido(this.partidoId),
+      estadisticas: this.partidoService.getEstadisticas(this.partidoId)
+    }).subscribe({
+      next: ({ jugadores, estadisticas }) => {
+        this.jugadoresConvocados = jugadores;
+        this.estadisticas = estadisticas;
+        this.construirTabla(); // se ejecuta solo cuando AMBAS respondieron
+        this.cd.detectChanges();
       },
-      error: (err: any) => console.error(err)
-    });
-  }
-
-  cargarEstadisticas() {
-    this.partidoService.getEstadisticas(this.partidoId).subscribe({
-      next: (data) => {
-        this.estadisticas = data;
-        this.construirTabla();
-      },
-      error: (err: any) => console.error(err)
+      error: (err) => console.error(err)
     });
   }
 
@@ -127,9 +162,9 @@ export class DetallePartido implements OnInit {
   }
 
   construirTabla() {
-    if (!this.jugadores.length) return;
+    if (!this.jugadoresConvocados.length) return;
 
-    this.tablaJugadores = this.jugadores.map(jugador => {
+    this.tablaJugadores = this.jugadoresConvocados.map(jugador => {
       const stats = this.estadisticas.find(e => e.jugador_id === jugador.id);
       return {
         ...jugador,
@@ -152,6 +187,8 @@ export class DetallePartido implements OnInit {
   }
 
   finalizarPartido() {
+    alert("Realmente")
+
     this.partidoService.updateEstado(this.partidoId, 'finalizado').subscribe(() => {
       this.partido.estado = 'finalizado';
     });
@@ -204,6 +241,7 @@ export class DetallePartido implements OnInit {
     }
 
     const data = {
+      numero_set: this.numeroSetActual,
       puntos_equipo: this.puntosEquipo,
       puntos_rival: this.puntosRival
     };
@@ -216,7 +254,7 @@ export class DetallePartido implements OnInit {
         this.historialPuntos = [];
 
         this.cargarSets();
-        this.cargarPartido(); 
+        this.cargarPartido();
       },
       error: (err: any) => console.error(err)
     });
