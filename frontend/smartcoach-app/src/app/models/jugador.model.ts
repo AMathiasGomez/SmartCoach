@@ -6,4 +6,5 @@ export interface Jugador {
   numero: number;
   equipo_id: number;
   equipo_nombre?: string;
+  foto_url?: string;
 }

@@ -1,5 +1,5 @@
-<div class="app-content">
-  <!-- SIDEBAR -->
+<div class="app-container">
+
     <aside class="sidebar">
         <div class="logo">
             <div class="logo-icon">SC</div>
@@ -41,71 +41,34 @@
             Cerrar sesión
         </button>
     </aside>
-
-  <!-- MAIN -->
-  <main class="main-content">
-
-        <h1>Lista de entrenamientos</h1>
-        <p class="sub">Aquí podrás gestionar y consultar los entrenamientos registrados.</p>
-
-        <!-- 🔥 RESUMEN -->
-        <div class="stats">
-            <div class="stat-card">
-                <h4>{{ totalEntrenamientos }}</h4>
-                <p>Total</p>
+    <main class="main-content">
+        <header class="page-header">
+            <div>
+                <h1>Lista de entrenamientos</h1>
+                <p class="sub">Gestiona y visualiza la información de tus entrenamientos registrados.</p>
             </div>
+            <button class="btn-primary" (click)="router.navigate(['/crear-entrenamiento'])">
+                <span class="material-symbols-outlined">add_circle</span>
+                Crear nuevo entrnenamiento
+            </button>
+        </header>
 
-            <div class="stat-card">
-                <h4>{{ entrenamientosSemana }}</h4>
-                <p>Esta semana</p>
-            </div>
+        <div *ngIf="loading">Cargando entrenamientos...</div>
+
+        <div *ngIf="!loading && entrenamientos.length === 0">
+            No hay entrenamientos registrados
         </div>
 
-        <section class="card">
-
-            <div class="column">
-                <h5>
-                    <span class="material-symbols-outlined">fitness_center</span>
-                    Entrenamientos
-                </h5>
-
-                <button class="crear-jugador" (click)="router.navigate(['/crear-entrenamiento'])">
-                    <span class="material-symbols-outlined">add</span>
-                    Crear entrenamiento
-                </button>
-            </div>
-
-            <hr>
-
-            <!-- 🔍 FILTROS -->
-            <div class="filtros">
-                <select [(ngModel)]="filtroEquipo">
-                    <option value="">Todos los equipos</option>
-                    <option *ngFor="let equipo of equipos" [value]="equipo.id">
-                        {{ equipo.nombre }}
-                    </option>
-                </select>
-
-                <input type="date" [(ngModel)]="filtroFecha">
-
-                <select [(ngModel)]="filtroEstado">
-                    <option value="">Todos</option>
-                    <option value="completado">Completado</option>
-                    <option value="pendiente">Pendiente</option>
-                </select>
-
-                <button class="btn-filtrar" (click)="filtrar()">Filtrar</button>
-            </div>
-
-            <hr>
+        <section class="card table-container" *ngIf="!loading && entrenamientos.length > 0">
 
             <table>
                 <thead>
                     <tr>
-                        <th>Fecha</th>
                         <th>Equipo</th>
-                        <th>Tipo</th>
+                        <th>Fecha</th>
+                        <th>Hora</th>
                         <th>Duración</th>
+                        <th>Tipo</th>
                         <th>Estado</th>
                         <th>Acciones</th>
                     </tr>
@@ -113,28 +76,39 @@
 
                 <tbody>
                     <tr *ngFor="let entrenamiento of entrenamientos">
-                        <td>{{ entrenamiento.fecha }}</td>
                         <td>{{ entrenamiento.equipo_nombre }}</td>
+                        <td>{{ entrenamiento.fecha | date:'shortDate' }}</td>
+                        <td>{{ entrenamiento.hora }}</td>
                         <td>{{ entrenamiento.tipo }}</td>
-                        <td>{{ entrenamiento.duracion }} min</td>
+                        <td>{{ entrenamiento.duracion  }} min</td>
 
                         <td>
                             <span [ngClass]="{
                                 'estado-completado': entrenamiento.estado === 'completado',
-                                'estado-pendiente': entrenamiento.estado === 'pendiente'
-                            }">
+                                'estado-pendiente': entrenamiento.estado === 'programado'
+                            }" class="badge">
                                 {{ entrenamiento.estado }}
                             </span>
                         </td>
 
-                        <td>
-                            <button class="btn-edit" (click)="editar(entrenamiento.id)">Editar</button>
-                            <button class="btn-delete" (click)="eliminar(entrenamiento.id)">Eliminar</button>
+                        <td class="text-right">
+                            <div class="action-buttons">
+                                <button class="btn-icon btn-edit"
+                                    [title]="entrenamiento.estado === 'completado' ? 'No se puede editar un partido completado' : ''"
+                                    [routerLink]="['/editar-entrenamiento', entrenamiento.id]"
+                                    [disabled]="entrenamiento.estado === 'completado'">
+                                    <span class="material-symbols-outlined">edit</span>
+                                </button>
+                                <button class="btn-icon btn-delete" title="Eliminar" (click)="eliminar(entrenamiento.id!)">
+                                    <span class="material-symbols-outlined">delete</span>
+                                </button>
+                            </div>
                         </td>
                     </tr>
                 </tbody>
             </table>
-
         </section>
+
     </main>
+
 </div>

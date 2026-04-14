@@ -1,5 +1,5 @@
 const db = require('../config/db');
-const Usuario = require('../models/jugador');
+const Usuario = require('../models/usuario');
 
 exports.getUsuarios = async (req, res) => {
   try {

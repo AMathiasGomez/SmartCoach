@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Equipo } from '../../../models/equipo.model';
 import { EntrenamientoService } from '../../../services/entrenamiento/entrenamiento-service';
@@ -14,7 +14,7 @@ import { CommonModule } from '@angular/common';
   styleUrl: './crear-entrenamiento.css',
 })
 export class CrearEntrenamiento implements OnInit {
- formEntrenamiento!: FormGroup;
+  formEntrenamiento!: FormGroup;
   equipos: any[] = [];
 
   constructor(
@@ -22,8 +22,9 @@ export class CrearEntrenamiento implements OnInit {
     private entrenamientoService: EntrenamientoService,
     private equipoService: EquipoService,
     private router: Router,
-    private authService: AuthService
-  ) {}
+    private authService: AuthService,
+    private cd: ChangeDetectorRef
+  ) { }
 
   ngOnInit(): void {
     this.formEntrenamiento = this.fb.group({
@@ -32,10 +33,11 @@ export class CrearEntrenamiento implements OnInit {
       hora: ['', Validators.required],
       tipo: ['', Validators.required],
       duracion: [null, [Validators.required, Validators.min(10), Validators.max(180)]],
-      estado: ['', Validators.required]
+      estado: ['programado', Validators.required]
     });
 
     this.cargarEquipos();
+    this.cd.detectChanges();
   }
 
   cargarEquipos() {
@@ -43,11 +45,38 @@ export class CrearEntrenamiento implements OnInit {
       next: data => this.equipos = data,
       error: err => console.error(err)
     });
+    this.cd.detectChanges();
   }
 
   crearEntrenamiento() {
+    if (this.formEntrenamiento.invalid) {
+      this.formEntrenamiento.markAllAsTouched();
+      return;
+    }
 
+    const data = {
+      equipo_id: this.formEntrenamiento.value.equipo_id,
+      fecha: this.formEntrenamiento.value.fecha,
+      hora: this.formEntrenamiento.value.hora,
+      tipo: this.formEntrenamiento.value.tipo,
+      duracion: this.formEntrenamiento.value.duracion,
+      estado: this.formEntrenamiento.value.estado,
+      descripcion: null
+    };
+
+    this.entrenamientoService.crearEntrenamiento(data)
+      .subscribe({
+        next: (res) => {
+          alert('Partido creado correctamente');
+          this.router.navigate(['/ver-entrenamientos']);
+        },
+        error: (err) => {
+          console.error('Error: ', err);
+        }
+      });
   }
+
+  minFecha = new Date().toISOString().split('T')[0];
 
   logout() {
     this.authService.logOut();

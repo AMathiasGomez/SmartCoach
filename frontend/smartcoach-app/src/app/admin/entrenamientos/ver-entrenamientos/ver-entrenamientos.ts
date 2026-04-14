@@ -15,7 +15,7 @@ import { EquipoService } from '../../../services/equipo/equipo-service';
 })
 export class VerEntrenamientos implements OnInit {
 
-   loading = false;
+  loading = false;
 
   // 📊 DATA
   entrenamientos: any[] = [];
@@ -38,19 +38,31 @@ export class VerEntrenamientos implements OnInit {
     public router: Router,
     private cd: ChangeDetectorRef,
     private authService: AuthService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.cargarEntrenamientos();
     this.cargarEquipos();
   }
 
-  // 🔥 CARGAR ENTRENAMIENTOS
   cargarEntrenamientos() {
+    this.entrenamientoService.getEntrenamientos().subscribe({
+      next: (data) => {
+        this.entrenamientos = data;
+        this.entrenamientosOriginal = data;
+        this.loading = false;
 
+        this.totalEntrenamientos = data.length;
+        this.calcularSemana();
+        this.cd.detectChanges()
+      },
+      error: (err) => {
+        console.error(err);
+        this.loading = false;
+      }
+    });
   }
 
-  // 🔥 CARGAR EQUIPOS (para filtros)
   cargarEquipos() {
     this.equipoService.getEquipos().subscribe({
       next: (data) => {
@@ -62,45 +74,41 @@ export class VerEntrenamientos implements OnInit {
     });
   }
 
-  // 🔍 FILTRAR
   filtrar() {
     this.entrenamientos = this.entrenamientosOriginal.filter(e => {
 
-      const cumpleEquipo =
-        !this.filtroEquipo || e.equipo_id == this.filtroEquipo;
+      const matchEquipo = this.filtroEquipo ? e.equipo_id == this.filtroEquipo : true;
+      const matchFecha = this.filtroFecha ? e.fecha === this.filtroFecha : true;
+      const matchEstado = this.filtroEstado ? e.estado === this.filtroEstado : true;
 
-      const cumpleFecha =
-        !this.filtroFecha || e.fecha.includes(this.filtroFecha);
-
-      const cumpleEstado =
-        !this.filtroEstado || e.estado === this.filtroEstado;
-
-      return cumpleEquipo && cumpleFecha && cumpleEstado;
+      return matchEquipo && matchFecha && matchEstado;
     });
   }
 
-  // 📊 STATS
-  calcularStats() {
-    this.totalEntrenamientos = this.entrenamientos.length;
-
+  calcularSemana() {
     const hoy = new Date();
-    const hace7dias = new Date();
-    hace7dias.setDate(hoy.getDate() - 7);
+    const inicioSemana = new Date(hoy.setDate(hoy.getDate() - hoy.getDay()));
+    const finSemana = new Date(inicioSemana);
+    finSemana.setDate(finSemana.getDate() + 6);
 
-    this.entrenamientosSemana = this.entrenamientos.filter(e => {
+    this.entrenamientosSemana = this.entrenamientosOriginal.filter(e => {
       const fecha = new Date(e.fecha);
-      return fecha >= hace7dias && fecha <= hoy;
+      return fecha >= inicioSemana && fecha <= finSemana;
     }).length;
   }
 
-  // ✏️ EDITAR
-  editar(id: number) {
-    this.router.navigate(['/editar-entrenamiento', id]);
-  }
-
-  // 🗑 ELIMINAR
   eliminar(id: number) {
-
+    if (confirm('¿Deseas eliminar este entrenamiento?')) {
+      this.entrenamientoService.deleteEntrenamiento(id).subscribe({
+        next: () => {
+          alert('Entrenamiento eliminado');
+          this.cargarEntrenamientos();
+        },
+        error: () => {
+          alert('Error al eliminar');
+        }
+      });
+    }
   }
 
   logout() {

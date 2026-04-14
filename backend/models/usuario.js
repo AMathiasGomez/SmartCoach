@@ -11,4 +11,4 @@ const Usuario = {
   },
 };
 
-module.exports = Jugador;
+module.exports = Usuario;

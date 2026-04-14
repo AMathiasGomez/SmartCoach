@@ -42,83 +42,82 @@
     </button>
   </aside>
 
-  <main class="main">
-    <h1>Vista General del Equipo</h1>
-    <p class="sub">Última actualización: hace 5 minutos</p>
+<main class="main">
+  <section class="welcome">
+    <h1>Bienvenido de nuevo, Administrador</h1>
+  </section>
 
-    <div class="cards">
-      <div class="card">
-        <p>Total de jugadores</p>
-        <h2>124</h2>
-      </div>
+  <section class="quick-actions">
+    <button routerLink="/crear-jugador">Crear nuevo jugador</button>
+    <button routerLink="/crear-equipo">Crear equipo</button>
+    <button routerLink="/crear-partido">Registrar equipo</button>
+    <button routerLink="/crear-entrenamiento">Programar entrenamiento</button>
+  </section>
 
-      <div class="card">
-        <p>Partidos registrados</p>
-        <h2>48</h2>
-      </div>
+  <section class="cards">
+    <div class="card">
+      <h3>Total Jugadores</h3>
+      <p></p>
+    </div>
+    <div class="card">
+      <h3>Total Equipo</h3>
+      <p></p>
+    </div>
+    <div class="card">
+      <h3>Partidos registrados</h3>
+      <p></p>
+    </div>
+    <div class="card">
+      <h3>Sesiones de entrenamiento</h3>
+      <p></p>
+    </div>
+  </section>
 
-      <div class="card">
-        <p>Rendimiento</p>
-        <h2>82%</h2>
-      </div>
-
-      <div class="card">
-        <p>Asistencia promedio</p>
-        <h2>94%</h2>
-      </div>
+  <section class="charts">
+    <div class="chart large">
+      <h3>Rendimiento de equipo</h3>
+      <div class="chart-placeholder">Grafica</div>
     </div>
 
-    <div class="charts">
-
-      <div class="chart-card">
-        <h3>Rendimiento Mensual</h3>
-        <p>Evolución del desempeño</p>
-
-        <svg viewBox="0 0 400 150">
-          <path d="M0,120 C50,110 80,40 120,60 C160,80 180,20 240,40 C300,60 350,10 400,30" fill="none" stroke="#2563eb"
-            stroke-width="3" />
-        </svg>
-      </div>
-
-      <div class="chart-card">
-        <h3>Comparativa de Equipo</h3>
-        <p>Métricas por categoría</p>
-
-        <div class="bars">
-          <div style="height:80%"></div>
-          <div style="height:95%"></div>
-          <div style="height:60%"></div>
-          <div style="height:40%"></div>
-          <div style="height:75%"></div>
-        </div>
-      </div>
-
+    <div class="chart">
+      <h3>Posiciones</h3>
+      <div class="chart-placeholder">Grafica</div>
     </div>
+  </section>
 
-    <div class="table-card">
-      <div class="table-header">
-        <h3>Jugadores Destacados</h3>
-      </div>
-
-      <table>
-        <thead>
-          <tr>
-            <th>Jugador</th>
-            <th>Posición</th>
-            <th>Partidos</th>
-            <th>Eficiencia</th>
-            <th>Tendencia</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          <tr>
-            <td colspan="5" class="empty">Sin datos disponibles</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-  </main>
+  <section class="table-section">
+    <h3>Actualizaciones recientes</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Evento</th>
+          <th>Objeto</th>
+          <th>Estado</th>
+          <th>Hora</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>New Player Registration</td>
+          <td>Marco Rossi</td>
+          <td>Approved</td>
+          <td>Today, 10:24 AM</td>  
+        </tr>
+        <tr>
+          <td>Match Results Validated</td>
+          <td>Titans vs. Vikings</td>
+          <td>Syncing</td>
+          <td>Today, 09:15 AM</td>
+        </tr>
+        <tr>
+          <td>Training Log Updated</td>
+          <td>Elite Strength & Conditioning</td>
+          <td>Completed</td>
+          <td>Yesterday</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+</main>
 
 </div>

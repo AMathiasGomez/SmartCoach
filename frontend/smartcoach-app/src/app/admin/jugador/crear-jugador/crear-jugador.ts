@@ -22,6 +22,10 @@ export class CrearJugador implements OnInit {
   formJugador!: FormGroup;
   errorMessage: string = ''
 
+  fotoArchivo: File | null = null;
+  fotoPreview: string | null = null;
+  fotoError: string = '';
+
   constructor(
     private fb: FormBuilder,
     private jugadorService: JugadorService,
@@ -63,19 +67,32 @@ export class CrearJugador implements OnInit {
   }
 
   crearJugador() {
-
     if (this.formJugador.invalid) {
       this.formJugador.markAllAsTouched();
       return;
     }
 
-    const data = this.formJugador.value; 
+    // Construir FormData para enviar datos + archivo
+    const formData = new FormData();
+    const valores = this.formJugador.value;
 
-    this.jugadorService.crearJugador(data).subscribe({
+    formData.append('nombre', valores.nombre);
+    formData.append('fecha_nacimiento', valores.fecha_nacimiento);
+    formData.append('posicion', valores.posicion);
+    formData.append('numero', valores.numero);
+    formData.append('equipo_id', valores.equipo_id);
+
+    if (this.fotoArchivo) {
+      formData.append('foto', this.fotoArchivo, this.fotoArchivo.name);
+    }
+
+    this.jugadorService.crearJugador(formData).subscribe({
       next: (res) => {
         alert('Jugador creado correctamente');
         this.router.navigate(['/ver-jugadores']);
         this.formJugador.reset();
+        this.fotoArchivo = null;
+        this.fotoPreview = null;
       },
       error: (err) => {
         console.error(err);
@@ -83,6 +100,39 @@ export class CrearJugador implements OnInit {
         alert(err.error.message);
       }
     });
+  }
+
+  onFotoSeleccionada(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+
+    const archivo = input.files[0];
+    const tiposPermitidos = ['image/jpeg', 'image/png', 'image/webp'];
+    const maxSize = 5 * 1024 * 1024; // 5MB
+
+    if (!tiposPermitidos.includes(archivo.type)) {
+      this.fotoError = 'Solo se permiten imágenes JPG, PNG o WEBP.';
+      this.fotoArchivo = null;
+      this.fotoPreview = null;
+      return;
+    }
+
+    if (archivo.size > maxSize) {
+      this.fotoError = 'La imagen no debe superar los 5MB.';
+      this.fotoArchivo = null;
+      this.fotoPreview = null;
+      return;
+    }
+
+    this.fotoError = '';
+    this.fotoArchivo = archivo;
+
+    // Generar vista previa
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.fotoPreview = reader.result as string;
+    };
+    reader.readAsDataURL(archivo);
   }
 
   logout() {

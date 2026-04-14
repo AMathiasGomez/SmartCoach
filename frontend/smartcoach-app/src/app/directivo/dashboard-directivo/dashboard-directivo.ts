@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { AuthService } from '../../services/auth/auth-service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-dashboard-directivo',
@@ -7,4 +9,17 @@ import { Component } from '@angular/core';
   templateUrl: './dashboard-directivo.html',
   styleUrl: './dashboard-directivo.css',
 })
-export class DashboardDirectivo {}
+export class DashboardDirectivo {
+
+  constructor(
+    private authService: AuthService,
+    public router: Router
+  ) {}
+
+
+  logout() {
+    this.authService.logOut();
+    this.router.navigate(['/login']);
+  }
+  
+}

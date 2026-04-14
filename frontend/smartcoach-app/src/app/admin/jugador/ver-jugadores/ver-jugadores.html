@@ -71,7 +71,11 @@
           <tr *ngFor="let jugador of jugadores">
             <td>
               <div class="user-info">
-                <div class="user-avatar font-bold text-blue">{{ jugador.nombre | slice:0:1 }}</div>
+                <img *ngIf="jugador.foto_url; else avatarLetra" [src]="'http://localhost:3006' + jugador.foto_url"
+                  alt="{{ jugador.nombre }}" class="user-avatar-img">
+                <ng-template #avatarLetra>
+                  <div class="user-avatar font-bold text-blue">{{ jugador.nombre | slice:0:1 }}</div>
+                </ng-template>
                 <span class="font-bold">{{ jugador.nombre }}</span>
               </div>
             </td>
@@ -94,9 +98,6 @@
 
         </tbody>
       </table>
-
-      <hr>
-
     </section>
   </main>
 </div>

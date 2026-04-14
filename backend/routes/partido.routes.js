@@ -11,7 +11,8 @@ router.delete('/:id', partidoController.deletePartido);
 router.put('/:id/estado', partidoController.updateEstado);
 
 //JUGADORES
-router.get('/equipo/:id/jugadores', jugadorController.getJugadoresByEquipo);    
+router.get('/equipo/:id/jugadores', jugadorController.getJugadoresByEquipo);   
+router.get('/:partido_id/jugadores', partidoController.getJugadoresByPartido);
 
 //SETS
 router.get('/:id/sets', partidoController.getSets);

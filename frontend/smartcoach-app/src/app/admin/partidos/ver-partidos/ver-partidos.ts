@@ -57,7 +57,7 @@ export class VerPartidos {
   }
 
   eliminar(id: number) {
-    if (confirm('¿Deseas eliminar este jugador?')) {
+    if (confirm('¿Deseas eliminar este partido?')) {
       this.partidoService.deletePartido(id).subscribe({
         next: () => {
           alert('Partido eliminado');

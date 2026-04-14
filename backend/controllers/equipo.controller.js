@@ -13,7 +13,7 @@ exports.getEquipos = async (req, res) => {
 
 exports.createEquipo = async (req, res) => {
   try {
-    let { nombre, categoria } = req.body;
+    let { nombre, categoria, ano_fundacion, descripcion } = req.body;
 
     nombre = nombre?.trim();
     categoria = categoria?.trim();
@@ -25,9 +25,9 @@ exports.createEquipo = async (req, res) => {
     }
 
     const [result] = await db.query(`
-      INSERT INTO equipos (nombre, categoria)
-      VALUES (?, ?)
-    `, [nombre, categoria]);
+      INSERT INTO equipos (nombre, categoria, ano_fundacion, descripcion)
+      VALUES (?, ?, ?, ?)
+    `, [nombre, categoria, ano_fundacion, descripcion]);
 
     return res.status(201).json({
       message: 'Equipo creado',

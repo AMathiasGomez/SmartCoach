@@ -65,7 +65,7 @@
 
                     <div class="form-group">
                         <label>Fecha</label>
-                        <input type="date" formControlName="fecha">
+                        <input type="date" formControlName="fecha" [min]="minFecha">
                     </div>
 
                     <div class="form-group">
@@ -86,15 +86,6 @@
                     <div class="form-group">
                         <label>Duración (minutos)</label>
                         <input type="number" formControlName="duracion" placeholder="Ej. 90">
-                    </div>
-
-                    <div class="form-group">
-                        <label>Estado</label>
-                        <select formControlName="estado">
-                            <option value="" disabled>Selecciona estado</option>
-                            <option value="pendiente">Pendiente</option>
-                            <option value="completado">Completado</option>
-                        </select>
                     </div>
 
                 </div>

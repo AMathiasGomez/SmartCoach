@@ -2,7 +2,7 @@ const db = require('../config/db');
 
 exports.createPartido = async (req, res) => {
   try {
-    let { nombre, equipo_id, rival, fecha, ubicacion, tipo } = req.body;
+    let { nombre, equipo_id, rival, fecha, ubicacion, tipo, convocados } = req.body;
 
     tipo = tipo?.trim().toLowerCase();
 
@@ -13,34 +13,32 @@ exports.createPartido = async (req, res) => {
     } else if (tipo === 'competencia') {
       cantidad_sets = 5;
     } else {
-      return res.status(400).json({ message: 'Tipo de partido inválido' });
+      return res.status(400).json({ message: 'Tipo inválido' });
     }
 
-    const query = `
-      INSERT INTO partidos 
-      (nombre, equipo_id, rival, fecha, ubicacion, tipo, cantidad_sets, estado)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    `;
+    const [result] = await db.query(
+      `INSERT INTO partidos 
+      (nombre, equipo_id, rival, fecha, ubicacion, tipo, cantidad_sets)
+      VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [nombre, equipo_id, rival, fecha, ubicacion, tipo, cantidad_sets]
+    );
 
-    const [result] = await db.query(query, [
-      nombre,
-      equipo_id,
-      rival,
-      fecha,
-      ubicacion,
-      tipo,
-      cantidad_sets,
-      'pendiente'
-    ]);
+    const partidoId = result.insertId;
 
-    res.status(201).json({
-      message: 'Partido creado',
-      id: result.insertId
-    });
+    if (convocados && convocados.length > 0) {
+      const values = convocados.map(jugadorId => [partidoId, jugadorId]);
+
+      await db.query(
+        `INSERT INTO partido_jugador (partido_id, jugador_id) VALUES ?`,
+        [values]
+      );
+    }
+
+    res.json({ message: 'Partido creado correctamente' });
 
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Error al crear partido' });
+    res.status(500).json({ error: 'Error al crear partido' });
   }
 };
 
@@ -390,4 +388,23 @@ exports.getEstadisticas = async (req, res) => {
   `, [id]);
 
   res.json(rows);
+};
+
+exports.getJugadoresByPartido = async (req, res) => {
+  try {
+    const { partido_id } = req.params;
+
+    const [jugadores] = await db.query(`
+      SELECT j.id, j.nombre, j.numero, j.posicion
+      FROM partido_jugador pj
+      JOIN jugadores j ON pj.jugador_id = j.id
+      WHERE pj.partido_id = ?
+    `, [partido_id]);
+
+    res.json(jugadores);
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al obtener jugadores del partido' });
+  }
 };
