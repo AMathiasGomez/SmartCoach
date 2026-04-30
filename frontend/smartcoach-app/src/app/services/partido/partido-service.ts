@@ -52,7 +52,7 @@ export class PartidoService {
   }
 
   getJugadoresByEquipo(equipoId: number) {
-    return this.http.get<any[]>(`http://localhost:3006/api/jugadores/equipo/${equipoId}`);
+return this.http.get<any[]>(`https://smartcoach-production.up.railway.app/api/jugadores/equipo/${equipoId}`);
   }
 
   getJugadoresByPartido(partidoId: number): Observable<any[]> {

@@ -17,7 +17,7 @@ export class VerEquiposE {
   loading = false;
   equipos: Equipo[] = [];
 
-  private baseUrl = 'http://localhost:3006';
+private baseUrl = 'https://smartcoach-production.up.railway.app';
 
   constructor(
     private equipoService: EquipoService,

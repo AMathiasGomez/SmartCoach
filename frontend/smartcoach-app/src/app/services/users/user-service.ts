@@ -13,7 +13,7 @@ export class UserService {
   }
 
   updateRol(id: number, rol: string) {
-    return this.http.put(`http://localhost:3006/api/usuarios/${id}/rol`, { rol });
+return this.http.put(`https://smartcoach-production.up.railway.app/api/usuarios/${id}/rol`, { rol });
   }
   
 }

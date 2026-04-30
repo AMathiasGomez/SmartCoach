@@ -17,7 +17,7 @@ export class VerEquipos implements OnInit {
   loading = false;
   equipos: Equipo[] = [];
 
-  private baseUrl = 'http://localhost:3006';
+  private baseUrl = 'http://smartcoach-production.up.railway.app:3006';
 
   constructor(
     private equipoService: EquipoService,

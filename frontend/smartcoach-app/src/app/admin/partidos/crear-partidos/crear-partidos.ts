@@ -60,7 +60,7 @@ export class CrearPartidos implements OnInit {
 
 
 
-    this.http.get('http://localhost:3006/api/equipos')
+this.http.get('https://smartcoach-production.up.railway.app/api/equipos')
       .subscribe((data: any) => {
         this.equipos = data;
       })

@@ -2,7 +2,7 @@ const axios = require('axios');
 const express = require('express');
 const router = express.Router();
 
-const ANALYTICS_URL = process.env.ANALYTICS_URL || 'http://localhost:8001';
+const ANALYTICS_URL = process.env.ANALYTICS_URL || 'https://smartcoach-production.up.railway.app';
 
 router.post('/:id/analytics', async (req, res) => {
   try {
