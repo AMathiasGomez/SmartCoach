@@ -10,7 +10,7 @@ export class EntrenamientoService {
 
   entrenamiento: Entrenamiento[] = [];
 
-  private apiUrl = 'http://localhost:3006/api/entrenamientos';
+  private apiUrl = 'http://smartcoach-production.up.railway.app/api/entrenamientos';
 
   constructor(private http: HttpClient) {}
 

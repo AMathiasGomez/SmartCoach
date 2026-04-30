@@ -9,7 +9,7 @@ import { Equipo } from '../../models/equipo.model';
 export class EquipoService {
   equipo: Equipo[] = [];
 
-  private api = 'http://localhost:3006/api/equipos';
+  private api = 'http://smartcoach-production.up.railway.app/api/equipos';
 
   constructor(private http: HttpClient) {}
 

@@ -8,7 +8,7 @@ import { jwtDecode } from 'jwt-decode';
 })
 export class AuthService {
 
-  private api = 'http://localhost:3006/api/auth'
+  private api = 'http://smartcoach-production.up.railway.app/api/auth'
 
   constructor(private http: HttpClient) {}
 

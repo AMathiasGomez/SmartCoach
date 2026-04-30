@@ -10,7 +10,7 @@ export class JugadorService {
 
   jugador: Jugador[] = [];
 
-  private apiUrl = 'http://localhost:3006/api/jugadores';
+  private apiUrl = 'http://smartcoach-production.up.railway.app/api/jugadores';
 
   constructor(private http: HttpClient) { }
 
