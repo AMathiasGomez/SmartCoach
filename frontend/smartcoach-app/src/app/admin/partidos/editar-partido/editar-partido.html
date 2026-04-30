@@ -1,0 +1,129 @@
+<div class="app-container">
+
+    <aside class="sidebar">
+        <div class="logo">
+            <div class="logo-icon">SC</div>
+            <div class="logo-text-wrapper">
+                <h3 class="logo-text">SmartCoach</h3>
+                <p class="logo-subtext">GESTIÓN DEPORTIVA</p>
+            </div>
+        </div>
+
+        <nav>
+            <a routerLink="/dashboard-admin">
+                <span class="material-symbols-outlined">space_dashboard</span>
+                <span>Panel de Control</span>
+            </a>
+            <a routerLink="/ver-equipos">
+                <span class="material-symbols-outlined">group</span>
+                <span>Equipos</span>
+            </a>
+            <a routerLink="/ver-jugadores">
+                <span class="material-symbols-outlined">person</span>
+                <span>Jugadores</span>
+            </a>
+            <a routerLink="/ver-entrenamientos">
+                <span class="material-symbols-outlined">fitness_center</span>
+                <span>Entrenamientos</span>
+            </a>
+            <a class="active" routerLink="/ver-partidos">
+                <span class="material-symbols-outlined">sports_soccer</span>
+                <span>Partidos</span>
+            </a>
+            <a routerLink="/ver-usuarios">
+                <span class="material-symbols-outlined">emoji_people</span>
+                <span>Usuarios</span>
+            </a>
+        </nav>
+
+        <button class="logout" (click)="logout()">
+            <span class="material-symbols-outlined">logout</span>
+            Cerrar sesión
+        </button>
+    </aside>
+
+    <main class="main-content" *ngIf="partido">
+        <h1>Editar Partido</h1>
+        <p class="sub">Modifica la información del partido</p>
+
+        <div *ngIf="partido.estado === 'finalizado'" class="alert">
+            Este partido ya fue finalizado y no se puede editar.
+        </div>
+
+        <div class="grid">
+            <section class="card-left">
+
+                <h5>
+                    <span class="material-symbols-outlined text-primary">edit</span>
+                    Información del Partido
+                </h5>
+
+                <form [formGroup]="partidoForm" (ngSubmit)="actualizarPartido()" class="form">
+
+                    <div class="grid-2">
+
+                        <div class="form-group">
+                            <label>Nombre</label>
+                            <input formControlName="nombre"
+                                   [disabled]="partido.estado !== 'pendiente'">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Equipo</label>
+                            <select formControlName="equipo_id">
+                                <option *ngFor="let equipo of equipos" [value]="equipo.id">
+                                    {{ equipo.nombre }}
+                                </option>
+                            </select>
+                            <small class="hint">El equipo no se puede modificar</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Rival</label>
+                            <input formControlName="rival"
+                                   [disabled]="partido.estado === 'finalizado'">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Fecha del Partido</label>
+                            <input type="date"
+                                   formControlName="fecha"
+                                   [disabled]="partido.estado !== 'pendiente'">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Ubicación</label>
+                            <input formControlName="ubicacion"
+                                   [disabled]="partido.estado === 'finalizado'">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Tipo de Partido</label>
+                            <select formControlName="tipo"
+                                    [disabled]="partido.estado !== 'pendiente'">
+                                <option value="amistoso">Amistoso</option>
+                                <option value="competencia">Competencia</option>
+                            </select>
+                        </div>
+
+                    </div>
+
+                    <div class="actions">
+
+                        <button type="button" class="btn-outline" routerLink="/ver-partidos">
+                            Cancelar
+                        </button>
+
+                        <button type="submit" class="btn-primary" [disabled]="partidoForm.invalid || partido.estado === 'finalizado'">
+                            Actualizar partido
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </section>
+        </div>
+    </main>
+
+</div>

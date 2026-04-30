@@ -1,0 +1,143 @@
+<div class="app-container">
+
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-icon">SC</div>
+      <div class="logo-text-wrapper">
+        <h3 class="logo-text">SmartCoach</h3>
+        <p class="logo-subtext">GESTIÓN DEPORTIVA</p>
+      </div>
+    </div>
+
+    <nav>
+      <a routerLink="/dashboard-admin">
+        <span class="material-symbols-outlined">space_dashboard</span>
+        <span>Panel de Control</span>
+      </a>
+      <a class="active" routerLink="/ver-equipos">
+        <span class="material-symbols-outlined">group</span>
+        <span>Equipos</span>
+      </a>
+      <a routerLink="/ver-jugadores">
+        <span class="material-symbols-outlined">person</span>
+        <span>Jugadores</span>
+      </a>
+      <a routerLink="/ver-entrenamientos">
+        <span class="material-symbols-outlined">fitness_center</span>
+        <span>Entrenamientos</span>
+      </a>
+      <a routerLink="/ver-partidos">
+        <span class="material-symbols-outlined">sports_soccer</span>
+        <span>Partidos</span>
+      </a>
+      <a routerLink="/ver-usuarios">
+        <span class="material-symbols-outlined">emoji_people</span>
+        <span>Usuarios</span>
+      </a>
+    </nav>
+
+    <button class="logout" (click)="logout()">
+      <span class="material-symbols-outlined">logout</span>
+      Cerrar sesión
+    </button>
+  </aside>
+
+  <main class="main-content">
+
+    <section class="header-section">
+      <h1>Registrar nuevo equipo</h1>
+      <p>Complete el perfil técnico del equipo.</p>
+    </section>
+
+    <section class="card">
+      <h5>
+        <span class="material-symbols-outlined text-primary">person_add</span>
+        Información del Equipo
+      </h5>
+
+      <form class="form" [formGroup]="form" (ngSubmit)="guardar()">
+
+        <div class="grid-2">
+
+          <div class="form-group" style="grid-column: 1 / -1;">
+    <label>Foto del Equipo</label>
+    <input type="file" accept="image/*" (change)="onFotoSeleccionada($event)">
+    <small *ngIf="fotoError" style="color: red;">{{ fotoError }}</small>
+
+    <div *ngIf="fotoPreview" style="margin-top: 10px;">
+      <img [src]="fotoPreview" alt="Vista previa"
+        style="width: 120px; height: 120px; object-fit: cover; border-radius: 8px; border: 2px solid #ddd;">
+    </div>
+  </div>
+
+          <div class="form-group">
+            <label>Nombre</label>
+            <div class="input-container">
+              <span class="material-symbols-outlined icon">badge</span>
+              <input type="text" placeholder="Nombre del equipo" formControlName="nombre">
+            </div>
+
+            <div *ngIf="form.get('nombre')?.invalid && form.get('nombre')?.touched">
+              <small *ngIf="form.get('nombre')?.errors?.['required']">El nombre es obligatorio</small>
+              <small *ngIf="form.get('nombre')?.errors?.['minlength']">Mínimo 3 caracteres</small>
+              <small *ngIf="form.get('nombre')?.errors?.['maxlength']">Máximo 50 caracteres</small>
+            </div>
+
+          </div>
+
+          <div class="form-group">
+            <label>Año Fundacion</label>
+            <div class="input-container">
+              <span class="material-symbols-outlined">calendar_today</span>
+              <input type="text" placeholder="Ej. 1998" formControlName="ano_fundacion">
+            </div>
+
+            <div *ngIf="form.get('ano_fundacion')?.invalid && form.get('ano_fundacion')?.touched">
+              <small *ngIf="form.get('ano_fundacion')?.errors?.['required']">El año es obligatorio</small>
+              <small *ngIf="form.get('ano_fundacion')?.errors?.['pattern']">Debe ser un año válido (4 dígitos)</small>
+              <small *ngIf="form.get('ano_fundacion')?.errors?.['min']">No puede ser menor a 1900</small>
+              <small *ngIf="form.get('ano_fundacion')?.errors?.['max']">No puede ser mayor al año actual</small>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Categoria</label>
+          <div class="input-container">
+            <span class="material-symbols-outlined">date_range</span>
+            <select formControlName="categoria">
+              <option value="">Seleccione una categoría</option>
+              <option value="Benjamin">Benjamin</option>
+              <option value="Mini">Mini</option>
+              <option value="Infantil">Infantil</option>
+              <option value="Menores">Menores</option>
+              <option value="Juvenil">Juvenil</option>
+              <option value="Mayores">Mayores</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Descripcion</label>
+          <textarea placeholder="Descripción del equipo a crear" formControlName="descripcion"></textarea>
+          <small *ngIf="form.get('descripcion')?.errors?.['minlength']">Mínimo 10 caracteres</small>
+        </div>
+
+        <div class="actions">
+          <button type="button" class="btn-outline" (click)="router.navigate(['/ver-equipos'])">
+            Cancelar
+          </button>
+
+          <button type="submit" class="btn-primary">
+            <span class="material-symbols-outlined">save</span>
+            Guardar Equipo
+          </button>
+        </div>
+
+      </form>
+    </section>
+
+  </main>
+
+</div>

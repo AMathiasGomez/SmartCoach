@@ -1,0 +1,189 @@
+<div class="app-container">
+
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-icon">SC</div>
+      <div class="logo-text-wrapper">
+        <h3 class="logo-text">SmartCoach</h3>
+        <p class="logo-subtext">GESTIÓN DEPORTIVA</p>
+      </div>
+    </div>
+
+    <nav>
+      <a class="active" routerLink="/dashboard-admin">
+        <span class="material-symbols-outlined">space_dashboard</span>
+        <span>Panel de Control</span>
+      </a>
+      <a routerLink="/ver-equipos">
+        <span class="material-symbols-outlined">group</span>
+        <span>Equipos</span>
+      </a>
+      <a routerLink="/ver-jugadores">
+        <span class="material-symbols-outlined">person</span>
+        <span>Jugadores</span>
+      </a>
+      <a routerLink="/ver-entrenamientos">
+        <span class="material-symbols-outlined">fitness_center</span>
+        <span>Entrenamientos</span>
+      </a>
+      <a routerLink="/ver-partidos">
+        <span class="material-symbols-outlined">sports_soccer</span>
+        <span>Partidos</span>
+      </a>
+      <a routerLink="/ver-usuarios">
+        <span class="material-symbols-outlined">emoji_people</span>
+        <span>Usuarios</span>
+      </a>
+    </nav>
+
+    <button class="logout" (click)="logout()">
+      <span class="material-symbols-outlined">logout</span>
+      Cerrar sesión
+    </button>
+  </aside>
+
+  <main class="main-content">
+
+
+    <div class="content">
+
+      <section class="welcome">
+        <div>
+          <h1>Bienvenido, Director</h1>
+          <p>
+            Resumen estratégico del rendimiento de su organización deportiva.
+          </p>
+        </div>
+        <div class="actions">
+          <button class="btn btn-secondary">Descargar PDF</button>
+          <button class="btn btn-primary">Generar Reporte</button>
+        </div>
+      </section>
+
+      <section class="kpi-grid">
+        <div class="card">
+          <p class="card-title">TOTAL JUGADORES</p>
+          <h3>124</h3>
+        </div>
+        <div class="card">
+          <p class="card-title">EQUIPOS</p>
+          <h3>12</h3>
+        </div>
+        <div class="card">
+          <p class="card-title">PARTIDOS JUGADOS</p>
+          <h3>48</h3>
+        </div>
+        <div class="card">
+          <p class="card-title">WIN RATE</p>
+          <h3>76%</h3>
+        </div>
+        <div class="card">
+          <p class="card-title">ENTRENAMIENTOS</p>
+          <h3>156</h3>
+        </div>
+        <div class="card">
+          <p class="card-title">ÍNDICE PROMEDIO</p>
+          <h3>8.4/10</h3>
+        </div>
+      </section>
+
+      <section class="charts">
+        <div class="chart-card">
+          <h3>Tendencias de Rendimiento</h3>
+          <div class="chart-placeholder">
+            Gráfico de Rendimiento
+          </div>
+        </div>
+
+        <div class="side-widgets">
+          <div class="best-team">
+            <h4>Mejor Equipo</h4>
+            <p>Valkyries Elite U18</p>
+            <span>94% de eficiencia</span>
+          </div>
+
+          <div class="alerts">
+            <h4>Alertas y Acciones</h4>
+            <p>3 jugadores requieren revisión médica.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="progress-section">
+        <h3>Progreso Estratégico Institucional</h3>
+
+        <div class="progress-grid">
+          <div class="progress-item">
+            <p>Desarrollo de Equipos</p>
+            <h4>92%</h4>
+            <div class="progress-bar">
+              <div class="fill" style="width: 92%"></div>
+            </div>
+          </div>
+
+          <div class="progress-item">
+            <p>Objetivos de Temporada</p>
+            <h4>78%</h4>
+            <div class="progress-bar">
+              <div class="fill blue" style="width: 78%"></div>
+            </div>
+          </div>
+
+          <div class="progress-item">
+            <p>Mejora de Atletas</p>
+            <h4>85%</h4>
+            <div class="progress-bar">
+              <div class="fill" style="width: 85%"></div>
+            </div>
+          </div>
+
+          <div class="progress-item">
+            <p>Efectividad del Entrenamiento</p>
+            <h4>64%</h4>
+            <div class="progress-bar">
+              <div class="fill purple" style="width: 64%"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="reports">
+        <h3>Reportes Estratégicos</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Reporte</th>
+              <th>Fecha</th>
+              <th>Categoría</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Quarterly Growth Assessment</td>
+              <td>May 12, 2025</td>
+              <td>Institucional</td>
+              <td class="status completed">Completado</td>
+            </tr>
+            <tr>
+              <td>Player Performance Index Q2</td>
+              <td>May 10, 2025</td>
+              <td>Técnico</td>
+              <td class="status processing">En proceso</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <footer class="footer">
+        <p>© 2025 SmartCoach – Sports Analytics Platform</p>
+        <div>
+          <a href="#">Privacidad</a>
+          <a href="#">Soporte</a>
+        </div>
+      </footer>
+
+    </div>
+  </main>
+
+</div>

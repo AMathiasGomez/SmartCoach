@@ -1,0 +1,116 @@
+<div class="app-container">
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-icon">SC</div>
+      <div class="logo-text-wrapper">
+        <h3 class="logo-text">SmartCoach</h3>
+        <p class="logo-subtext">GESTIÓN DEPORTIVA</p>
+      </div>
+    </div>
+
+    <nav>
+      <a routerLink="/dashboard-admin">
+        <span class="material-symbols-outlined">space_dashboard</span>
+        <span>Panel de Control</span>
+      </a>
+      <a class="active" routerLink="/ver-equipos">
+        <span class="material-symbols-outlined">group</span>
+        <span>Equipos</span>
+      </a>
+      <a routerLink="/ver-jugadores">
+        <span class="material-symbols-outlined">person</span>
+        <span>Jugadores</span>
+      </a>
+      <a routerLink="/ver-entrenamientos">
+        <span class="material-symbols-outlined">fitness_center</span>
+        <span>Entrenamientos</span>
+      </a>
+      <a routerLink="/ver-partidos">
+        <span class="material-symbols-outlined">sports_soccer</span>
+        <span>Partidos</span>
+      </a>
+      <a routerLink="/ver-usuarios">
+        <span class="material-symbols-outlined">emoji_people</span>
+        <span>Usuarios</span>
+      </a>
+    </nav>
+
+    <button class="logout" (click)="logout()">
+      <span class="material-symbols-outlined">logout</span>
+      Cerrar sesión
+    </button>
+  </aside>
+
+  <main class="main-content">
+    <header class="page-header">
+      <div>
+        <h1>Lista de equipos</h1>
+        <p class="sub">
+          Gestiona y visualiza la información de tus clubes registrados.
+        </p>
+      </div>
+      <button class="btn-primary" (click)="router.navigate(['/crear-equipo'])">
+        <span class="material-symbols-outlined">add_circle</span>
+        Crear nuevo equipo
+      </button>
+    </header>
+
+    <section class="card table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Equipo</th>
+            <th>Categoría</th>
+            <th>Fundación</th>
+            <th>Descripción</th>
+            <th class="text-right">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let equipo of equipos">
+            <!-- Foto y nombre del equipo -->
+            <td>
+              <div class="user-info">
+                <img *ngIf="equipo.foto_url; else avatarEquipo" [src]="getFotoEquipo(equipo.foto_url)"
+                  alt="{{ equipo.nombre }}" class="user-avatar-img" />
+
+                <ng-template #avatarEquipo>
+                  <div class="user-avatar font-bold text-blue">
+                    {{ equipo.nombre | slice: 0:1 }}
+                  </div>
+                </ng-template>
+
+                <span class="font-bold text-blue">
+                  {{ equipo.nombre }}
+                </span>
+              </div>
+            </td>
+
+            <td>
+              <span class="badge">{{ equipo.categoria }}</span>
+            </td>
+            <td>{{ equipo.ano_fundacion }}</td>
+            <td class="text-muted">{{ equipo.descripcion }}</td>
+
+            <td class="text-right">
+              <div class="action-buttons">
+                <button class="btn-icon btn-edit" title="Editar" (click)="editar(equipo.id!)">
+                  <span class="material-symbols-outlined">edit</span>
+                </button>
+                <button class="btn-icon btn-delete" title="Eliminar" (click)="eliminar(equipo.id!)">
+                  <span class="material-symbols-outlined">delete</span>
+                </button>
+              </div>
+            </td>
+          </tr>
+
+          <tr *ngIf="equipos.length === 0">
+            <td colspan="5" class="text-center text-muted">
+              No hay equipos registrados.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</div>

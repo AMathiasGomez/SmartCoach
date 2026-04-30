@@ -1,0 +1,114 @@
+<div class="app-container">
+
+    <aside class="sidebar">
+        <div class="logo">
+            <div class="logo-icon">SC</div>
+            <div class="logo-text-wrapper">
+                <h3 class="logo-text">SmartCoach</h3>
+                <p class="logo-subtext">GESTIÓN DEPORTIVA</p>
+            </div>
+        </div>
+
+        <nav>
+            <a routerLink="/dashboard-admin">
+                <span class="material-symbols-outlined">space_dashboard</span>
+                <span>Panel de Control</span>
+            </a>
+            <a routerLink="/ver-equipos">
+                <span class="material-symbols-outlined">group</span>
+                <span>Equipos</span>
+            </a>
+            <a routerLink="/ver-jugadores">
+                <span class="material-symbols-outlined">person</span>
+                <span>Jugadores</span>
+            </a>
+            <a routerLink="/ver-entrenamientos">
+                <span class="material-symbols-outlined">fitness_center</span>
+                <span>Entrenamientos</span>
+            </a>
+            <a class="active" routerLink="/ver-partidos">
+                <span class="material-symbols-outlined">sports_soccer</span>
+                <span>Partidos</span>
+            </a>
+            <a routerLink="/ver-usuarios">
+                <span class="material-symbols-outlined">emoji_people</span>
+                <span>Usuarios</span>
+            </a>
+        </nav>
+
+        <button class="logout" (click)="logout()">
+            <span class="material-symbols-outlined">logout</span>
+            Cerrar sesión
+        </button>
+    </aside>
+    <main class="main-content">
+        <header class="page-header">
+            <div>
+                <h1>Lista de partidos</h1>
+                <p class="sub">Gestiona y visualiza la información de tus partidos registrados.</p>
+            </div>
+            <button class="btn-primary" (click)="router.navigate(['/crear-partido'])">
+                <span class="material-symbols-outlined">add_circle</span>
+                Crear nuevo partido
+            </button>
+        </header>
+
+        <div *ngIf="loading">Cargando partidos...</div>
+
+        <div *ngIf="!loading && partidos.length === 0">
+            No hay partidos registrados
+        </div>
+
+        <section class="card table-container" *ngIf="!loading && partidos.length > 0">
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Equipo</th>
+                        <th>Rival</th>
+                        <th>Fecha</th>
+                        <th>Estado</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr *ngFor="let partido of partidos">
+
+                        <td class="font-bold text-blue">{{ partido.nombre }}</td>
+                        <td>{{ partido.equipo_nombre }}</td>
+                        <td>{{ partido.rival }}</td>
+                        <td>{{ partido.fecha | date:'shortDate' }}</td>
+
+                        <td>
+                            <span [class]="getEstado(partido.estado)" class="badge">
+                                {{ partido.estado }}
+                            </span>
+                        </td>
+
+                        <td class="text-right">
+                            <div class="action-buttons">
+                                <button class="btn-icon btn-primary" title="Detalles" (click)="irDetalle(partido.id)">
+                                    <span class="material-symbols-outlined">
+                                        scoreboard
+                                    </span>
+                                </button>
+                                <button class="btn-icon btn-edit" [title]="partido.estado === 'finalizado' ? 'No se puede editar un partido finalizado' : ''" [routerLink]="['/editar-partido', partido.id]" [disabled]="partido.estado === 'finalizado'">
+                                    <span class="material-symbols-outlined">edit</span>
+                                </button>
+                                <button class="btn-icon btn-delete" title="Eliminar" (click)="eliminar(partido.id!)">
+                                    <span class="material-symbols-outlined">delete</span>
+                                </button>
+                            </div>
+                        </td>
+
+                    </tr>
+                </tbody>
+            </table>
+
+        </section>
+
+    </main>
+
+</div>

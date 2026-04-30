@@ -1,0 +1,55 @@
+<div class="content">
+  <header class="hero-image min-h-screen">
+    <img src="../../../assets/images/image.jpeg" alt="Login image" class="bg-image w-full h-full object-cover" />
+  </header>
+  <div>
+    <nav class="navbar navbar-expand-lg shadow bg-white">
+      <div class="container">
+        <a class="navbar-brand fw-bold">🏐 Smart Coach</a>
+      </div>
+    </nav>
+  </div>
+
+  <div class="ingresa page-left">
+
+    <div class="form-overlay">
+      <section class="py-5" style="margin-top: 90px;">
+        <div class="container">
+          <div class="form-card animate_animated animate_fadeIn mx-auto" style="max-width: 650px; height: 100%;">
+            <div class="text-center mb-3">
+              <span class="icon"><i class="bi bi-person"></i></span>
+              <h3>¡Bienvenido de nuevo!</h3>
+              <p class="text-mute">Ingresa a Smart Coach y sigue mejorando tu juego.</p>
+            </div>
+            <form (ngSubmit)="login()">
+              <div class="mb-3">
+                <label for="email" class="form-label">Correo electrónico</label>
+                <input type="email" class="form-control" [(ngModel)]="email" name="email" #emailInput="ngModel" required email placeholder="Ingresa tu email" />
+              </div>
+              <div class="mb-3">
+                <label for="password" class="form-label">Contraseña</label>
+                <input type="password" class="form-control" [(ngModel)]="password" name="password" required
+                  placeholder="Ingresa tu contraseña" />
+              </div>
+              <button type="submit" class="btn btn-dark mt-2">Iniciar Sesion</button>
+            </form>
+            <div class="text-center mt-3">
+              <span class="text-mute">¿Todavia no tienes cuenta? <a routerLink="/register"
+                  class="text-primary">Regístrate aquí</a></span>
+            </div>
+          </div>
+
+          <div *ngIf="emailInput.invalid && emailInput.touched">
+            <small *ngIf="emailInput.errors?.['required']">
+              El correo es obligatorio
+            </small>
+            <small *ngIf="emailInput.errors?.['email']">
+              Formato de correo inválido
+            </small>
+          </div>
+
+        </div>
+      </section>
+    </div>
+  </div>
+</div>

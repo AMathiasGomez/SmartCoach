@@ -1,0 +1,123 @@
+<div class="app-container">
+
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-icon">SC</div>
+      <div class="logo-text-wrapper">
+        <h3 class="logo-text">SmartCoach</h3>
+        <p class="logo-subtext">GESTIÓN DEPORTIVA</p>
+      </div>
+    </div>
+
+    <nav>
+      <a class="active" routerLink="/dashboard-admin">
+        <span class="material-symbols-outlined">space_dashboard</span>
+        <span>Panel de Control</span>
+      </a>
+      <a routerLink="/ver-equipos">
+        <span class="material-symbols-outlined">group</span>
+        <span>Equipos</span>
+      </a>
+      <a routerLink="/ver-jugadores">
+        <span class="material-symbols-outlined">person</span>
+        <span>Jugadores</span>
+      </a>
+      <a routerLink="/ver-entrenamientos">
+        <span class="material-symbols-outlined">fitness_center</span>
+        <span>Entrenamientos</span>
+      </a>
+      <a routerLink="/ver-partidos">
+        <span class="material-symbols-outlined">sports_soccer</span>
+        <span>Partidos</span>
+      </a>
+      <a routerLink="/ver-usuarios">
+        <span class="material-symbols-outlined">emoji_people</span>
+        <span>Usuarios</span>
+      </a>
+    </nav>
+
+    <button class="logout" (click)="logout()">
+      <span class="material-symbols-outlined">logout</span>
+      Cerrar sesión
+    </button>
+  </aside>
+
+<main class="main">
+  <section class="welcome">
+    <h1>Bienvenido de nuevo, Administrador</h1>
+  </section>
+
+  <section class="quick-actions">
+    <button routerLink="/crear-jugador">Crear nuevo jugador</button>
+    <button routerLink="/crear-equipo">Crear equipo</button>
+    <button routerLink="/crear-partido">Registrar equipo</button>
+    <button routerLink="/crear-entrenamiento">Programar entrenamiento</button>
+  </section>
+
+  <section class="cards">
+    <div class="card">
+      <h3>Total Jugadores</h3>
+      <p></p>
+    </div>
+    <div class="card">
+      <h3>Total Equipo</h3>
+      <p></p>
+    </div>
+    <div class="card">
+      <h3>Partidos registrados</h3>
+      <p></p>
+    </div>
+    <div class="card">
+      <h3>Sesiones de entrenamiento</h3>
+      <p></p>
+    </div>
+  </section>
+
+  <section class="charts">
+    <div class="chart large">
+      <h3>Rendimiento de equipo</h3>
+      <div class="chart-placeholder">Grafica</div>
+    </div>
+
+    <div class="chart">
+      <h3>Posiciones</h3>
+      <div class="chart-placeholder">Grafica</div>
+    </div>
+  </section>
+
+  <section class="table-section">
+    <h3>Actualizaciones recientes</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Evento</th>
+          <th>Objeto</th>
+          <th>Estado</th>
+          <th>Hora</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>New Player Registration</td>
+          <td>Marco Rossi</td>
+          <td>Approved</td>
+          <td>Today, 10:24 AM</td>  
+        </tr>
+        <tr>
+          <td>Match Results Validated</td>
+          <td>Titans vs. Vikings</td>
+          <td>Syncing</td>
+          <td>Today, 09:15 AM</td>
+        </tr>
+        <tr>
+          <td>Training Log Updated</td>
+          <td>Elite Strength & Conditioning</td>
+          <td>Completed</td>
+          <td>Yesterday</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+</main>
+
+</div>

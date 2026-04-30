@@ -1,0 +1,119 @@
+<div class="app-container">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-icon">SC</div>
+      <div class="logo-text-wrapper">
+        <h3 class="logo-text">SmartCoach</h3>
+        <p class="logo-subtext">GESTIÓN DEPORTIVA</p>
+      </div>
+    </div>
+
+    <nav>
+      <a routerLink="/dashboard-admin">
+        <span class="material-symbols-outlined">space_dashboard</span>
+        <span>Panel de Control</span>
+      </a>
+      <a class="active" routerLink="/ver-equipos">
+        <span class="material-symbols-outlined">group</span>
+        <span>Equipos</span>
+      </a>
+      <a routerLink="/ver-jugadores">
+        <span class="material-symbols-outlined">person</span>
+        <span>Jugadores</span>
+      </a>
+      <a routerLink="/ver-entrenamientos">
+        <span class="material-symbols-outlined">fitness_center</span>
+        <span>Entrenamientos</span>
+      </a>
+      <a routerLink="/ver-partidos">
+        <span class="material-symbols-outlined">sports_soccer</span>
+        <span>Partidos</span>
+      </a>
+      <a routerLink="/ver-usuarios">
+        <span class="material-symbols-outlined">emoji_people</span>
+        <span>Usuarios</span>
+      </a>
+    </nav>
+
+    <button class="logout" (click)="logout()">
+      <span class="material-symbols-outlined">logout</span>
+      Cerrar sesión
+    </button>
+  </aside>
+
+  <!-- CONTENIDO -->
+  <main class="main-content">
+
+    <section class="header-section">
+      <h1>Editar equipo</h1>
+      <p>Editar información del equipo.</p>
+    </section>
+
+    <section class="card">
+      <h5><span class="material-symbols-outlined text-primary">person_add</span> Información del Equipo</h5>
+
+      <div>
+
+        <form *ngIf="!cargando" [formGroup]="form" (ngSubmit)="actualizarEquipo()" class="form">
+
+          <div class="grid-2">
+            <div class="form-group">
+              <label>Nombre</label>
+              <div class="input-container">
+                <input type="text" formControlName="nombre" placeholder="Ej. Halcones Black">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Año Fundación</label>
+              <div class="input-container">
+                <input type="number" formControlName="ano_fundacion" placeholder="Ej. 1998">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Categoría</label>
+            <div class="input-container">
+              <select formControlName="categoria">
+                <option value="">Seleccione una categoría</option>
+                <option value="Benjamin">Benjamin</option>
+                <option value="Mini">Mini</option>
+                <option value="Infantil">Infantil</option>
+                <option value="Menores">Menores</option>
+                <option value="Juvenil">Juvenil</option>
+                <option value="Mayores">Mayores</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Descripción</label>
+            <textarea formControlName="descripcion"></textarea>
+          </div>
+
+          <div class="actions">
+            <button type="button" class="btn-outline" (click)="router.navigate(['/ver-equipos'])">
+              Cancelar
+            </button>
+
+            <button type="submit" class="btn-primary">
+              Guardar Equipo
+            </button>
+          </div>
+
+        </form>
+
+        <div *ngIf="cargando">
+          Cargando equipo...
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+</div>

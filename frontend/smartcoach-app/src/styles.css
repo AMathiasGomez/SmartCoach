@@ -1,1 +1,31 @@
-/* You can add global styles to this file, and also import other style files */
+.page-transition {
+  animation: slideIn 0.45s cubic-bezier(0.4,0,0.2,1);
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.page-left {
+  animation: slideLeft 0.45s cubic-bezier(0.4,0,0.2,1);
+}
+
+@keyframes slideLeft {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}

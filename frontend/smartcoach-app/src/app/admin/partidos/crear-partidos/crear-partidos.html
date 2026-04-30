@@ -1,0 +1,129 @@
+<div class="app-container">
+
+    <aside class="sidebar">
+        <div class="logo">
+            <div class="logo-icon">SC</div>
+            <div class="logo-text-wrapper">
+                <h3 class="logo-text">SmartCoach</h3>
+                <p class="logo-subtext">GESTIÓN DEPORTIVA</p>
+            </div>
+        </div>
+
+        <nav>
+            <a routerLink="/dashboard-admin">
+                <span class="material-symbols-outlined">space_dashboard</span>
+                <span>Panel de Control</span>
+            </a>
+            <a routerLink="/ver-equipos">
+                <span class="material-symbols-outlined">group</span>
+                <span>Equipos</span>
+            </a>
+            <a routerLink="/ver-jugadores">
+                <span class="material-symbols-outlined">person</span>
+                <span>Jugadores</span>
+            </a>
+            <a routerLink="/ver-entrenamientos">
+                <span class="material-symbols-outlined">fitness_center</span>
+                <span>Entrenamientos</span>
+            </a>
+            <a class="active" routerLink="/ver-partidos">
+                <span class="material-symbols-outlined">sports_soccer</span>
+                <span>Partidos</span>
+            </a>
+            <a routerLink="/ver-usuarios">
+                <span class="material-symbols-outlined">emoji_people</span>
+                <span>Usuarios</span>
+            </a>
+        </nav>
+
+        <button class="logout" (click)="logout()">
+            <span class="material-symbols-outlined">logout</span>
+            Cerrar sesión
+        </button>
+    </aside>
+
+    <main class="main-content">
+        <h1>Crear Partido</h1>
+        <p class="sub">Registra un nuevo partido</p>
+
+        <div class="grid">
+            <section class="card-left">
+                <h5><span class="material-symbols-outlined text-primary">person_add</span>Información del Partido</h5>
+                <form [formGroup]="partidoForm" (ngSubmit)="crearPartido()" class="form">
+
+                    <div class="grid-2">
+
+                        <div class="form-group">
+                            <label>Nombre</label>
+                            <input type="text" formControlName="nombre"
+                                placeholder="Ej. Amistoso vs. Club Voleibol Madrid">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Equipo</label>
+                            <select formControlName="equipo_id" (change)="onEquipoChange()">
+                                <option value="" disabled>Selecciona un equipo</option>
+                                <option *ngFor="let equipo of equipos" [value]="equipo.id">
+                                    {{ equipo.nombre }}
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Rival</label>
+                            <input type="text" formControlName="rival" placeholder="Ej. Club Voleibol Madrid">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Fecha del Partido</label>
+                            <input type="date" formControlName="fecha" [min]="minFecha">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Ubicación</label>
+                            <input type="text" formControlName="ubicacion" placeholder="Ej. Polideportivo Municipal">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Tipo de Partido</label>
+                            <select formControlName="tipo">
+                                <option value="" disabled>Selecciona un tipo</option>
+                                <option value="amistoso">Amistoso</option>
+                                <option value="competencia">Competencia</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="convocados-container" *ngIf="jugadores.length > 0">
+                                <label class="convocados-title">Convocados</label>
+
+                                <div *ngFor="let jugador of jugadores" class="jugador-item">
+                                    <label style="display: flex; align-items: center; width: 100%; cursor: pointer;">
+                                        <input type="checkbox" (change)="toggleConvocado(jugador.id, $event)" />
+
+                                        <div class="jugador-info">
+                                            <span class="jugador-numero">{{ jugador.nombre }}</span>
+                                            <span class="jugador-numero">#{{ jugador.numero }}</span>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="actions">
+                        <button type="button" class="btn-outline" routerLink="/ver-partidos">
+                            Cancelar
+                        </button>
+
+                        <button type="submit" class="btn-primary" [disabled]="partidoForm.invalid">
+                            Guardar partido
+                        </button>
+                    </div>
+
+                </form>
+            </section>
+        </div>
+    </main>
+
+</div>

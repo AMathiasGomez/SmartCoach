@@ -1,0 +1,96 @@
+<div class="app-container">
+
+    <aside class="sidebar">
+        <div class="logo">
+            <div class="logo-icon">SC</div>
+            <div class="logo-text-wrapper">
+                <h3 class="logo-text">SmartCoach</h3>
+                <p class="logo-subtext">GESTIÓN DEPORTIVA</p>
+            </div>
+        </div>
+
+        <nav>
+            <a routerLink="/dashboard-entrenador">
+                <span class="material-symbols-outlined">space_dashboard</span>
+                <span>Panel de Control</span>
+            </a>
+            <a routerLink="/ver-equipos-e">
+                <span class="material-symbols-outlined">group</span>
+                <span>Equipos</span>
+            </a>
+            <a routerLink="/ver-jugadores-e">
+                <span class="material-symbols-outlined">person</span>
+                <span>Jugadores</span>
+            </a>
+            <a class="active" routerLink="/ver-entrenamientos-e">
+                <span class="material-symbols-outlined">fitness_center</span>
+                <span>Entrenamientos</span>
+            </a>
+            <a routerLink="/ver-partidos-e">
+                <span class="material-symbols-outlined">sports_soccer</span>
+                <span>Partidos</span>
+            </a>
+        </nav>
+
+        <button class="logout" (click)="logout()">
+            <span class="material-symbols-outlined">logout</span>
+            Cerrar sesión
+        </button>
+    </aside>
+
+    <main class="main-content">
+        <header class="page-header">
+            <div>
+                <h1>Lista de entrenamientos</h1>
+                <p class="sub">Gestiona y visualiza la información de tus entrenamientos registrados.</p>
+            </div>
+        </header>
+
+        <section class="card table-container">
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Equipo</th>
+                        <th>Fecha</th>
+                        <th>Hora</th>
+                        <th>Duración</th>
+                        <th>Tipo</th>
+                        <th>Estado</th>
+                        <th class="text-right">Acciones</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr *ngFor="let entrenamiento of entrenamientos">
+                        <td>{{ entrenamiento.equipo_nombre }}</td>
+                        <td>{{ entrenamiento.fecha | date:'shortDate' }}</td>
+                        <td>{{ entrenamiento.hora }}</td>
+                        <td>{{ entrenamiento.tipo }}</td>
+                        <td>{{ entrenamiento.duracion }} min</td>
+
+                        <td>
+                            <span [ngClass]="{
+                                'estado-completado': entrenamiento.estado === 'completado',
+                                'estado-pendiente': entrenamiento.estado === 'programado'
+                            }" class="badge">
+                                {{ entrenamiento.estado }}
+                            </span>
+                        </td>
+
+                        <td class="text-right">
+                            <div class="action-buttons">
+                                <a class="btn-icon" title="Detalle" (click)="verDetalle(entrenamiento.id)"
+                                    style="color: #2563eb; display: inline-flex; align-items: center; justify-content: center;">
+                                    <span class="material-symbols-outlined">visibility</span>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+    </main>
+
+</div>

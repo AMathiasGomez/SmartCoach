@@ -1,0 +1,125 @@
+<div class="app-container">
+
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-icon">SC</div>
+      <div class="logo-text-wrapper">
+        <h3 class="logo-text">SmartCoach</h3>
+        <p class="logo-subtext">GESTIÓN DEPORTIVA</p>
+      </div>
+    </div>
+
+    <nav>
+      <a routerLink="/dashboard-admin">
+        <span class="material-symbols-outlined">space_dashboard</span>
+        <span>Panel de Control</span>
+      </a>
+      <a routerLink="/ver-equipos">
+        <span class="material-symbols-outlined">group</span>
+        <span>Equipos</span>
+      </a>
+      <a class="active" routerLink="/ver-jugadores">
+        <span class="material-symbols-outlined">person</span>
+        <span>Jugadores</span>
+      </a>
+      <a routerLink="/ver-entrenamientos">
+        <span class="material-symbols-outlined">fitness_center</span>
+        <span>Entrenamientos</span>
+      </a>
+      <a routerLink="/ver-partidos">
+        <span class="material-symbols-outlined">sports_soccer</span>
+        <span>Partidos</span>
+      </a>
+      <a routerLink="/ver-usuarios">
+        <span class="material-symbols-outlined">emoji_people</span>
+        <span>Usuarios</span>
+      </a>
+    </nav>
+
+    <button class="logout" (click)="logout()">
+      <span class="material-symbols-outlined">logout</span>
+      Cerrar sesión
+    </button>
+  </aside>
+
+  <main class="main-content">
+    <h1>Registrar nuevo jugador</h1>
+    <p class="sub">Completa el perfil técnico y personal para dar de alta al deportista.</p>
+
+    <section class="card">
+      <h5><span class="material-symbols-outlined text-primary">person_add</span>Información del Jugador</h5>
+
+      <form class="form" [formGroup]="formJugador" (ngSubmit)="crearJugador()">
+
+        <div class="grid-2">
+
+          <div class="form-group" style="grid-column: 1 / -1;">
+            <label>Foto del Jugador</label>
+            <input type="file" accept="image/*" (change)="onFotoSeleccionada($event)" #fotoInput>
+            <small *ngIf="fotoError" style="color: red;">{{ fotoError }}</small>
+
+            <div *ngIf="fotoPreview" style="margin-top: 10px;">
+              <img [src]="fotoPreview" alt="Vista previa"
+                style="width: 120px; height: 120px; object-fit: cover; border-radius: 8px; border: 2px solid #ddd;">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Nombre Completo</label>
+            <input type="text" formControlName="nombre" placeholder="Ej. Tomasz Fornal">
+
+            <small *ngIf="formJugador.get('nombre')?.touched && formJugador.get('nombre')?.invalid">
+              Nombre obligatorio
+            </small>
+          </div>
+
+          <div class="form-group">
+            <label>Fecha de Nacimiento</label>
+            <input type="date" formControlName="fecha_nacimiento">
+          </div>
+
+          <div class="form-group">
+            <label>Posición</label>
+            <select formControlName="posicion">
+              <option value="" disabled>Seleccionar</option>
+              <option value="Libero">Libero</option>
+              <option value="Punta">Punta</option>
+              <option value="Central">Central</option>
+              <option value="Opuesto">Opuesto</option>
+              <option value="Armador">Armador</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Dorsal</label>
+            <input type="number" formControlName="numero">
+          </div>
+
+        </div>
+
+        <div class="form-group">
+          <label>Equipo</label>
+
+          <select formControlName="equipo_id">
+            <option value="" disabled>Selecciona un equipo</option>
+            <option *ngFor="let equipo of equipos" [ngValue]="equipo.id"> {{ equipo.nombre }} </option>
+            <option *ngIf="equipos.length === 0" disabled>No hay equipos disponibles</option>
+          </select>
+        </div>
+
+        <div class="actions">
+          <button type="button" class="btn-outline" routerLink="/ver-jugadores">
+            Cancelar
+          </button>
+
+          <button type="submit" class="btn-primary">
+            Guardar jugador
+          </button>
+        </div>
+
+      </form>
+    </section>
+
+  </main>
+
+</div>
