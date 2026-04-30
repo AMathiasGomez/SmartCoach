@@ -1,6 +1,6 @@
 {
   "/api": {
-    "target": "http://localhost:3006",
+    "target": "https://smartcoach-production.up.railway.app",
     "secure": false,
     "changeOrigin": true
   }

@@ -67,7 +67,7 @@
       <!-- Hero Section -->
       <section class="hero-section">
         <img *ngIf="equipo.foto_url; else avatarTeam" 
-             [src]="'http://localhost:3006' + equipo.foto_url" 
+             [src]="'https://smartcoach-production.up.railway.app' + equipo.foto_url" 
              alt="{{ equipo.nombre }}" 
              class="team-avatar-large">
         <ng-template #avatarTeam>
@@ -114,7 +114,7 @@
           <tbody>
             <tr *ngFor="let jugador of jugadores">
               <td>
-                <img *ngIf="jugador.foto_url" [src]="'http://localhost:3006' + jugador.foto_url" 
+                <img *ngIf="jugador.foto_url" [src]="'https://smartcoach-production.up.railway.app' + jugador.foto_url" 
                      alt="{{ jugador.nombre }}" class="user-avatar-img" style="width: 40px; height: 40px;">
                 <div *ngIf="!jugador.foto_url" class="user-avatar" style="width: 40px; height: 40px; font-size: 0.8rem;">
                   {{ jugador.nombre | slice:0:1 | uppercase }}

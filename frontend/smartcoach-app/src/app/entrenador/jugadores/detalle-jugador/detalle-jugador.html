@@ -65,7 +65,7 @@
         <div *ngIf="jugador">
 
             <section class="hero-section">
-                <img *ngIf="jugador.foto_url; else avatarHero" [src]="'http://localhost:3006' + jugador.foto_url"
+                <img *ngIf="jugador.foto_url; else avatarHero" [src]="'https://smartcoach-production.up.railway.app' + jugador.foto_url"
                     [alt]="jugador.nombre" class="player-avatar-large">
                 <ng-template #avatarHero>
                     <div class="player-avatar-large">
