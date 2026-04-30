@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
 })
 export class PartidoService {
 
-  private apiUrl = 'http://smartcoach-production.up.railway.app/api/partidos';
+  private apiUrl = 'https://smartcoach-production.up.railway.app/api/partidos';
 
   constructor(private http: HttpClient) { }
 
