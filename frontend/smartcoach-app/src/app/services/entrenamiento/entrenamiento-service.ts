@@ -26,4 +26,12 @@ export class EntrenamientoService {
     return this.http.delete(`${this.apiUrl}/${id}`);
   }
 
+  getEntrenamiento(id: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/${id}`);
+  }
+
+  saveAsistencia(entrenamientoId: number, asistencias: any[]): Observable<any> {
+    return this.http.post(`${this.apiUrl}/${entrenamientoId}/asistencia`, { asistencias });
+  }
+
 }

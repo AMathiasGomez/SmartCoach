@@ -20,7 +20,7 @@ export class JugadorService {
 
   crearJugador(formData: FormData): Observable<any> {
     return this.http.post(`${this.apiUrl}`, formData, {
-      headers: { 'Accept': 'application/json' }  // 👈 NO pongas Content-Type
+      headers: { 'Accept': 'application/json' }
     });
   }
 
@@ -40,5 +40,9 @@ export class JugadorService {
 
   actualizarJugadorJson(id: number, data: any): Observable<any> {
     return this.http.put(`${this.apiUrl}/${id}`, data);
+  }
+
+  getJugadoresByEquipo(equipoId: number): Observable<Jugador[]> {
+    return this.http.get<Jugador[]>(`${this.apiUrl}/equipo/${equipoId}`);
   }
 }

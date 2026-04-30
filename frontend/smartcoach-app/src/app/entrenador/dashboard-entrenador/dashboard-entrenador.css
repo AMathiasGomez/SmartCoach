@@ -103,12 +103,12 @@
   padding: 30px;
   font-family: 'Lexend', sans-serif;
 }
+
 .content {
   max-width: 100%;
   margin: 0 auto;
 }
 
-/* --- WELCOME --- */
 .welcome h1 {
   font-size: 2.2rem;
   font-weight: 800;

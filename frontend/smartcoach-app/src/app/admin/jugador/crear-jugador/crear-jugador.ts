@@ -49,14 +49,6 @@ export class CrearJugador implements OnInit {
       }
     });
 
-
-
-    this.http.get('http://localhost:3006/api/equipos')
-      .subscribe((data: any) => {
-        this.equipos = data;
-      })
-
-
     this.formJugador = this.fb.group({
       nombre: ['', Validators.required],
       fecha_nacimiento: ['', Validators.required],
@@ -72,7 +64,6 @@ export class CrearJugador implements OnInit {
       return;
     }
 
-    // Construir FormData para enviar datos + archivo
     const formData = new FormData();
     const valores = this.formJugador.value;
 
@@ -127,7 +118,6 @@ export class CrearJugador implements OnInit {
     this.fotoError = '';
     this.fotoArchivo = archivo;
 
-    // Generar vista previa
     const reader = new FileReader();
     reader.onload = () => {
       this.fotoPreview = reader.result as string;

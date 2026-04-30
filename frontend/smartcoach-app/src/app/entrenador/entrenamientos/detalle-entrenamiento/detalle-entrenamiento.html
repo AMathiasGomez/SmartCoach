@@ -1,0 +1,119 @@
+<div class="app-container">
+
+    <aside class="sidebar">
+        <div class="logo">
+            <div class="logo-icon">SC</div>
+            <div class="logo-text-wrapper">
+                <h3 class="logo-text">SmartCoach</h3>
+                <p class="logo-subtext">GESTIÓN DEPORTIVA</p>
+            </div>
+        </div>
+
+        <nav>
+            <a routerLink="/dashboard-entrenador">
+                <span class="material-symbols-outlined">space_dashboard</span>
+                <span>Panel de Control</span>
+            </a>
+            <a routerLink="/ver-equipos-e">
+                <span class="material-symbols-outlined">group</span>
+                <span>Equipos</span>
+            </a>
+            <a routerLink="/ver-jugadores-e">
+                <span class="material-symbols-outlined">person</span>
+                <span>Jugadores</span>
+            </a>
+            <a class="active" routerLink="/ver-entrenamientos-e">
+                <span class="material-symbols-outlined">fitness_center</span>
+                <span>Entrenamientos</span>
+            </a>
+            <a routerLink="/ver-partidos-e">
+                <span class="material-symbols-outlined">sports_soccer</span>
+                <span>Partidos</span>
+            </a>
+        </nav>
+
+        <button class="logout" (click)="logout()">
+            <span class="material-symbols-outlined">logout</span>
+            Cerrar sesión
+        </button>
+    </aside>
+
+    <main class="main-content">
+
+        <header class="page-header-detail">
+            <div>
+                <button class="btn-back" (click)="back()">
+                    <span class="material-symbols-outlined">arrow_back</span>
+                    Volver a entrenamientos
+                </button>
+            </div>
+            <div>
+                <h1 class="detail-title">Detalle Entrenamiento</h1>
+            </div>
+        </header>
+
+        <div>
+
+            <section class="hero-section">
+                <div class="training-icon-large">
+                    <span class="material-symbols-outlined" style="font-size: 4rem;">fitness_center</span>
+                </div>
+                <h1 class="player-name">{{ entrenamiento.tipo | titlecase }}</h1>
+                <div class="training-date">{{ entrenamiento.fecha | date:'fullDate' }} - {{ entrenamiento.hora }}</div>
+                <div class="position-badge-large">{{ entrenamiento.equipo_nombre }}</div>
+            </section>
+
+            <div class="info-grid">
+                <div class="info-card">
+                    <h3>Duración</h3>
+                    <div class="value">{{ entrenamiento.duracion }} minutos</div>
+                </div>
+                <div class="info-card">
+                    <h3>Descripción</h3>
+                    <div class="value">{{ entrenamiento.descripcion || 'Sin descripción' }}</div>
+                </div>
+                <div class="info-card">
+                    <h3>Estado</h3>
+                    <div class="value badge estado-pendiente">{{ entrenamiento.estado | titlecase }}</div>
+                </div>
+            </div>
+
+            <section class="asistencia-section">
+                <h2 class="stats-title">Lista de Asistencia ({{ getEstadisticas().presentes }} / {{ getEstadisticas().total }})</h2>
+                <div class="table-responsive">
+                    <table class="jugadores-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 50px;"></th>
+                                <th style="width: 60px;">#</th>
+                                <th>Nombre</th>
+                                <th>Posición</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let jugador of jugadores">
+                                <td>
+                                    <input type="checkbox" class="jugador-checkbox" 
+                                        [checked]="jugador.presente" (change)="togglePresente(jugador)">
+                                </td>
+                                <td>{{ jugador.numero }}</td>
+                                <td>{{ jugador.nombre }}</td>
+                                <td>{{ jugador.posicion }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <div class="action-section">
+                <button class="save-btn" (click)="saveAsistencia()" [disabled]="saving">
+                    <span *ngIf="saving" class="material-symbols-outlined">schedule</span>
+                    <span *ngIf="!saving" class="material-symbols-outlined">save</span>
+                    {{ saving ? 'Guardando...' : 'Guardar Asistencia' }}
+                </button>
+            </div>
+
+        </div>
+
+    </main>
+</div>

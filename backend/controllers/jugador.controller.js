@@ -120,8 +120,13 @@ exports.updateJugador = async (req, res) => {
     res.json({ message: 'Jugador actualizado correctamente' });
 
   } catch (error) {
-    console.error('ERROR updateJugador:', error);
-    res.status(500).json({ message: 'Error al actualizar jugador' });
+    if (error.code === 'ER_DUP_ENTRY') {
+      return res.status(400).json({
+        message: 'Ya existe un jugador con ese dorsal en este equipo'
+      });
+    }
+    console.error('ERROR CREATE JUGADOR:', error);
+    return res.status(500).json({ message: 'Error interno del servidor' });
   }
 };
 

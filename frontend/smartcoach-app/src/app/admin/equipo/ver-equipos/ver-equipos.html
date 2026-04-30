@@ -45,7 +45,9 @@
     <header class="page-header">
       <div>
         <h1>Lista de equipos</h1>
-        <p class="sub">Gestiona y visualiza la información de tus clubes registrados.</p>
+        <p class="sub">
+          Gestiona y visualiza la información de tus clubes registrados.
+        </p>
       </div>
       <button class="btn-primary" (click)="router.navigate(['/crear-equipo'])">
         <span class="material-symbols-outlined">add_circle</span>
@@ -57,7 +59,7 @@
       <table>
         <thead>
           <tr>
-            <th>Nombre del Equipo</th>
+            <th>Equipo</th>
             <th>Categoría</th>
             <th>Fundación</th>
             <th>Descripción</th>
@@ -66,10 +68,30 @@
         </thead>
         <tbody>
           <tr *ngFor="let equipo of equipos">
-            <td class="font-bold text-blue">{{ equipo.nombre }}</td>
-            <td><span class="badge">{{ equipo.categoria }}</span></td>
+            <!-- Foto y nombre del equipo -->
+            <td>
+              <div class="user-info">
+                <img *ngIf="equipo.foto_url; else avatarEquipo" [src]="getFotoEquipo(equipo.foto_url)"
+                  alt="{{ equipo.nombre }}" class="user-avatar-img" />
+
+                <ng-template #avatarEquipo>
+                  <div class="user-avatar font-bold text-blue">
+                    {{ equipo.nombre | slice: 0:1 }}
+                  </div>
+                </ng-template>
+
+                <span class="font-bold text-blue">
+                  {{ equipo.nombre }}
+                </span>
+              </div>
+            </td>
+
+            <td>
+              <span class="badge">{{ equipo.categoria }}</span>
+            </td>
             <td>{{ equipo.ano_fundacion }}</td>
             <td class="text-muted">{{ equipo.descripcion }}</td>
+
             <td class="text-right">
               <div class="action-buttons">
                 <button class="btn-icon btn-edit" title="Editar" (click)="editar(equipo.id!)">
@@ -79,6 +101,12 @@
                   <span class="material-symbols-outlined">delete</span>
                 </button>
               </div>
+            </td>
+          </tr>
+
+          <tr *ngIf="equipos.length === 0">
+            <td colspan="5" class="text-center text-muted">
+              No hay equipos registrados.
             </td>
           </tr>
         </tbody>

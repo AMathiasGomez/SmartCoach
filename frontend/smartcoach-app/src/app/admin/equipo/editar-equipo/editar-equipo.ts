@@ -1,85 +1,94 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EquipoService } from '../../../services/equipo/equipo-service';
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../services/auth/auth-service';
 
 @Component({
   selector: 'app-editar-equipo',
   standalone: true,
-  imports: [FormsModule, CommonModule],
+  imports: [ReactiveFormsModule, CommonModule],
   templateUrl: './editar-equipo.html',
   styleUrls: ['./editar-equipo.css']
 })
 export class EditarEquipo implements OnInit {
 
+  form!: FormGroup;
   id!: number;
-
-  equipo = {
-    nombre: '',
-    categoria: '',
-    ano_fundacion: 0,
-    descripcion: ''
-  };
-
   cargando = true;
 
   constructor(
+    private fb: FormBuilder,
     public router: Router,
     private route: ActivatedRoute,
     private equipoService: EquipoService,
     private authService: AuthService,
-    private cd: ChangeDetectorRef,
-  ) {}
+    private cd: ChangeDetectorRef
+  ) { }
 
   ngOnInit(): void {
-    this.id = this.route.snapshot.params['id'];
+    this.id = Number(this.route.snapshot.params['id']);
+
+    console.log('ID recibido:', this.id);
 
     if (!this.id) {
-      console.error('ID no válido');
+      console.error('ID inválido');
       this.router.navigate(['/ver-equipos']);
       return;
     }
 
+    this.initForm();
     this.obtenerEquipo();
   }
 
+  initForm() {
+    this.form = this.fb.group({
+      nombre: ['', Validators.required],
+      categoria: ['', Validators.required],
+      ano_fundacion: ['', Validators.required],
+      descripcion: ['', Validators.required]
+    });
+  }
+
   obtenerEquipo() {
-  this.equipoService.getEquipo(this.id).subscribe({
-    next: (res: any) => {
+    this.equipoService.getEquipo(this.id).subscribe({
+      next: (res: any) => {
 
-      console.log('✅ respuesta:', res);
+        console.log('Respuesta backend:', res);
 
-      this.equipo = res[0];
+        if (!res) {
+          console.error('Equipo no encontrado');
+          this.router.navigate(['/ver-equipos']);
+          return;
+        }
 
-      this.cd.detectChanges();
+        this.form.patchValue({
+          nombre: res.nombre,
+          categoria: res.categoria,
+          ano_fundacion: res.ano_fundacion,
+          descripcion: res.descripcion
+        });
 
-      console.log('✅ equipo asignado:', this.equipo);
-
-      this.cargando = false;
-
-      console.log('✅ cargando en false');
-
-    },
-      error: (err: any) => {
-        console.error('❌ error:', err);
+        this.cargando = false;
+        this.cd.detectChanges();
+      },
+      error: () => {
+        alert('Error al cargar equipo');
         this.router.navigate(['/ver-equipos']);
       }
     });
   }
 
   actualizarEquipo() {
-
-    if (!this.equipo.nombre || !this.equipo.categoria) {
-      console.error('Campos obligatorios');
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
       return;
     }
 
-    this.equipoService.actualizarEquipo(this.id, this.equipo).subscribe({
+    this.equipoService.actualizarEquipo(this.id, this.form.value).subscribe({
       next: () => {
-        console.log('Equipo actualizado correctamente');
-        this.router.navigate(['/equipos']);
+        this.router.navigate(['/ver-equipos']);
       },
       error: (err: any) => {
         console.error('Error al actualizar equipo', err);

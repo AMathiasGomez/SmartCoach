@@ -22,4 +22,6 @@ router.post('/:id/sets', partidoController.addSet);
 router.post('/:id/estadisticas', partidoController.addEstadisticas);
 router.get('/:id/estadisticas', partidoController.getEstadisticas);
 
+router.post('/:partido_id/sets/:set_id/estadisticas', partidoController.addEstadisticasPorSet);
+
 module.exports = router;

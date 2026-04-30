@@ -60,4 +60,9 @@ export class PartidoService {
     console.log('URL FINAL:', url);
     return this.http.get<any[]>(url);
   }
+
+  addEstadisticasPorSet(partidoId: number, setId: number, stats: any): Observable<any> {
+    const url = `${this.apiUrl}/${partidoId}/sets/${setId}/estadisticas`;
+    return this.http.post(url, stats);
+  }
 }

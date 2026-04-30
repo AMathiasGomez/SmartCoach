@@ -228,11 +228,13 @@ exports.addSet = async (req, res) => {
     }
 
     // 7. Insertar set
-    await db.query(`
+const [insertResult] = await db.query(`
       INSERT INTO sets_partido 
       (partido_id, numero_set, puntos_equipo, puntos_rival)
       VALUES (?, ?, ?, ?)
     `, [id, numero_set, puntos_equipo, puntos_rival]);
+
+    const setId = insertResult.insertId;
 
     // 🔥 8. Obtener sets actualizados
     const [sets] = await db.query(`
@@ -269,9 +271,10 @@ exports.addSet = async (req, res) => {
       `, [ganador, id]);
     }
 
-    res.json({
+res.json({
       message: 'Set agregado correctamente',
       numero_set,
+      set_id: setId,
       marcador: `${ganadosEquipo} - ${ganadosRival}`,
       ganador_partido: ganador || null
     });

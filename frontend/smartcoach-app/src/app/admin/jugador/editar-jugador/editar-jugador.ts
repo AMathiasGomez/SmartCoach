@@ -121,7 +121,10 @@ export class EditarJugador implements OnInit {
           alert('Jugador actualizado correctamente');
           this.router.navigate(['/ver-jugadores']);
         },
-        error: (err: any) => console.error('Error al actualizar jugador', err)
+        error: (err: any) => {
+          alert(err.error.message);
+          console.error('Error al actualizar jugador', err)
+        } 
       });
     }
   }

@@ -4,4 +4,5 @@ export interface Equipo {
   categoria: string;
   ano_fundacion: number;
   descripcion: string;
+  foto_url?: string;
 }

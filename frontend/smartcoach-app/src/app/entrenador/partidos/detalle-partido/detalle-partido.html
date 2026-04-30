@@ -9,29 +9,25 @@
     </div>
 
     <nav>
-      <a routerLink="/dashboard-admin">
+      <a routerLink="/dashboard-entrenador">
         <span class="material-symbols-outlined">space_dashboard</span>
         <span>Panel de Control</span>
       </a>
-      <a routerLink="/ver-equipos">
+      <a routerLink="/ver-equipos-e">
         <span class="material-symbols-outlined">group</span>
         <span>Equipos</span>
       </a>
-      <a routerLink="/ver-jugadores">
+      <a routerLink="/ver-jugadores-e">
         <span class="material-symbols-outlined">person</span>
         <span>Jugadores</span>
       </a>
-      <a routerLink="/ver-entrenamientos">
+      <a routerLink="/ver-entrenamientos-e">
         <span class="material-symbols-outlined">fitness_center</span>
         <span>Entrenamientos</span>
       </a>
-      <a class="active" routerLink="/ver-partidos">
+      <a class="active" routerLink="/ver-partidos-e">
         <span class="material-symbols-outlined">sports_soccer</span>
         <span>Partidos</span>
-      </a>
-      <a routerLink="/ver-usuarios">
-        <span class="material-symbols-outlined">emoji_people</span>
-        <span>Usuarios</span>
       </a>
     </nav>
 
@@ -43,7 +39,6 @@
 
   <div class="main-content" *ngIf="partido">
 
-    <!-- HEADER -->
     <div class="header">
       <h1>{{ partido.nombre }}</h1>
       <p class="sub">
@@ -53,11 +48,15 @@
       </p>
     </div>
 
-    <!-- INFO -->
+    <div class="notification-banner" *ngIf="showNotification" role="alert">
+      {{ notificationMsg }}
+    </div>
+
     <div class="info-card">
       <p><strong>📅 Fecha:</strong> {{ partido.fecha | date:'mediumDate' }}</p>
       <p><strong>📍 Ubicación:</strong> {{ partido.ubicacion }}</p>
       <p><strong>🏆 Tipo:</strong> {{ partido.tipo }}</p>
+
 
       <p>
         <span [ngClass]="partido.estado" class="status-badge">
@@ -65,7 +64,6 @@
         </span>
       </p>
 
-      <!-- 🏆 GANADOR -->
       <div *ngIf="partido.estado === 'finalizado'" class="ganador">
         🏆 Ganador:
         {{ partido.ganador === 'equipo' ? partido.equipo_nombre : partido.rival }}
@@ -74,23 +72,19 @@
 
     <div class="content">
 
-      <!-- IZQUIERDA -->
       <div class="left">
 
-        <!-- 🔥 MARCADOR EN VIVO -->
         <div class="set-form" *ngIf="partido.estado === 'en_curso'">
 
           <div class="cardPuntos">
             <h3>Marcador en vivo</h3>
 
-            <!-- REGLAS -->
             <p class="reglas-set">
               Set a {{ puntosObjetivo }} puntos (mínimo 2 de diferencia)
             </p>
 
             <div class="setInfo">
 
-              <!-- EQUIPO -->
               <div class="cardEquipo">
                 <h4 class="nombreEquipo">{{ partido.equipo_nombre }}</h4>
                 <button class="Equipo" (click)="sumarPuntoEquipo()">
@@ -98,10 +92,8 @@
                 </button>
               </div>
 
-              <!-- CENTRO -->
               <div class="column">
 
-                <!-- SETS GANADOS -->
                 <div class="setsPartido">
                   <div class="cardSetsEquipo">
                     {{ setsGanadosEquipo }}
@@ -111,14 +103,12 @@
                   </div>
                 </div>
 
-                <!-- DESHACER -->
                 <div class="deshacerPunto" (click)="deshacerUltimoPunto()" [class.disabled]="!puedeDeshacer">
                   <span class="material-symbols-outlined">undo</span>
                 </div>
 
               </div>
 
-              <!-- RIVAL -->
               <div class="cardRival">
                 <h4 class="nombreRival">{{ partido.rival }}</h4>
                 <button class="Rival" (click)="sumarPuntoRival()">
@@ -128,7 +118,6 @@
 
             </div>
 
-            <!-- FINALIZAR SET -->
             <div style="text-align: center; ">
               <button (click)="agregarSet()" class="btn-primary" [disabled]="!puedeFinalizarSet()"
                 style="width: 200px;">
@@ -139,7 +128,6 @@
           </div>
         </div>
 
-        <!-- HISTORIAL -->
         <div class="sets-container" *ngIf="sets.length > 0">
           <h3>Historial de Sets</h3>
 
@@ -158,7 +146,6 @@
 
       </div>
 
-      <!-- DERECHA -->
       <div class="right">
 
         <div class="estadisticas" *ngIf="partido.estado === 'en_curso'">
@@ -235,6 +222,46 @@
             <button class="btn-save" (click)="guardarTodos()">
               Guardar Stats del Set
             </button>
+            <button class="btn-analytics" (click)="analizarRendimiento()" [disabled]="loadingAnalytics">
+              {{ loadingAnalytics ? 'Analizando...' : '🔬 Analizar Rendimiento (Sklearn)' }}
+            </button>
+          </div>
+
+          <!-- SECCIÓN SKLEARN ANALYTICS -->
+          <div class="analytics-section" *ngIf="mostrarAnalytics && playerAnalysis">
+            <h3>📊 Análisis Avanzado - SciKitLearn</h3>
+            <div class="analytics-results">
+              <div *ngFor="let player of playerAnalysis.analysis" class="player-card cluster-{{player.color}}">
+                <div class="player-card-header">
+                  <span class="player-name">{{player.name}}</span>
+                  <span class="cluster-badge">{{player.label}}</span>
+                </div>
+                <div class="player-card-stats">
+                  <div>Bloqueos: {{player.stats.blocks}}</div>
+                  <div>Ataques: {{player.stats.attacks}}</div>
+                  <div>Recepciones: {{player.stats.receptions}}</div>
+                  <div>Errores: {{player.stats.errors}}</div>
+                </div>
+                <div class="player-score">Score: {{player.score}}</div>
+                <div *ngIf="player.is_outlier" class="outlier-badge">
+                  ⭐ Outlier ({{player.outlier_score | number:'1.2-2'}})
+                </div>
+                <div *ngIf="!player.is_outlier" class="normal-badge">
+                  PCA: [{{player.pca.pca_components[0] | number:'1.2-2'}}, {{player.pca.pca_components[1] | number:'1.2-2'}}]
+                </div>
+              </div>
+            </div>
+            <div style="text-align: center; margin-top: 1rem; font-size: 0.9rem; color: #64748b;">
+              Powered by scikit-learn (KMeans + IsolationForest + PCA)
+            </div>
+          </div>
+
+          <div *ngIf="analyticsError" class="analytics-error">
+            Error en análisis. Verifica backend Python en puerto 8001.
+          </div>
+
+          <div *ngIf="loadingAnalytics" style="text-align: center; padding: 2rem;">
+            <div style="font-size: 1.2rem; color: #3b82f6;">Analizando rendimiento con IA...</div>
           </div>
         </div>
         <div class="cancha-container" *ngIf="partido.estado === 'en_curso'">

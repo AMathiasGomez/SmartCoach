@@ -1,0 +1,149 @@
+<div class="app-container">
+
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-icon">SC</div>
+      <div class="logo-text-wrapper">
+        <h3 class="logo-text">SmartCoach</h3>
+        <p class="logo-subtext">GESTIÓN DEPORTIVA</p>
+      </div>
+    </div>
+
+    <nav>
+      <a routerLink="/dashboard-entrenador">
+        <span class="material-symbols-outlined">space_dashboard</span>
+        <span>Panel de Control</span>
+      </a>
+      <a class="active" routerLink="/ver-equipos-e">
+        <span class="material-symbols-outlined">group</span>
+        <span>Equipos</span>
+      </a>
+      <a routerLink="/ver-jugadores-e">
+        <span class="material-symbols-outlined">person</span>
+        <span>Jugadores</span>
+      </a>
+      <a routerLink="/ver-entrenamientos-e">
+        <span class="material-symbols-outlined">fitness_center</span>
+        <span>Entrenamientos</span>
+      </a>
+      <a routerLink="/ver-partidos-e">
+        <span class="material-symbols-outlined">sports_soccer</span>
+        <span>Partidos</span>
+      </a>
+    </nav>
+
+    <button class="logout" (click)="logout()">
+      <span class="material-symbols-outlined">logout</span>
+      Cerrar sesión
+    </button>
+  </aside>
+
+  <main class="main-content">
+
+    <header class="page-header-detail">
+      <div>
+        <button class="btn-back" (click)="back()">
+          <span class="material-symbols-outlined">arrow_back</span>
+          Volver a equipos
+        </button>
+      </div>
+      <div>
+        <h1 class="detail-title">Detalle del Equipo</h1>
+      </div>
+    </header>
+
+    <div *ngIf="loading" class="loading">
+      <span class="material-symbols-outlined">hourglass_empty</span>
+      Cargando equipo...
+    </div>
+
+    <div *ngIf="error" class="error">
+      <span class="material-symbols-outlined">error</span>
+      {{ error }}
+    </div>
+
+    <div *ngIf="equipo">
+
+      <!-- Hero Section -->
+      <section class="hero-section">
+        <img *ngIf="equipo.foto_url; else avatarTeam" 
+             [src]="'http://localhost:3006' + equipo.foto_url" 
+             alt="{{ equipo.nombre }}" 
+             class="team-avatar-large">
+        <ng-template #avatarTeam>
+          <div class="team-avatar-large">
+            {{ equipo.nombre | slice:0:1 | uppercase }}
+          </div>
+        </ng-template>
+        
+        <h1 class="team-name">{{ equipo.nombre }}</h1>
+        <div class="category-badge">{{ equipo.categoria }}</div>
+      </section>
+
+      <!-- Info Grid -->
+      <div class="info-grid">
+        <div class="info-card">
+          <h3>Años activos</h3>
+          <div class="value">{{ getYearsActive() }}</div>
+        </div>
+        <div class="info-card">
+          <h3>Categoría</h3>
+          <div class="value">{{ equipo.categoria }}</div>
+        </div>
+        <div class="info-card">
+          <h3>Año fundación</h3>
+          <div class="value">{{ equipo.ano_fundacion }}</div>
+        </div>
+      </div>
+
+      <!-- Players List -->
+      <section class="players-section">
+        <h2 class="players-title">
+          <span class="material-symbols-outlined">person</span>
+          Jugadores ({{ jugadores.length }})
+        </h2>
+        <table class="players-table" *ngIf="jugadores.length > 0">
+          <thead>
+            <tr>
+              <th>Foto</th>
+              <th>Nombre</th>
+              <th>Posición</th>
+              <th>Dorsal</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let jugador of jugadores">
+              <td>
+                <img *ngIf="jugador.foto_url" [src]="'http://localhost:3006' + jugador.foto_url" 
+                     alt="{{ jugador.nombre }}" class="user-avatar-img" style="width: 40px; height: 40px;">
+                <div *ngIf="!jugador.foto_url" class="user-avatar" style="width: 40px; height: 40px; font-size: 0.8rem;">
+                  {{ jugador.nombre | slice:0:1 | uppercase }}
+                </div>
+              </td>
+              <td>{{ jugador.nombre }}</td>
+              <td>{{ jugador.posicion }}</td>
+              <td>{{ jugador.numero }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <p *ngIf="jugadores.length === 0" class="text-muted" style="text-align: center; padding: 2rem;">
+          No hay jugadores en este equipo
+        </p>
+      </section>
+
+      <!-- Actions -->
+      <div class="action-section">
+        <button class="btn-edit-detail" (click)="editar()">
+          <span class="material-symbols-outlined">edit</span>
+          Editar Equipo
+        </button>
+        <button class="btn-delete-detail" (click)="eliminar()">
+          <span class="material-symbols-outlined">delete</span>
+          Eliminar Equipo
+        </button>
+      </div>
+
+    </div>
+
+  </main>
+</div>

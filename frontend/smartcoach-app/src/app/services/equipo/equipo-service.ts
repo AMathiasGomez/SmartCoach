@@ -3,12 +3,10 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Equipo } from '../../models/equipo.model';
 
-
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class EquipoService {
-
   equipo: Equipo[] = [];
 
   private api = 'http://localhost:3006/api/equipos';
@@ -19,8 +17,8 @@ export class EquipoService {
     return this.http.get<Equipo[]>(this.api);
   }
 
-  crearEquipo(equipo: Equipo) {
-    return this.http.post(this.api, equipo);
+  crearEquipo(data: any) {
+    return this.http.post(`${this.api}`, data);
   }
 
   actualizarEquipo(id: number, equipo: Equipo) {
@@ -32,6 +30,6 @@ export class EquipoService {
   }
 
   getEquipo(id: number) {
-  return this.http.get(`${this.api}/${id}`);
-}
+    return this.http.get(`${this.api}/${id}`);
+  }
 }

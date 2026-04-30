@@ -1,9 +1,10 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { PartidoService } from '../../../services/partido/partido-service';
-import { AuthService } from '../../../services/auth/auth-service';
 import { CommonModule, NgClass } from '@angular/common';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { AnalyticsService, MatchAnalyticsResponse } from '../../../services/analytics/analytics.service';
+import { AuthService } from '../../../services/auth/auth-service';
+import { PartidoService } from '../../../services/partido/partido-service';
 import { forkJoin } from 'rxjs';
 
 interface EstadoPuntos {
@@ -13,10 +14,9 @@ interface EstadoPuntos {
 
 @Component({
   selector: 'app-detalle-partido',
-  standalone: true,
   imports: [RouterLink, NgClass, FormsModule, CommonModule],
   templateUrl: './detalle-partido.html',
-  styleUrls: ['./detalle-partido.css'],
+  styleUrl: './detalle-partido.css',
 })
 export class DetallePartido implements OnInit {
 
@@ -36,6 +36,13 @@ export class DetallePartido implements OnInit {
   posicionSeleccionada: number | null = null;
   mostrarModalFormacion: boolean = false;
 
+  playerAnalysis: MatchAnalyticsResponse | null = null;
+  loadingAnalytics: boolean = false;
+  analyticsError: boolean = false;
+  mostrarAnalytics: boolean = false;
+  notificationMsg: string = '';
+  showNotification: boolean = false;
+
   private historialPuntos: EstadoPuntos[] = [];
 
   constructor(
@@ -43,7 +50,8 @@ export class DetallePartido implements OnInit {
     private partidoService: PartidoService,
     public authService: AuthService,
     private router: Router,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
+    private analyticsService: AnalyticsService
   ) { }
 
   ngOnInit(): void {
@@ -217,6 +225,42 @@ export class DetallePartido implements OnInit {
     });
   }
 
+  analizarRendimiento() {
+    if (this.tablaJugadores.length === 0) {
+      alert('Carga primero las estadísticas de los jugadores');
+      return;
+    }
+
+    this.loadingAnalytics = true;
+    this.analyticsError = false;
+    this.mostrarAnalytics = false;
+
+    const playersData = this.tablaJugadores.map(j => ({
+      player_id: j.id.toString(),
+      name: j.nombre,
+      blocks: j.stats.bloqueos,
+      attacks: j.stats.ataques,
+      receptions: j.stats.recepciones,
+      errors: j.stats.errores
+    }));
+
+    this.analyticsService.analyzeMatch(this.partidoId, playersData).subscribe({
+      next: (response) => {
+        this.playerAnalysis = response;
+        this.mostrarAnalytics = true;
+        this.loadingAnalytics = false;
+        this.showNotif('🎯 Análisis sklearn completado');
+        this.cd.detectChanges();
+      },
+      error: (err) => {
+        console.error('Analytics error:', err);
+        this.analyticsError = true;
+        this.loadingAnalytics = false;
+        alert('Error al analizar rendimiento. Verifica que el backend esté corriendo.');
+      }
+    });
+  }
+
   sumarPuntoEquipo() {
     this.historialPuntos.push({ puntosEquipo: this.puntosEquipo, puntosRival: this.puntosRival });
     this.puntosEquipo++;
@@ -234,6 +278,15 @@ export class DetallePartido implements OnInit {
     this.puntosRival = ultimo.puntosRival;
   }
 
+  showNotif(msg: string) {
+    this.notificationMsg = msg;
+    this.showNotification = true;
+    setTimeout(() => {
+      this.showNotification = false;
+    }, 5000);
+    this.cd.detectChanges();
+  }
+
   agregarSet() {
     if (!this.puedeFinalizarSet()) {
       alert('El set no cumple las reglas');
@@ -247,14 +300,42 @@ export class DetallePartido implements OnInit {
     };
 
     this.partidoService.addSet(this.partidoId, data).subscribe({
-      next: () => {
+      next: (response) => {
+        const setId = response.set_id;
 
-        this.puntosEquipo = 0;
-        this.puntosRival = 0;
-        this.historialPuntos = [];
+        // Auto save stats per player for this set (parallel)
+        const saveRequests = this.tablaJugadores.map(j => 
+          this.partidoService.addEstadisticasPorSet(this.partidoId, setId, {
+            jugador_id: j.id,
+            ataques: j.stats.ataques,
+            recepciones: j.stats.recepciones,
+            errores: j.stats.errores,
+            bloqueos: j.stats.bloqueos
+          })
+        );
 
-        this.cargarSets();
-        this.cargarPartido();
+        forkJoin(saveRequests).subscribe({
+          next: () => {
+            // Auto generate sklearn analysis
+            this.showNotif('✅ Stats del set guardados automáticamente. Generando análisis...');
+            this.analizarRendimiento();
+
+            // Reset stats for next set (clean input)
+            this.tablaJugadores.forEach(j => {
+              j.stats = { ataques: 0, recepciones: 0, errores: 0, bloqueos: 0 };
+            });
+
+            // Reset points
+            this.puntosEquipo = 0;
+            this.puntosRival = 0;
+            this.historialPuntos = [];
+
+            this.cargarSets();
+            this.cargarPartido();
+            this.cd.detectChanges();
+          },
+          error: console.error
+        });
       },
       error: (err: any) => console.error(err)
     });
@@ -264,4 +345,5 @@ export class DetallePartido implements OnInit {
     this.authService.logOut();
     this.router.navigate(['/login']);
   }
+
 }

@@ -5,5 +5,7 @@ const entrenamientoController = require('../controllers/entrenamientos.controlle
 router.post('/', entrenamientoController.createEntrenamiento);
 router.get('/', entrenamientoController.getEntrenamientos)
 router.delete('/:id', entrenamientoController.deleteEntrenamiento)
+router.get('/:id', entrenamientoController.getEntrenamientoById)
+router.post('/:id/asistencia', entrenamientoController.saveAsistencia)
 
 module.exports = router;

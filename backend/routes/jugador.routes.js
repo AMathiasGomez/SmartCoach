@@ -26,9 +26,6 @@ router.delete('/:id', jugadorController.deleteJugador);
 router.put('/:id', jugadorController.updateJugador);
 router.post('/:id/foto', upload.single('foto'), jugadorController.updateJugadorFoto);
 router.get('/:id', jugadorController.getJugadorById);
-
-router.get('/', equipoController.getEquipos);
-
 router.get('/equipo/:equipo_id', jugadorController.getJugadoresByEquipo);
 
 module.exports = router; 

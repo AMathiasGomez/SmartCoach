@@ -1,0 +1,121 @@
+<div class="app-container">
+
+    <aside class="sidebar">
+        <div class="logo">
+            <div class="logo-icon">SC</div>
+            <div class="logo-text-wrapper">
+                <h3 class="logo-text">SmartCoach</h3>
+                <p class="logo-subtext">GESTIÓN DEPORTIVA</p>
+            </div>
+        </div>
+
+        <nav>
+            <a routerLink="/dashboard-entrenador">
+                <span class="material-symbols-outlined">space_dashboard</span>
+                <span>Panel de Control</span>
+            </a>
+            <a routerLink="/ver-equipos-e">
+                <span class="material-symbols-outlined">group</span>
+                <span>Equipos</span>
+            </a>
+            <a class="active" routerLink="/ver-jugadores-e">
+                <span class="material-symbols-outlined">person</span>
+                <span>Jugadores</span>
+            </a>
+            <a routerLink="/ver-entrenamientos-e">
+                <span class="material-symbols-outlined">fitness_center</span>
+                <span>Entrenamientos</span>
+            </a>
+            <a routerLink="/ver-partidos-e">
+                <span class="material-symbols-outlined">sports_soccer</span>
+                <span>Partidos</span>
+            </a>
+        </nav>
+
+        <button class="logout" (click)="logout()">
+            <span class="material-symbols-outlined">logout</span>
+            Cerrar sesión
+        </button>
+    </aside>
+
+    <main class="main-content">
+
+        <header class="page-header-detail">
+            <div>
+                <button class="btn-back" (click)="back()">
+                    <span class="material-symbols-outlined">arrow_back</span>
+                    Volver a lista
+                </button>
+            </div>
+            <div>
+                <h1 class="detail-title">Detalle del Jugador</h1>
+            </div>
+        </header>
+
+        <div *ngIf="loading" class="loading">
+            <span class="material-symbols-outlined">hourglass_empty</span>
+            Cargando jugador...
+        </div>
+
+        <div *ngIf="error" class="error">
+            <span class="material-symbols-outlined">error</span>
+            {{ error }}
+        </div>
+
+        <div *ngIf="jugador">
+
+            <section class="hero-section">
+                <img *ngIf="jugador.foto_url; else avatarHero" [src]="'http://localhost:3006' + jugador.foto_url"
+                    [alt]="jugador.nombre" class="player-avatar-large">
+                <ng-template #avatarHero>
+                    <div class="player-avatar-large">
+                        {{ jugador.nombre | slice:0:1 | uppercase }}
+                    </div>
+                </ng-template>
+
+                <h1 class="player-name">{{ jugador.nombre }}</h1>
+                <div class="player-number">#{{ jugador.numero }}</div>
+                <div class="position-badge-large">{{ jugador.posicion }}</div>
+            </section>
+
+            <div class="info-grid">
+                <div class="info-card">
+                    <h3>Edad</h3>
+                    <div class="value">{{ calculateAge() }} años</div>
+                </div>
+                <div class="info-card">
+                    <h3>Posición</h3>
+                    <div class="value">{{ jugador.posicion }}</div>
+                </div>
+                <div class="info-card">
+                    <h3>Dorsal</h3>
+                    <div class="value">#{{ jugador.numero }}</div>
+                </div>
+                <div class="info-card">
+                    <h3>Equipo</h3>
+                    <div class="value">{{ jugador.equipo_nombre }}</div>
+                </div>
+            </div>
+
+            <section class="stats-section">
+                <h2 class="stats-title">Estadísticas</h2>
+                <p style="text-align: center; color: var(--text-muted); font-style: italic;">
+                    Estadísticas próximamente disponibles
+                </p>
+            </section>
+
+            <div class="action-section">
+                <button class="btn-edit-detail" (click)="editar()">
+                    <span class="material-symbols-outlined">edit</span>
+                    Editar Jugador
+                </button>
+                <button class="btn-delete-detail" (click)="eliminar()">
+                    <span class="material-symbols-outlined">delete</span>
+                    Eliminar Jugador
+                </button>
+            </div>
+
+        </div>
+
+    </main>
+</div>

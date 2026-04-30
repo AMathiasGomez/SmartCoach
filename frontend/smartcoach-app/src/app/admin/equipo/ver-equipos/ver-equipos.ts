@@ -1,8 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { Equipo } from '../../../models/equipo.model';
 import { EquipoService } from '../../../services/equipo/equipo-service';
-import { ChangeDetectorRef } from '@angular/core';
 import { AuthService } from '../../../services/auth/auth-service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -18,6 +17,8 @@ export class VerEquipos implements OnInit {
   loading = false;
   equipos: Equipo[] = [];
 
+  private baseUrl = 'http://localhost:3006';
+
   constructor(
     private equipoService: EquipoService,
     public router: Router,
@@ -29,14 +30,13 @@ export class VerEquipos implements OnInit {
     this.cargarEquipos();
   }
 
-  cargarEquipos() {
-    console.log("cargando equipos...");
-
+  cargarEquipos(): void {
+    console.log('Cargando equipos...');
     this.loading = true;
 
     this.equipoService.getEquipos().subscribe({
       next: (data) => {
-        console.log("datos recibidos del servicio:", data);
+        console.log('Datos recibidos del servicio:', data);
         this.equipos = data;
         this.loading = false;
         this.cd.detectChanges();
@@ -45,15 +45,27 @@ export class VerEquipos implements OnInit {
         console.error('Error al cargar equipos', err);
         alert('Error al cargar equipos');
         this.loading = false;
-      }
+      },
     });
   }
 
-  editar(id: number) {
+  getFotoEquipo(fotoUrl?: string): string {
+    if (!fotoUrl) {
+      return '';
+    }
+ 
+    if (fotoUrl.startsWith('http')) {
+      return fotoUrl;
+    }
+
+    return `${this.baseUrl}${fotoUrl}`;
+  }
+
+  editar(id: number): void {
     this.router.navigate(['/editar-equipo', id]);
   }
 
-  eliminar(id: number) {
+  eliminar(id: number): void {
     if (confirm('¿Eliminar equipo?')) {
       this.equipoService.eliminarEquipo(id).subscribe({
         next: () => {
@@ -62,12 +74,12 @@ export class VerEquipos implements OnInit {
         },
         error: () => {
           alert('Error al eliminar');
-        }
+        },
       });
     }
   }
 
-  logout() {
+  logout(): void {
     this.authService.logOut();
     this.router.navigate(['/login']);
   }
