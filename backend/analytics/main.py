@@ -7,7 +7,11 @@ app = FastAPI(title="Volleyball Analytics API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:4200", "https://smartcoach-production.up.railway.app"], 
+    allow_origins=[
+        "http://localhost:4200",
+        "https://smartcoach-production.up.railway.app",
+        "https://smart-coach-kappa.vercel.app"
+    ], 
     allow_methods=["*"],
     allow_headers=["*"],
 )

@@ -55,49 +55,47 @@
       </button>
     </header>
 
-    <section class="card table-container">
-      <table>
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Posición</th>
-            <th>Dorsal</th>
-            <th>Equipo</th>
-            <th class="text-right">Acciones</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          <tr *ngFor="let jugador of jugadores">
-            <td>
-              <div class="user-info">
-                <img *ngIf="jugador.foto_url; else avatarLetra" [src]="'https://smartcoach-production.up.railway.app:3006' + jugador.foto_url"
-                  alt="{{ jugador.nombre }}" class="user-avatar-img">
-                <ng-template #avatarLetra>
-                  <div class="user-avatar font-bold text-blue">{{ jugador.nombre | slice:0:1 }}</div>
-                </ng-template>
-                <span class="font-bold">{{ jugador.nombre }}</span>
-              </div>
-            </td>
-            <td><span class="badge">{{ jugador.posicion }}</span></td>
-            <td class="text-muted">{{ jugador.numero }}</td>
-            <td class="font-bold">{{ jugador.equipo_nombre }}</td>
-
-            <td class="text-right">
-              <div class="action-buttons">
-                <button class="btn-icon btn-edit" title="Editar" (click)="editar(jugador.id!)">
-                  <span class="material-symbols-outlined">edit</span>
-                </button>
-                <button class="btn-icon btn-delete" title="Eliminar" (click)="eliminar(jugador.id!)">
-                  <span class="material-symbols-outlined">delete</span>
-                </button>
-              </div>
-            </td>
-          </tr>
-
-
-        </tbody>
-      </table>
+<section class="card table-container">
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Posición</th>
+              <th>Dorsal</th>
+              <th>Equipo</th>
+              <th class="text-right">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let jugador of jugadores">
+              <td>
+                <div class="user-info">
+                  <img *ngIf="jugador.foto_url; else avatarLetra" [src]="'https://smartcoach-production.up.railway.app:3006' + jugador.foto_url"
+                    alt="{{ jugador.nombre }}" class="user-avatar-img">
+                  <ng-template #avatarLetra>
+                    <div class="user-avatar font-bold text-blue">{{ jugador.nombre | slice:0:1 }}</div>
+                  </ng-template>
+                  <span class="font-bold">{{ jugador.nombre }}</span>
+                </div>
+              </td>
+              <td><span class="badge">{{ jugador.posicion }}</span></td>
+              <td class="text-muted">{{ jugador.numero }}</td>
+              <td class="font-bold">{{ jugador.equipo_nombre }}</td>
+              <td class="text-right">
+                <div class="action-buttons">
+                  <button class="btn-icon btn-edit" title="Editar" (click)="editar(jugador.id!)">
+                    <span class="material-symbols-outlined">edit</span>
+                  </button>
+                  <button class="btn-icon btn-delete" title="Eliminar" (click)="eliminar(jugador.id!)">
+                    <span class="material-symbols-outlined">delete</span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </section>
   </main>
 </div>

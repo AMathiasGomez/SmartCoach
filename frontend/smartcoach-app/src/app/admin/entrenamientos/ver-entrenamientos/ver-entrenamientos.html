@@ -59,54 +59,52 @@
             No hay entrenamientos registrados
         </div>
 
-        <section class="card table-container" *ngIf="!loading && entrenamientos.length > 0">
-
-            <table>
-                <thead>
-                    <tr>
-                        <th>Equipo</th>
-                        <th>Fecha</th>
-                        <th>Hora</th>
-                        <th>Duración</th>
-                        <th>Tipo</th>
-                        <th>Estado</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                    <tr *ngFor="let entrenamiento of entrenamientos">
-                        <td>{{ entrenamiento.equipo_nombre }}</td>
-                        <td>{{ entrenamiento.fecha | date:'shortDate' }}</td>
-                        <td>{{ entrenamiento.hora }}</td>
-                        <td>{{ entrenamiento.tipo }}</td>
-                        <td>{{ entrenamiento.duracion  }} min</td>
-
-                        <td>
-                            <span [ngClass]="{
-                                'estado-completado': entrenamiento.estado === 'completado',
-                                'estado-pendiente': entrenamiento.estado === 'programado'
-                            }" class="badge">
-                                {{ entrenamiento.estado }}
-                            </span>
-                        </td>
-
-                        <td class="text-right">
-                            <div class="action-buttons">
-                                <button class="btn-icon btn-edit"
-                                    [title]="entrenamiento.estado === 'completado' ? 'No se puede editar un partido completado' : ''"
-                                    [routerLink]="['/editar-entrenamiento', entrenamiento.id]"
-                                    [disabled]="entrenamiento.estado === 'completado'">
-                                    <span class="material-symbols-outlined">edit</span>
-                                </button>
-                                <button class="btn-icon btn-delete" title="Eliminar" (click)="eliminar(entrenamiento.id!)">
-                                    <span class="material-symbols-outlined">delete</span>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+<section class="card table-container" *ngIf="!loading && entrenamientos.length > 0">
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Equipo</th>
+                            <th>Fecha</th>
+                            <th>Hora</th>
+                            <th>Duración</th>
+                            <th>Tipo</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let entrenamiento of entrenamientos">
+                            <td>{{ entrenamiento.equipo_nombre }}</td>
+                            <td>{{ entrenamiento.fecha | date:'shortDate' }}</td>
+                            <td>{{ entrenamiento.hora }}</td>
+                            <td>{{ entrenamiento.tipo }}</td>
+                            <td>{{ entrenamiento.duracion }} min</td>
+                            <td>
+                                <span [ngClass]="{
+                                    'estado-completado': entrenamiento.estado === 'completado',
+                                    'estado-pendiente': entrenamiento.estado === 'programado'
+                                }" class="badge">
+                                    {{ entrenamiento.estado }}
+                                </span>
+                            </td>
+                            <td class="text-right">
+                                <div class="action-buttons">
+                                    <button class="btn-icon btn-edit"
+                                        [title]="entrenamiento.estado === 'completado' ? 'No se puede editar un partido completado' : ''"
+                                        [routerLink]="['/editar-entrenamiento', entrenamiento.id]"
+                                        [disabled]="entrenamiento.estado === 'completado'">
+                                        <span class="material-symbols-outlined">edit</span>
+                                    </button>
+                                    <button class="btn-icon btn-delete" title="Eliminar" (click)="eliminar(entrenamiento.id!)">
+                                        <span class="material-symbols-outlined">delete</span>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </section>
 
     </main>
