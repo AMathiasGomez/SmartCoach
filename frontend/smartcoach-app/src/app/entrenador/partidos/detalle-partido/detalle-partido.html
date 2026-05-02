@@ -1,5 +1,13 @@
 <div class="app-container">
-  <aside class="sidebar">
+  <!-- Mobile Menu Toggle -->
+  <button class="menu-toggle" (click)="toggleSidebar()">
+    <span class="material-symbols-outlined">{{ sidebarOpen ? 'close' : 'menu' }}</span>
+  </button>
+
+  <!-- Sidebar Overlay -->
+  <div class="sidebar-overlay" [class.active]="sidebarOpen" (click)="toggleSidebar()"></div>
+
+  <aside class="sidebar" [class.active]="sidebarOpen">
     <div class="logo">
       <div class="logo-icon">SC</div>
       <div class="logo-text-wrapper">
@@ -9,23 +17,23 @@
     </div>
 
     <nav>
-      <a routerLink="/dashboard-entrenador">
+      <a routerLink="/dashboard-entrenador" (click)="closeSidebarOnNav()">
         <span class="material-symbols-outlined">space_dashboard</span>
         <span>Panel de Control</span>
       </a>
-      <a routerLink="/ver-equipos-e">
+      <a routerLink="/ver-equipos-e" (click)="closeSidebarOnNav()">
         <span class="material-symbols-outlined">group</span>
         <span>Equipos</span>
       </a>
-      <a routerLink="/ver-jugadores-e">
+      <a routerLink="/ver-jugadores-e" (click)="closeSidebarOnNav()">
         <span class="material-symbols-outlined">person</span>
         <span>Jugadores</span>
       </a>
-      <a routerLink="/ver-entrenamientos-e">
+      <a routerLink="/ver-entrenamientos-e" (click)="closeSidebarOnNav()">
         <span class="material-symbols-outlined">fitness_center</span>
         <span>Entrenamientos</span>
       </a>
-      <a class="active" routerLink="/ver-partidos-e">
+      <a class="active" routerLink="/ver-partidos-e" (click)="closeSidebarOnNav()">
         <span class="material-symbols-outlined">sports_soccer</span>
         <span>Partidos</span>
       </a>
@@ -325,6 +333,45 @@
 
     </div>
 
+
+<!-- ESTADÍSTICAS FINALES POR SET (cuando termina el partido) -->
+    <div class="final-stats-container" *ngIf="partido.estado === 'finalizado' && estadisticasPorSets.length > 0">
+      <h3 style="text-align: center; margin: 2rem 0 1rem;">📊 Estadísticas Finales por Set</h3>
+      
+      <div *ngFor="let setData of estadisticasPorSets" class="set-stats-card">
+        <div class="set-header">
+          <h4>Set {{ setData.set.numero_set }}</h4>
+          <span class="score-badge">
+            {{ setData.set.puntos_equipo }} - {{ setData.set.puntos_rival }}
+          </span>
+        </div>
+        
+        <div class="table-responsive">
+          <table class="modern-table">
+            <thead>
+              <tr>
+                <th>Jugador</th>
+                <th>#</th>
+                <th>Ataques</th>
+                <th>Recepciones</th>
+                <th>Errores</th>
+                <th>Bloqueos</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let stat of setData.stats">
+                <td class="nombre">{{ stat.nombre?.split(' ').slice(0, 2).join(' ') }}</td>
+                <td>{{ stat.numero }}</td>
+                <td>{{ stat.ataques }}</td>
+                <td>{{ stat.recepciones }}</td>
+                <td class="error-stat">{{ stat.errores }}</td>
+                <td>{{ stat.bloqueos }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
 
     <!-- ACCIONES -->
     <div class="actions">

@@ -3,49 +3,44 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../services/auth/auth-service';
 import { JugadorService } from '../../../services/jugador/jugador-service';
-import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { EquipoService } from '../../../services/equipo/equipo-service';
 import { Equipo } from '../../../models/equipo.model';
 
 @Component({
   selector: 'app-crear-jugador',
+  standalone: true,
   imports: [ReactiveFormsModule, RouterLink, CommonModule],
   templateUrl: './crear-jugador.html',
-  styleUrl: './crear-jugador.css',
+  styleUrls: ['./crear-jugador.css']
 })
-
 export class CrearJugador implements OnInit {
 
   equipos: Equipo[] = [];
 
   formJugador!: FormGroup;
-  errorMessage: string = ''
+  errorMessage: string = '';
 
   fotoArchivo: File | null = null;
   fotoPreview: string | null = null;
   fotoError: string = '';
+  guardando = false;
 
   constructor(
     private fb: FormBuilder,
     private jugadorService: JugadorService,
     public router: Router,
     private authService: AuthService,
-    private http: HttpClient,
     private equipoService: EquipoService
-  ) {
-  }
-
+  ) { }
 
   ngOnInit(): void {
     this.equipoService.getEquipos().subscribe({
       next: (data) => {
         this.equipos = data;
-        console.log('Equipos:', data);
       },
       error: (err) => {
         console.error('Error al cargar equipos', err);
-        alert('Error al cargar equipos');
       }
     });
 
@@ -64,6 +59,8 @@ export class CrearJugador implements OnInit {
       return;
     }
 
+    this.guardando = true;
+
     const formData = new FormData();
     const valores = this.formJugador.value;
 
@@ -78,17 +75,15 @@ export class CrearJugador implements OnInit {
     }
 
     this.jugadorService.crearJugador(formData).subscribe({
-      next: (res) => {
+      next: () => {
         alert('Jugador creado correctamente');
         this.router.navigate(['/ver-jugadores']);
-        this.formJugador.reset();
-        this.fotoArchivo = null;
-        this.fotoPreview = null;
       },
       error: (err) => {
+        this.guardando = false;
         console.error(err);
         this.errorMessage = err.error?.message || 'Error al crear jugador';
-        alert(err.error.message);
+        alert(err.error?.message || 'Error al crear jugador');
       }
     });
   }
@@ -125,9 +120,20 @@ export class CrearJugador implements OnInit {
     reader.readAsDataURL(archivo);
   }
 
+  eliminarFoto(event: Event) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.fotoArchivo = null;
+    this.fotoPreview = null;
+    this.fotoError = '';
+    const input = document.getElementById('foto-input') as HTMLInputElement;
+    if (input) {
+      input.value = '';
+    }
+  }
+
   logout() {
     this.authService.logOut();
     this.router.navigate(['/login']);
   }
-
 }

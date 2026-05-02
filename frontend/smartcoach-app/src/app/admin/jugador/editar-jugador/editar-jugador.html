@@ -43,37 +43,115 @@
     </button>
   </aside>
 
-  <!-- CONTENIDO -->
+  <!-- MAIN CONTENT -->
   <main class="main-content">
 
+    <!-- BREADCRUMB -->
+    <nav class="breadcrumb">
+      <a routerLink="/ver-jugadores">Jugadores</a>
+      <span class="separator">›</span>
+      <span class="current">Editar Jugador</span>
+    </nav>
+
+    <!-- HEADER -->
     <section class="header-section">
       <h1>Editar jugador</h1>
-      <p>Editar información del jugador.</p>
+      <p>Actualice los datos del jugador.</p>
     </section>
 
+    <!-- CARD -->
     <section class="card">
-      <h5><span class="material-symbols-outlined text-primary">person_add</span> Información del Jugador</h5>
+      <div class="card-header">
+        <h5>
+          <span class="material-symbols-outlined">edit</span>
+          Información del Jugador
+        </h5>
+      </div>
 
-      <div>
+      <!-- LOADING STATE -->
+      <div *ngIf="cargando" class="loading-container">
+        <div class="loading-spinner"></div>
+        <p>Cargando información del jugador...</p>
+      </div>
 
-        <form class="form" (ngSubmit)="actualizarJugador()">
+      <!-- FORM -->
+      <form *ngIf="!cargando" [formGroup]="formJugador" (ngSubmit)="actualizarJugador()" class="form">
 
-          <div class="grid-2">
+        <!-- PHOTO UPLOAD -->
+        <div class="form-group">
+          <label>Foto del Jugador</label>
 
-            <div class="form-group">
-              <label>Nombre Completo</label>
-              <input type="text" [(ngModel)]="jugador.nombre" name="nombre" placeholder="Ej. Tomasz Fornal">
+<!-- Current Photo -->
+          <div *ngIf="hasExistingImage() && !fotoPreview" class="existing-photo-container">
+            <img [src]="getFotoUrl(fotoActual)" alt="Foto actual del jugador">
+            <div class="existing-photo-info">
+              <p>Foto actual</p>
+              <strong>{{ jugadorNombre }}</strong>
             </div>
+          </div>
 
-            <div class="form-group">
-              <label>Fecha de Nacimiento</label>
-              <input type="date" [(ngModel)]="jugador.fecha_nacimiento" name="fecha_nacimiento">
+          <!-- Upload New Photo -->
+          <label class="photo-upload" for="foto-input-edit">
+            <input type="file" id="foto-input-edit" accept="image/*" (change)="onFotoSeleccionada($event)">
+            <span class="material-symbols-outlined upload-icon">cloud_upload</span>
+            <p>Arrastra una imagen o haz clic para seleccionar</p>
+            <span class="upload-hint">JPG, PNG o WEBP (máx 5MB)</span>
+          </label>
+
+          <div *ngIf="fotoError" class="error-message">
+            <span class="material-symbols-outlined" style="font-size: 16px;">error</span>
+            {{ fotoError }}
+          </div>
+
+          <div *ngIf="fotoPreview" class="photo-preview">
+            <img [src]="fotoPreview" alt="Vista previa">
+            <button type="button" class="remove-btn" (click)="eliminarFoto($event)">
+              <span class="material-symbols-outlined" style="font-size: 16px;">close</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- NOMBRE & FECHA -->
+        <div class="grid-2">
+          <div class="form-group">
+            <label>Nombre Completo</label>
+            <div class="input-container">
+              <span class="material-symbols-outlined icon">badge</span>
+              <input type="text"
+                     placeholder="Ej. Tomás Fornal"
+                     formControlName="nombre"
+                     [class.input-error]="formJugador.get('nombre')?.invalid && formJugador.get('nombre')?.touched">
             </div>
+            <div *ngIf="formJugador.get('nombre')?.invalid && formJugador.get('nombre')?.touched" class="error-message">
+              <span class="material-symbols-outlined" style="font-size: 16px;">error</span>
+              El nombre es obligatorio
+            </div>
+          </div>
 
-            <div class="form-group">
-              <label>Posición</label>
-              <select [(ngModel)]="jugador.posicion" name="posicion">
-                <option value="" disabled>Seleccionar</option>
+          <div class="form-group">
+            <label>Fecha de Nacimiento</label>
+            <div class="input-container">
+              <span class="material-symbols-outlined icon">cake</span>
+              <input type="date"
+                     formControlName="fecha_nacimiento"
+                     [class.input-error]="formJugador.get('fecha_nacimiento')?.invalid && formJugador.get('fecha_nacimiento')?.touched">
+            </div>
+            <div *ngIf="formJugador.get('fecha_nacimiento')?.invalid && formJugador.get('fecha_nacimiento')?.touched" class="error-message">
+              <span class="material-symbols-outlined" style="font-size: 16px;">error</span>
+              La fecha es obligatoria
+            </div>
+          </div>
+        </div>
+
+        <!-- POSICION & DORSAL -->
+        <div class="grid-2">
+          <div class="form-group">
+            <label>Posición</label>
+            <div class="input-container">
+              <span class="material-symbols-outlined icon">sports</span>
+              <select formControlName="posicion"
+                      [class.input-error]="formJugador.get('posicion')?.invalid && formJugador.get('posicion')?.touched">
+                <option value="">Seleccionar</option>
                 <option value="Libero">Libero</option>
                 <option value="Punta">Punta</option>
                 <option value="Central">Central</option>
@@ -81,58 +159,61 @@
                 <option value="Armador">Armador</option>
               </select>
             </div>
-
-            <div class="form-group">
-              <label>Dorsal</label>
-              <input type="number" [(ngModel)]="jugador.numero" name="numero">
+            <div *ngIf="formJugador.get('posicion')?.invalid && formJugador.get('posicion')?.touched" class="error-message">
+              <span class="material-symbols-outlined" style="font-size: 16px;">error</span>
+              La posición es obligatoria
             </div>
-
-            <div class="form-group" style="grid-column: 1 / -1;">
-              <label>Foto del Jugador</label>
-
-              <div *ngIf="jugador.foto_url && !fotoPreview" style="margin-bottom: 10px;">
-                <p style="font-size: 0.85rem; color: #666; margin-bottom: 6px;">Foto actual:</p>
-                <img [src]="'https://smartcoach-production.up.railway.app:3006' + jugador.foto_url" alt="Foto actual"
-                  style="width: 100px; height: 100px; object-fit: cover; border-radius: 8px; border: 2px solid #ddd;">
-              </div>
-
-              <input type="file" accept="image/*" (change)="onFotoSeleccionada($event)">
-              <small *ngIf="fotoError" style="color: red;">{{ fotoError }}</small>
-
-            
-              <div *ngIf="fotoPreview" style="margin-top: 10px;">
-                <p style="font-size: 0.85rem; color: #666; margin-bottom: 6px;">Nueva foto:</p>
-                <img [src]="fotoPreview" alt="Vista previa"
-                  style="width: 100px; height: 100px; object-fit: cover; border-radius: 8px; border: 2px solid #ddd;">
-              </div>
-            </div>
-
           </div>
 
           <div class="form-group">
-            <label>Equipo</label>
+            <label>Dorsal</label>
+            <div class="input-container">
+              <span class="material-symbols-outlined icon">tag</span>
+              <input type="number"
+                     placeholder="Ej. 10"
+                     formControlName="numero"
+                     min="1" max="99"
+                     [class.input-error]="formJugador.get('numero')?.invalid && formJugador.get('numero')?.touched">
+            </div>
+            <div *ngIf="formJugador.get('numero')?.invalid && formJugador.get('numero')?.touched" class="error-message">
+              <span class="material-symbols-outlined" style="font-size: 16px;">error</span>
+              El dorsal es obligatorio (1-99)
+            </div>
+          </div>
+        </div>
 
-            <select [(ngModel)]="jugador.equipo_id" name="equipo_id" [disabled]="equipos.length === 0">
-              <option value="" disabled>Selecciona un equipo</option>
-              <option *ngFor="let equipo of equipos" [ngValue]="equipo.id"> {{ equipo.nombre }} </option>
-              <option *ngIf="equipos.length === 0" disabled>No hay equipos disponibles</option>
+        <!-- EQUIPO -->
+        <div class="form-group">
+          <label>Equipo</label>
+          <div class="input-container">
+            <span class="material-symbols-outlined icon">groups</span>
+            <select formControlName="equipo_id"
+                    [class.input-error]="formJugador.get('equipo_id')?.invalid && formJugador.get('equipo_id')?.touched">
+              <option [ngValue]="0">Selecciona un equipo</option>
+              <option *ngFor="let equipo of equipos" [ngValue]="equipo.id">{{ equipo.nombre }}</option>
             </select>
           </div>
-
-          <div class="actions">
-            <button type="button" class="btn-outline" routerLink="/ver-jugadores">
-              Cancelar
-            </button>
-
-            <button type="submit" class="btn-primary">
-              Actualizar jugador
-            </button>
+          <div *ngIf="formJugador.get('equipo_id')?.invalid && formJugador.get('equipo_id')?.touched" class="error-message">
+            <span class="material-symbols-outlined" style="font-size: 16px;">error</span>
+            <span *ngIf="equipos.length === 0">No hay equipos disponibles</span>
+            <span *ngIf="equipos.length > 0 && formJugador.get('equipo_id')?.value === 0">Selecciona un equipo</span>
           </div>
+        </div>
 
-        </form>
+        <!-- ACTIONS -->
+        <div class="actions">
+          <button type="button" class="btn-outline" routerLink="/ver-jugadores">
+            <span class="material-symbols-outlined">close</span>
+            Cancelar
+          </button>
 
-      </div>
+          <button type="submit" class="btn-primary">
+            <span class="material-symbols-outlined">save</span>
+            Guardar Cambios
+          </button>
+        </div>
 
+      </form>
     </section>
 
   </main>

@@ -1,5 +1,6 @@
 <div class="app-container">
 
+  <!-- SIDEBAR -->
   <aside class="sidebar">
     <div class="logo">
       <div class="logo-icon">SC</div>
@@ -42,78 +43,155 @@
     </button>
   </aside>
 
+  <!-- MAIN CONTENT -->
   <main class="main-content">
-    <h1>Registrar nuevo jugador</h1>
-    <p class="sub">Completa el perfil técnico y personal para dar de alta al deportista.</p>
 
+    <!-- BREADCRUMB -->
+    <nav class="breadcrumb">
+      <a routerLink="/ver-jugadores">Jugadores</a>
+      <span class="separator">›</span>
+      <span class="current">Crear Jugador</span>
+    </nav>
+
+    <!-- HEADER -->
+    <section class="header-section">
+      <h1>Registrar nuevo jugador</h1>
+      <p>Complete los datos del jugador para registrarlo en el sistema.</p>
+    </section>
+
+    <!-- CARD -->
     <section class="card">
-      <h5><span class="material-symbols-outlined text-primary">person_add</span>Información del Jugador</h5>
+      <div class="card-header">
+        <h5>
+          <span class="material-symbols-outlined">person_add</span>
+          Información del Jugador
+        </h5>
+      </div>
 
       <form class="form" [formGroup]="formJugador" (ngSubmit)="crearJugador()">
 
+        <!-- PHOTO UPLOAD -->
+        <div class="form-group">
+          <label>Foto del Jugador</label>
+          <label class="photo-upload" for="foto-input">
+            <input type="file" id="foto-input" accept="image/*" (change)="onFotoSeleccionada($event)">
+            <span class="material-symbols-outlined upload-icon">cloud_upload</span>
+            <p>Arrastra una imagen o haz clic para seleccionar</p>
+            <span class="upload-hint">JPG, PNG o WEBP (máx 5MB)</span>
+          </label>
+
+          <div *ngIf="fotoError" class="error-message">
+            <span class="material-symbols-outlined" style="font-size: 16px;">error</span>
+            {{ fotoError }}
+          </div>
+
+          <div *ngIf="fotoPreview" class="photo-preview">
+            <img [src]="fotoPreview" alt="Vista previa">
+            <button type="button" class="remove-btn" (click)="eliminarFoto($event)">
+              <span class="material-symbols-outlined" style="font-size: 16px;">close</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- NOMBRE & FECHA -->
         <div class="grid-2">
-
-          <div class="form-group" style="grid-column: 1 / -1;">
-            <label>Foto del Jugador</label>
-            <input type="file" accept="image/*" (change)="onFotoSeleccionada($event)" #fotoInput>
-            <small *ngIf="fotoError" style="color: red;">{{ fotoError }}</small>
-
-            <div *ngIf="fotoPreview" style="margin-top: 10px;">
-              <img [src]="fotoPreview" alt="Vista previa"
-                style="width: 120px; height: 120px; object-fit: cover; border-radius: 8px; border: 2px solid #ddd;">
+          <div class="form-group">
+            <label>Nombre Completo</label>
+            <div class="input-container">
+              <span class="material-symbols-outlined icon">badge</span>
+              <input type="text"
+                     placeholder="Ej. Tomás Fornal"
+                     formControlName="nombre"
+                     [class.input-error]="formJugador.get('nombre')?.invalid && formJugador.get('nombre')?.touched">
+            </div>
+            <div *ngIf="formJugador.get('nombre')?.invalid && formJugador.get('nombre')?.touched" class="error-message">
+              <span class="material-symbols-outlined" style="font-size: 16px;">error</span>
+              El nombre es obligatorio
             </div>
           </div>
 
           <div class="form-group">
-            <label>Nombre Completo</label>
-            <input type="text" formControlName="nombre" placeholder="Ej. Tomasz Fornal">
-
-            <small *ngIf="formJugador.get('nombre')?.touched && formJugador.get('nombre')?.invalid">
-              Nombre obligatorio
-            </small>
-          </div>
-
-          <div class="form-group">
             <label>Fecha de Nacimiento</label>
-            <input type="date" formControlName="fecha_nacimiento">
+            <div class="input-container">
+              <span class="material-symbols-outlined icon">cake</span>
+              <input type="date"
+                     formControlName="fecha_nacimiento"
+                     [class.input-error]="formJugador.get('fecha_nacimiento')?.invalid && formJugador.get('fecha_nacimiento')?.touched">
+            </div>
+            <div *ngIf="formJugador.get('fecha_nacimiento')?.invalid && formJugador.get('fecha_nacimiento')?.touched" class="error-message">
+              <span class="material-symbols-outlined" style="font-size: 16px;">error</span>
+              La fecha es obligatoria
+            </div>
           </div>
+        </div>
 
+        <!-- POSICION & DORSAL -->
+        <div class="grid-2">
           <div class="form-group">
             <label>Posición</label>
-            <select formControlName="posicion">
-              <option value="" disabled>Seleccionar</option>
-              <option value="Libero">Libero</option>
-              <option value="Punta">Punta</option>
-              <option value="Central">Central</option>
-              <option value="Opuesto">Opuesto</option>
-              <option value="Armador">Armador</option>
-            </select>
+            <div class="input-container">
+              <span class="material-symbols-outlined icon">sports</span>
+              <select formControlName="posicion"
+                      [class.input-error]="formJugador.get('posicion')?.invalid && formJugador.get('posicion')?.touched">
+                <option value="">Seleccionar</option>
+                <option value="Libero">Libero</option>
+                <option value="Punta">Punta</option>
+                <option value="Central">Central</option>
+                <option value="Opuesto">Opuesto</option>
+                <option value="Armador">Armador</option>
+              </select>
+            </div>
+            <div *ngIf="formJugador.get('posicion')?.invalid && formJugador.get('posicion')?.touched" class="error-message">
+              <span class="material-symbols-outlined" style="font-size: 16px;">error</span>
+              La posición es obligatoria
+            </div>
           </div>
 
           <div class="form-group">
             <label>Dorsal</label>
-            <input type="number" formControlName="numero">
+            <div class="input-container">
+              <span class="material-symbols-outlined icon">tag</span>
+              <input type="number"
+                     placeholder="Ej. 10"
+                     formControlName="numero"
+                     min="1" max="99"
+                     [class.input-error]="formJugador.get('numero')?.invalid && formJugador.get('numero')?.touched">
+            </div>
+            <div *ngIf="formJugador.get('numero')?.invalid && formJugador.get('numero')?.touched" class="error-message">
+              <span class="material-symbols-outlined" style="font-size: 16px;">error</span>
+              El dorsal es obligatorio (1-99)
+            </div>
           </div>
-
         </div>
 
+        <!-- EQUIPO -->
         <div class="form-group">
           <label>Equipo</label>
-
-          <select formControlName="equipo_id">
-            <option value="" disabled>Selecciona un equipo</option>
-            <option *ngFor="let equipo of equipos" [ngValue]="equipo.id"> {{ equipo.nombre }} </option>
-            <option *ngIf="equipos.length === 0" disabled>No hay equipos disponibles</option>
-          </select>
+          <div class="input-container">
+            <span class="material-symbols-outlined icon">groups</span>
+            <select formControlName="equipo_id"
+                    [class.input-error]="formJugador.get('equipo_id')?.invalid && formJugador.get('equipo_id')?.touched">
+              <option [ngValue]="0">Selecciona un equipo</option>
+              <option *ngFor="let equipo of equipos" [ngValue]="equipo.id">{{ equipo.nombre }}</option>
+            </select>
+          </div>
+          <div *ngIf="formJugador.get('equipo_id')?.invalid && formJugador.get('equipo_id')?.touched" class="error-message">
+            <span class="material-symbols-outlined" style="font-size: 16px;">error</span>
+            <span *ngIf="equipos.length === 0">No hay equipos disponibles</span>
+            <span *ngIf="equipos.length > 0 && formJugador.get('equipo_id')?.value === 0">Selecciona un equipo</span>
+          </div>
         </div>
 
+        <!-- ACTIONS -->
         <div class="actions">
           <button type="button" class="btn-outline" routerLink="/ver-jugadores">
+            <span class="material-symbols-outlined">close</span>
             Cancelar
           </button>
 
           <button type="submit" class="btn-primary">
-            Guardar jugador
+            <span class="material-symbols-outlined">save</span>
+            Guardar Jugador
           </button>
         </div>
 

@@ -1,132 +1,108 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { JugadorService } from '../../../services/jugador/jugador-service';
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../services/auth/auth-service';
 import { EquipoService } from '../../../services/equipo/equipo-service';
+import { Equipo } from '../../../models/equipo.model';
 
 @Component({
   selector: 'app-editar-jugador',
   standalone: true,
-  imports: [FormsModule, CommonModule, RouterLink],
+  imports: [ReactiveFormsModule, CommonModule, RouterLink],
   templateUrl: './editar-jugador.html',
   styleUrls: ['./editar-jugador.css']
 })
 export class EditarJugador implements OnInit {
 
+  private apiBaseUrl = 'https://smartcoach-production.up.railway.app';
+  
+  formJugador!: FormGroup;
   id!: number;
-
-  jugador = {
-    nombre: '',
-    fecha_nacimiento: '',
-    posicion: '',
-    numero: 0,
-    equipo_id: 0,
-    foto_url: ''
-  };
-
-  equipos: any[] = [];
-
   cargando = true;
 
+  equipos: Equipo[] = [];
+
+  // Photo handling
   fotoArchivo: File | null = null;
   fotoPreview: string | null = null;
   fotoError: string = '';
+  fotoActual: string = '';
+  jugadorNombre: string = '';
 
   constructor(
-    private route: ActivatedRoute,
+    private fb: FormBuilder,
     public router: Router,
+    private route: ActivatedRoute,
     private jugadorService: JugadorService,
     private equipoService: EquipoService,
     private authService: AuthService,
-    private cd: ChangeDetectorRef,
+    private cd: ChangeDetectorRef
   ) { }
 
   ngOnInit(): void {
-    this.id = this.route.snapshot.params['id'];
+    this.id = Number(this.route.snapshot.params['id']);
 
     if (!this.id) {
-      console.error('ID no válido');
       this.router.navigate(['/ver-jugadores']);
       return;
     }
 
-    this.obtenerJugador();
+    this.initForm();
     this.obtenerEquipos();
+    this.obtenerJugador();
   }
 
-  obtenerJugador() {
-    this.jugadorService.getJugador(this.id).subscribe({
-      next: (res: any) => {
-
-        console.log('✅ jugador:', res);
-
-        this.jugador = res;
-
-        this.cd.detectChanges();
-
-        this.cargando = false;
-      },
-      error: (err: any) => {
-        console.error('❌ error:', err);
-        this.router.navigate(['/ver-jugadores']);
-      }
+  initForm() {
+    this.formJugador = this.fb.group({
+      nombre: ['', Validators.required],
+      fecha_nacimiento: ['', Validators.required],
+      posicion: ['', Validators.required],
+      numero: ['', [Validators.required, Validators.min(1)]],
+      equipo_id: [0, Validators.required]
     });
   }
 
   obtenerEquipos() {
     this.equipoService.getEquipos().subscribe({
-      next: (res: any) => {
-        this.equipos = res;
+      next: (data) => {
+        this.equipos = data;
       },
-      error: (err: any) => {
-        console.error('Error cargando equipos', err);
+      error: (err) => {
+        console.error('Error al cargar equipos', err);
       }
     });
   }
 
-  actualizarJugador() {
-    if (!this.jugador.nombre || !this.jugador.posicion || !this.jugador.numero || !this.jugador.equipo_id) {
-      console.error('Campos obligatorios');
-      return;
-    }
-
-    if (this.fotoArchivo) {
-      const formData = new FormData();
-      formData.append('nombre', this.jugador.nombre);
-      formData.append('fecha_nacimiento', this.jugador.fecha_nacimiento);
-      formData.append('posicion', this.jugador.posicion);
-      formData.append('numero', String(this.jugador.numero));
-      formData.append('equipo_id', String(this.jugador.equipo_id));
-      formData.append('foto', this.fotoArchivo, this.fotoArchivo.name);
-
-      this.jugadorService.actualizarJugador(this.id, formData).subscribe({
-        next: () => {
-          alert('Jugador actualizado correctamente');
+  obtenerJugador() {
+    this.jugadorService.getJugador(this.id).subscribe({
+      next: (res: any) => {
+        if (!res) {
           this.router.navigate(['/ver-jugadores']);
-        },
-        error: (err: any) => console.error('Error al actualizar jugador', err)
-      });
+          return;
+        }
 
-    } else {
-      this.jugadorService.actualizarJugadorJson(this.id, {
-        nombre: this.jugador.nombre,
-        fecha_nacimiento: this.jugador.fecha_nacimiento,
-        posicion: this.jugador.posicion,
-        numero: this.jugador.numero,
-        equipo_id: this.jugador.equipo_id
-      }).subscribe({
-        next: () => {
-          alert('Jugador actualizado correctamente');
-          this.router.navigate(['/ver-jugadores']);
-        },
-        error: (err: any) => {
-          alert(err.error.message);
-          console.error('Error al actualizar jugador', err)
-        } 
-      });
-    }
+        this.formJugador.patchValue({
+          nombre: res.nombre,
+          fecha_nacimiento: res.fecha_nacimiento,
+          posicion: res.posicion,
+          numero: res.numero,
+          equipo_id: res.equipo_id
+        });
+
+        // Store current photo and player name
+        this.fotoActual = res.foto_url || '';
+        this.jugadorNombre = res.nombre || '';
+
+        this.cargando = false;
+        this.cd.detectChanges();
+      },
+      error: () => {
+        alert('Error al cargar jugador');
+        this.router.navigate(['/ver-jugadores']);
+      }
+    });
   }
 
   onFotoSeleccionada(event: Event) {
@@ -155,9 +131,80 @@ export class EditarJugador implements OnInit {
     this.fotoArchivo = archivo;
 
     const reader = new FileReader();
-    reader.onload = () => { this.fotoPreview = reader.result as string; };
+    reader.onload = () => {
+      this.fotoPreview = reader.result as string;
+    };
     reader.readAsDataURL(archivo);
-    this.cd.detectChanges();
+  }
+
+  eliminarFoto(event: Event) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.fotoArchivo = null;
+    this.fotoPreview = null;
+    this.fotoError = '';
+    const input = document.getElementById('foto-input-edit') as HTMLInputElement;
+    if (input) {
+      input.value = '';
+    }
+  }
+
+  hasExistingImage(): boolean {
+    return !!this.fotoActual && this.fotoActual.trim() !== '';
+  }
+
+  getFotoUrl(fotoUrl: string | undefined | null): string {
+    if (!fotoUrl) return '';
+    if (fotoUrl.startsWith('http')) return fotoUrl;
+    return this.apiBaseUrl + fotoUrl;
+  }
+
+  actualizarJugador() {
+    if (this.formJugador.invalid) {
+      this.formJugador.markAllAsTouched();
+      return;
+    }
+
+    const valores = this.formJugador.value;
+
+    // Check if there's a new photo to upload
+    if (this.fotoArchivo) {
+      const formData = new FormData();
+      formData.append('nombre', valores.nombre);
+      formData.append('fecha_nacimiento', valores.fecha_nacimiento);
+      formData.append('posicion', valores.posicion);
+      formData.append('numero', valores.numero);
+      formData.append('equipo_id', valores.equipo_id);
+      formData.append('foto', this.fotoArchivo, this.fotoArchivo.name);
+
+      this.jugadorService.actualizarJugador(this.id, formData).subscribe({
+        next: () => {
+          alert('Jugador actualizado correctamente');
+          this.router.navigate(['/ver-jugadores']);
+        },
+        error: (err: any) => {
+          console.error('Error al actualizar jugador', err);
+          alert(err.error?.message || 'Error al actualizar jugador');
+        }
+      });
+    } else {
+      this.jugadorService.actualizarJugadorJson(this.id, {
+        nombre: valores.nombre,
+        fecha_nacimiento: valores.fecha_nacimiento,
+        posicion: valores.posicion,
+        numero: valores.numero,
+        equipo_id: valores.equipo_id
+      }).subscribe({
+        next: () => {
+          alert('Jugador actualizado correctamente');
+          this.router.navigate(['/ver-jugadores']);
+        },
+        error: (err: any) => {
+          console.error('Error al actualizar jugador', err);
+          alert(err.error?.message || 'Error al actualizar jugador');
+        }
+      });
+    }
   }
 
   logout() {

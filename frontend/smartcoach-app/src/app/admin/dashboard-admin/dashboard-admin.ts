@@ -14,8 +14,17 @@ export class DashboardAdmin {
   constructor(
     private authService: AuthService,
     public router: Router
-  ) {}
+  ) { }
 
+  sidebarOpen = false;
+
+  toggleSidebar() {
+    this.sidebarOpen = !this.sidebarOpen;
+  }
+
+  closeSidebar() {
+    this.sidebarOpen = false;
+  }
 
   logout() {
     this.authService.logOut();

@@ -1,5 +1,6 @@
 <div class="app-container">
 
+  <!-- SIDEBAR -->
   <aside class="sidebar">
     <div class="logo">
       <div class="logo-icon">SC</div>
@@ -42,8 +43,10 @@
     </button>
   </aside>
 
+  <!-- MAIN CONTENT -->
   <main class="main-content">
 
+    <!-- HEADER -->
     <header class="page-header">
       <div>
         <h1>Lista de jugadores</h1>
@@ -55,11 +58,28 @@
       </button>
     </header>
 
-<section class="card table-container">
-      <div class="table-scroll">
+    <!-- TABLE CARD -->
+    <section class="card">
+      <div class="card-header">
+        <div class="card-title">
+          <span class="material-symbols-outlined">people</span>
+          <h5>Jugadores Registrados</h5>
+        </div>
+        <span class="badge-count">{{ jugadores.length }}</span>
+      </div>
+
+      <!-- LOADING STATE -->
+      <div *ngIf="loading" class="loading-container">
+        <div class="loading-spinner"></div>
+        <p>Cargando jugadores...</p>
+      </div>
+
+      <!-- TABLE -->
+      <div *ngIf="!loading" class="table-scroll">
         <table>
           <thead>
             <tr>
+              <th>Foto</th>
               <th>Nombre</th>
               <th>Posición</th>
               <th>Dorsal</th>
@@ -70,25 +90,53 @@
           <tbody>
             <tr *ngFor="let jugador of jugadores">
               <td>
+                <!-- Player Photo or Default Avatar -->
                 <div class="user-info">
-                  <img *ngIf="jugador.foto_url; else avatarLetra" [src]="'https://smartcoach-production.up.railway.app:3006' + jugador.foto_url"
-                    alt="{{ jugador.nombre }}" class="user-avatar-img">
-                  <ng-template #avatarLetra>
-                    <div class="user-avatar font-bold text-blue">{{ jugador.nombre | slice:0:1 }}</div>
+                  <ng-container *ngIf="hasPhoto(jugador); else defaultAvatar">
+                    <img [src]="getFotoUrl(jugador.foto_url)" 
+                         [alt]="jugador.nombre"
+                         class="user-avatar-img"
+                         (error)="onImageError($event)">
+                  </ng-container>
+                  <ng-template #defaultAvatar>
+                    <div class="user-avatar">
+                      {{ getInitials(jugador.nombre) }}
+                    </div>
                   </ng-template>
-                  <span class="font-bold">{{ jugador.nombre }}</span>
                 </div>
               </td>
-              <td><span class="badge">{{ jugador.posicion }}</span></td>
-              <td class="text-muted">{{ jugador.numero }}</td>
-              <td class="font-bold">{{ jugador.equipo_nombre }}</td>
+              <td>
+                <span class="font-bold">{{ jugador.nombre }}</span>
+              </td>
+              <td>
+                <span class="badge">{{ jugador.posicion }}</span>
+              </td>
+              <td class="text-muted">#{{ jugador.numero }}</td>
+              <td class="font-bold">{{ jugador.equipo_nombre || 'Sin equipo' }}</td>
               <td class="text-right">
                 <div class="action-buttons">
-                  <button class="btn-icon btn-edit" title="Editar" (click)="editar(jugador.id!)">
+                  <button class="btn-icon btn-edit" 
+                          title="Editar" 
+                          (click)="editar(jugador.id!)">
                     <span class="material-symbols-outlined">edit</span>
                   </button>
-                  <button class="btn-icon btn-delete" title="Eliminar" (click)="eliminar(jugador.id!)">
+                  <button class="btn-icon btn-delete" 
+                          title="Eliminar" 
+                          (click)="eliminar(jugador.id!)">
                     <span class="material-symbols-outlined">delete</span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <!-- Empty State -->
+            <tr *ngIf="jugadores.length === 0">
+              <td colspan="6" class="text-center">
+                <div class="empty-state">
+                  <span class="material-symbols-outlined" style="font-size: 48px;">group_remove</span>
+                  <p>No hay jugadores registrados</p>
+                  <button class="btn-primary" (click)="router.navigate(['/crear-jugador'])">
+                    <span class="material-symbols-outlined">add</span>
+                    Agregar primer jugador
                   </button>
                 </div>
               </td>

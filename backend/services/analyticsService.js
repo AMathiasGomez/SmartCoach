@@ -1,6 +1,3 @@
-/* LEGACY - DEPRECATED: Use Python sklearn API instead
-const { kmeans } = require('ml-kmeans'); */
-
 const WEIGHTS = {
   blocks:     1.5,
   attacks:    1.2,

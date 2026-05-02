@@ -1,6 +1,6 @@
 <div class="app-container">
 
-  <aside class="sidebar">
+  <aside class="sidebar" [class.open]="sidebarOpen">
     <div class="logo">
       <div class="logo-icon">SC</div>
       <div class="logo-text-wrapper">
@@ -10,116 +10,123 @@
     </div>
 
     <nav>
-      <a class="active" routerLink="/dashboard-admin">
+      <a class="active" routerLink="/dashboard-admin" (click)="closeSidebar()">
         <span class="material-symbols-outlined">space_dashboard</span>
-        <span>Panel de Control</span>
+        <span class="nav-label">Panel de Control</span>
       </a>
-      <a routerLink="/ver-equipos">
+      <a routerLink="/ver-equipos" (click)="closeSidebar()">
         <span class="material-symbols-outlined">group</span>
-        <span>Equipos</span>
+        <span class="nav-label">Equipos</span>
       </a>
-      <a routerLink="/ver-jugadores">
+      <a routerLink="/ver-jugadores" (click)="closeSidebar()">
         <span class="material-symbols-outlined">person</span>
-        <span>Jugadores</span>
+        <span class="nav-label">Jugadores</span>
       </a>
-      <a routerLink="/ver-entrenamientos">
+      <a routerLink="/ver-entrenamientos" (click)="closeSidebar()">
         <span class="material-symbols-outlined">fitness_center</span>
-        <span>Entrenamientos</span>
+        <span class="nav-label">Entrenamientos</span>
       </a>
-      <a routerLink="/ver-partidos">
+      <a routerLink="/ver-partidos" (click)="closeSidebar()">
         <span class="material-symbols-outlined">sports_soccer</span>
-        <span>Partidos</span>
+        <span class="nav-label">Partidos</span>
       </a>
-      <a routerLink="/ver-usuarios">
+      <a routerLink="/ver-usuarios" (click)="closeSidebar()">
         <span class="material-symbols-outlined">emoji_people</span>
-        <span>Usuarios</span>
+        <span class="nav-label">Usuarios</span>
       </a>
     </nav>
 
     <button class="logout" (click)="logout()">
       <span class="material-symbols-outlined">logout</span>
-      Cerrar sesión
+      <span class="nav-label">Cerrar sesión</span>
     </button>
   </aside>
 
-<main class="main">
-  <section class="welcome">
-    <h1>Bienvenido de nuevo, Administrador</h1>
-  </section>
+  <!-- Overlay para cerrar sidebar en móvil al tocar fuera -->
+  <div class="sidebar-overlay" [class.visible]="sidebarOpen" (click)="closeSidebar()"></div>
 
-  <section class="quick-actions">
-    <button routerLink="/crear-jugador">Crear nuevo jugador</button>
-    <button routerLink="/crear-equipo">Crear equipo</button>
-    <button routerLink="/crear-partido">Registrar equipo</button>
-    <button routerLink="/crear-entrenamiento">Programar entrenamiento</button>
-  </section>
+  <main class="main">
 
-  <section class="cards">
-    <div class="card">
-      <h3>Total Jugadores</h3>
-      <p></p>
-    </div>
-    <div class="card">
-      <h3>Total Equipo</h3>
-      <p></p>
-    </div>
-    <div class="card">
-      <h3>Partidos registrados</h3>
-      <p></p>
-    </div>
-    <div class="card">
-      <h3>Sesiones de entrenamiento</h3>
-      <p></p>
-    </div>
-  </section>
+    <button class="hamburger" (click)="toggleSidebar()">
+  <span class="material-symbols-outlined">menu</span>
+</button>
+    <section class="welcome">
+      <h1>Bienvenido de nuevo, Administrador</h1>
+    </section>
 
-  <section class="charts">
-    <div class="chart large">
-      <h3>Rendimiento de equipo</h3>
-      <div class="chart-placeholder">Grafica</div>
-    </div>
+    <section class="quick-actions">
+      <button routerLink="/crear-jugador">Crear nuevo jugador</button>
+      <button routerLink="/crear-equipo">Crear equipo</button>
+      <button routerLink="/crear-partido">Registrar equipo</button>
+      <button routerLink="/crear-entrenamiento">Programar entrenamiento</button>
+    </section>
 
-    <div class="chart">
-      <h3>Posiciones</h3>
-      <div class="chart-placeholder">Grafica</div>
-    </div>
-  </section>
+    <section class="cards">
+      <div class="card">
+        <h3>Total Jugadores</h3>
+        <p></p>
+      </div>
+      <div class="card">
+        <h3>Total Equipo</h3>
+        <p></p>
+      </div>
+      <div class="card">
+        <h3>Partidos registrados</h3>
+        <p></p>
+      </div>
+      <div class="card">
+        <h3>Sesiones de entrenamiento</h3>
+        <p></p>
+      </div>
+    </section>
 
-<section class="table-section">
-  <h3>Actualizaciones recientes</h3>
-  <div class="table-container">
-    <table>
-      <thead>
-        <tr>
-          <th>Evento</th>
-          <th>Objeto</th>
-          <th>Estado</th>
-          <th>Hora</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>New Player Registration</td>
-          <td>Marco Rossi</td>
-          <td>Approved</td>
-          <td>Today, 10:24 AM</td>  
-        </tr>
-        <tr>
-          <td>Match Results Validated</td>
-          <td>Titans vs. Vikings</td>
-          <td>Syncing</td>
-          <td>Today, 09:15 AM</td>
-        </tr>
-        <tr>
-          <td>Training Log Updated</td>
-          <td>Elite Strength & Conditioning</td>
-          <td>Completed</td>
-          <td>Yesterday</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</section>
-</main>
+    <section class="charts">
+      <div class="chart large">
+        <h3>Rendimiento de equipo</h3>
+        <div class="chart-placeholder">Grafica</div>
+      </div>
+
+      <div class="chart">
+        <h3>Posiciones</h3>
+        <div class="chart-placeholder">Grafica</div>
+      </div>
+    </section>
+
+    <section class="table-section">
+      <h3>Actualizaciones recientes</h3>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Evento</th>
+              <th>Objeto</th>
+              <th>Estado</th>
+              <th>Hora</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>New Player Registration</td>
+              <td>Marco Rossi</td>
+              <td>Approved</td>
+              <td>Today, 10:24 AM</td>
+            </tr>
+            <tr>
+              <td>Match Results Validated</td>
+              <td>Titans vs. Vikings</td>
+              <td>Syncing</td>
+              <td>Today, 09:15 AM</td>
+            </tr>
+            <tr>
+              <td>Training Log Updated</td>
+              <td>Elite Strength &amp; Conditioning</td>
+              <td>Completed</td>
+              <td>Yesterday</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
 
 </div>

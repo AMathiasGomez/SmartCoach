@@ -10,12 +10,13 @@
 }
 
 .app-container {
+  display: flex;
   min-height: 100vh;
-  background: #f8fafc;
+  background: var(--bg-main);
   font-family: 'Lexend', sans-serif;
-  color: #0f172a;
 }
 
+/* --- SIDEBAR --- */
 .sidebar {
   width: 280px;
   background:#0f172a;
@@ -109,120 +110,56 @@
   color: white;
 }
 
-.menu {
-  display: flex;
-  flex-direction: column;
-  padding: 10px;
+.main-content {
+  padding: 2rem;
+  width: 100%
 }
 
-.action-buttons {
-  display: flex;
-  gap: 8px;
-  justify-content: flex-end;
-}
-
-.header {
+.page-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-}
-
-.header button {
-  background: #1152d4;
-  color: white;
-  border: none;
-  padding: 10px 15px;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.header button:hover {
-  background: #0d47b5;
-}
-
-.table-container {
-  margin-top: 20px;
-  background: white;
-  border-radius: 10px;
-  overflow: hidden;
-}
-
-.main-content {
-  padding: 2rem;
-  font-family: 'Lexend', sans-serif;
-}
-
-.btn-edit {
-  background-color: #fbbf24;
-  color: white;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 4px;
-  cursor: pointer;
-  margin-right: 5px;
-}
-
-
-.btn-edit:hover {
-  background-color: #f59e0b;
-}
-
-.btn-delete {
-  background-color: #ef4444;
-  color: #fff;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.btn-delete:hover {
-  background-color: #dc2626;
+  margin-bottom: 2rem;
 }
 
 h1 {
+  color: var(--text-main);
+  margin: 0;
   font-weight: bold;
 }
 
-.crear-jugador {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  background-color: #2563eb;
-  color: #fff;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
-  cursor: pointer;
+.sub {
+  color: var(--text-muted);
+  margin-top: 4px;
 }
 
-.btn-edit {
-  background-color: #fbbf24;
+/* --- BUTTONS --- */
+.btn-primary {
+  background: #2563eb;
   color: white;
   border: none;
-  padding: 6px 12px;
-  border-radius: 4px;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   cursor: pointer;
-  margin-right: 5px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);
 }
 
-.btn-edit:hover {
-  background-color: #f59e0b;
+.btn-primary:hover {
+  background: #1d4ed8;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(37, 99, 235, 0.3);
 }
 
-.btn-delete {
-  background-color: #ef4444;
-  color: #fff;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 4px;
-  cursor: pointer;
+.btn-primary span {
+  font-size: 20px;
 }
 
-.btn-delete:hover {
-  background-color: #dc2626;
-}
-
+/* --- TABLE CARD --- */
 .card-header {
   display: flex;
   align-items: center;
@@ -249,6 +186,7 @@ h1 {
   color: #2563eb;
 }
 
+/* Responsive para la tabla */
 .table-responsive {
   overflow-x: auto;
 }
@@ -258,7 +196,7 @@ h1 {
   border-radius: 16px;
   border: 1px solid #e2e8f0;
   box-shadow: var(--shadow);
-  overflow: hidden; /* Para que los bordes de la tabla no sobresalgan */
+  overflow: hidden; /* Para que los bordes de la tabla noosalgan */
 }
 
 table {
@@ -293,47 +231,19 @@ tr:hover td {
 .font-bold { font-weight: 600; }
 .text-blue { color: var(--primary); }
 
-.column {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-h1 {
-  font-weight: bold;
-}
-
-.sub {
-  color: #64748b;
-  font-size: 14px;
-}
-
-.user-info {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  text-align: left;
-}
-
-.user-avatar {
-  width: 32px;
-  height: 32px;
-  background: #e2e8f0;
-  color: #475569;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
+.badge {
+  background: #eff6ff;
+  color: #2563eb;
+  padding: 4px 12px;
+  border-radius: 20px;
   font-size: 0.8rem;
-  text-transform: uppercase;
+  font-weight: 600;
 }
 
-.page-header {
+.action-buttons {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
+  gap: 8px;
+  justify-content: flex-end;
 }
 
 .btn-icon {
@@ -354,40 +264,7 @@ h1 {
 .btn-delete { background: #fee2e2; color: #dc2626; }
 .btn-delete:hover { background: #fecaca; }
 
-.btn-primary {
-  background: #2563eb;
-  color: white;
-  border: none;
-  padding: 12px 20px;
-  border-radius: 10px;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);
-}
-
-.btn-primary:hover {
-  background: #1d4ed8;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(37, 99, 235, 0.3);
-}
-
-.btn-primary span {
-  font-size: 20px;
-}
-
-.badge {
-  background: #eff6ff;
-  color: #2563eb;
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 600;
-}
-
+/* --- AVATAR DE JUGADORES --- */
 .user-info {
   display: flex;
   align-items: center;
@@ -425,6 +302,18 @@ h1 {
   text-transform: uppercase;
 }
 
+/* Ajuste para alinear correctamente la celda del jugador */
+td .user-info span {
+  white-space: nowrap;
+}
+
+/* Centrado del mensaje cuando no hay registros */
+.text-center {
+  text-align: center;
+  padding: 20px;
+  color: var(--text-muted);
+}
+
 /* Table scroll wrapper for mobile */
 .table-scroll {
   overflow-x: auto;
@@ -452,4 +341,22 @@ h1 {
 
 .table-scroll::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
+}
+
+/* Mejora visual en pantallas pequeñas */
+@media (max-width: 768px) {
+  .user-avatar-img,
+  .user-avatar {
+    width: 36px;
+    height: 36px;
+    font-size: 0.85rem;
+  }
+
+  .main-content {
+    padding: 1.5rem;
+  }
+
+  th, td {
+    padding: 12px 16px;
+  }
 }

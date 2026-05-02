@@ -79,12 +79,24 @@ export class CrearEquipo {
     reader.readAsDataURL(archivo);
   }
 
+  eliminarFoto(event: Event) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.fotoArchivo = null;
+    this.fotoPreview = null;
+    this.fotoError = '';
+    const input = document.getElementById('foto-input') as HTMLInputElement;
+    if (input) {
+      input.value = '';
+    }
+  }
+
   guardar() {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
-    
+
     const formData = new FormData();
     const valores = this.form.value;
 

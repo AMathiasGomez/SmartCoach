@@ -1,5 +1,6 @@
 <div class="app-container">
 
+  <!-- SIDEBAR -->
   <aside class="sidebar">
     <div class="logo">
       <div class="logo-icon">SC</div>
@@ -42,73 +43,103 @@
     </button>
   </aside>
 
+  <!-- MAIN CONTENT -->
   <main class="main-content">
 
+    <!-- BREADCRUMB -->
+    <nav class="breadcrumb">
+      <a routerLink="/ver-equipos">Equipos</a>
+      <span class="separator">›</span>
+      <span class="current">Crear Equipo</span>
+    </nav>
+
+    <!-- HEADER -->
     <section class="header-section">
       <h1>Registrar nuevo equipo</h1>
-      <p>Complete el perfil técnico del equipo.</p>
+      <p>Complete los datos del equipo para registrarlo en el sistema.</p>
     </section>
 
+    <!-- CARD -->
     <section class="card">
-      <h5>
-        <span class="material-symbols-outlined text-primary">person_add</span>
-        Información del Equipo
-      </h5>
+      <div class="card-header">
+        <h5>
+          <span class="material-symbols-outlined">group_add</span>
+          Información del Equipo
+        </h5>
+      </div>
 
       <form class="form" [formGroup]="form" (ngSubmit)="guardar()">
 
-        <div class="grid-2">
+        <!-- PHOTO UPLOAD -->
+        <div class="form-group">
+          <label>Foto del Equipo</label>
+          <label class="photo-upload" for="foto-input">
+            <input type="file" id="foto-input" accept="image/*" (change)="onFotoSeleccionada($event)">
+            <span class="material-symbols-outlined upload-icon">cloud_upload</span>
+            <p>Arrastra una imagen o haz clic para seleccionar</p>
+            <span class="upload-hint">JPG, PNG o WEBP (máx 5MB)</span>
+          </label>
 
-          <div class="form-group" style="grid-column: 1 / -1;">
-    <label>Foto del Equipo</label>
-    <input type="file" accept="image/*" (change)="onFotoSeleccionada($event)">
-    <small *ngIf="fotoError" style="color: red;">{{ fotoError }}</small>
-
-    <div *ngIf="fotoPreview" style="margin-top: 10px;">
-      <img [src]="fotoPreview" alt="Vista previa"
-        style="width: 120px; height: 120px; object-fit: cover; border-radius: 8px; border: 2px solid #ddd;">
-    </div>
-  </div>
-
-          <div class="form-group">
-            <label>Nombre</label>
-            <div class="input-container">
-              <span class="material-symbols-outlined icon">badge</span>
-              <input type="text" placeholder="Nombre del equipo" formControlName="nombre">
-            </div>
-
-            <div *ngIf="form.get('nombre')?.invalid && form.get('nombre')?.touched">
-              <small *ngIf="form.get('nombre')?.errors?.['required']">El nombre es obligatorio</small>
-              <small *ngIf="form.get('nombre')?.errors?.['minlength']">Mínimo 3 caracteres</small>
-              <small *ngIf="form.get('nombre')?.errors?.['maxlength']">Máximo 50 caracteres</small>
-            </div>
-
+          <div *ngIf="fotoError" class="error-message">
+            <span class="material-symbols-outlined" style="font-size: 16px;">error</span>
+            {{ fotoError }}
           </div>
 
-          <div class="form-group">
-            <label>Año Fundacion</label>
-            <div class="input-container">
-              <span class="material-symbols-outlined">calendar_today</span>
-              <input type="text" placeholder="Ej. 1998" formControlName="ano_fundacion">
-            </div>
-
-            <div *ngIf="form.get('ano_fundacion')?.invalid && form.get('ano_fundacion')?.touched">
-              <small *ngIf="form.get('ano_fundacion')?.errors?.['required']">El año es obligatorio</small>
-              <small *ngIf="form.get('ano_fundacion')?.errors?.['pattern']">Debe ser un año válido (4 dígitos)</small>
-              <small *ngIf="form.get('ano_fundacion')?.errors?.['min']">No puede ser menor a 1900</small>
-              <small *ngIf="form.get('ano_fundacion')?.errors?.['max']">No puede ser mayor al año actual</small>
-            </div>
-
+          <div *ngIf="fotoPreview" class="photo-preview">
+            <img [src]="fotoPreview" alt="Vista previa">
+            <button type="button" class="remove-btn" (click)="eliminarFoto($event)">
+              <span class="material-symbols-outlined" style="font-size: 16px;">close</span>
+            </button>
           </div>
         </div>
 
+        <!-- NAME & YEAR -->
+        <div class="grid-2">
+          <div class="form-group">
+            <label>Nombre del Equipo</label>
+            <div class="input-container">
+              <span class="material-symbols-outlined icon">sports_soccer</span>
+              <input type="text"
+                     placeholder="Ej. Halcones FC"
+                     formControlName="nombre"
+                     [class.input-error]="form.get('nombre')?.invalid && form.get('nombre')?.touched">
+            </div>
+            <div *ngIf="form.get('nombre')?.invalid && form.get('nombre')?.touched" class="error-message">
+              <span class="material-symbols-outlined" style="font-size: 16px;">error</span>
+              <span *ngIf="form.get('nombre')?.errors?.['required']">El nombre es obligatorio</span>
+              <span *ngIf="form.get('nombre')?.errors?.['minlength']">Mínimo 3 caracteres</span>
+              <span *ngIf="form.get('nombre')?.errors?.['maxlength']">Máximo 50 caracteres</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Año de Fundación</label>
+            <div class="input-container">
+              <span class="material-symbols-outlined icon">calendar_today</span>
+              <input type="text"
+                     placeholder="Ej. 1998"
+                     formControlName="ano_fundacion"
+                     [class.input-error]="form.get('ano_fundacion')?.invalid && form.get('ano_fundacion')?.touched">
+            </div>
+            <div *ngIf="form.get('ano_fundacion')?.invalid && form.get('ano_fundacion')?.touched" class="error-message">
+              <span class="material-symbols-outlined" style="font-size: 16px;">error</span>
+              <span *ngIf="form.get('ano_fundacion')?.errors?.['required']">El año es obligatorio</span>
+              <span *ngIf="form.get('ano_fundacion')?.errors?.['pattern']">Debe ser un año válido (4 dígitos)</span>
+              <span *ngIf="form.get('ano_fundacion')?.errors?.['min']">No puede ser menor a 1900</span>
+              <span *ngIf="form.get('ano_fundacion')?.errors?.['max']">No puede ser mayor al año actual</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- CATEGORY -->
         <div class="form-group">
-          <label>Categoria</label>
+          <label>Categoría</label>
           <div class="input-container">
-            <span class="material-symbols-outlined">date_range</span>
-            <select formControlName="categoria">
+            <span class="material-symbols-outlined icon">category</span>
+            <select formControlName="categoria"
+                    [class.input-error]="form.get('categoria')?.invalid && form.get('categoria')?.touched">
               <option value="">Seleccione una categoría</option>
-              <option value="Benjamin">Benjamin</option>
+              <option value="Benjamin">Benjamín</option>
               <option value="Mini">Mini</option>
               <option value="Infantil">Infantil</option>
               <option value="Menores">Menores</option>
@@ -116,16 +147,29 @@
               <option value="Mayores">Mayores</option>
             </select>
           </div>
+          <div *ngIf="form.get('categoria')?.invalid && form.get('categoria')?.touched" class="error-message">
+            <span class="material-symbols-outlined" style="font-size: 16px;">error</span>
+            La categoría es obligatoria
+          </div>
         </div>
 
+        <!-- DESCRIPTION -->
         <div class="form-group">
-          <label>Descripcion</label>
-          <textarea placeholder="Descripción del equipo a crear" formControlName="descripcion"></textarea>
-          <small *ngIf="form.get('descripcion')?.errors?.['minlength']">Mínimo 10 caracteres</small>
+          <label>Descripción</label>
+          <textarea placeholder="Describe la historia, objetivos o filosofía del equipo..."
+                    formControlName="descripcion"
+                    [class.input-error]="form.get('descripcion')?.invalid && form.get('descripcion')?.touched"></textarea>
+          <div *ngIf="form.get('descripcion')?.invalid && form.get('descripcion')?.touched" class="error-message">
+            <span class="material-symbols-outlined" style="font-size: 16px;">error</span>
+            <span *ngIf="form.get('descripcion')?.errors?.['required']">La descripción es obligatoria</span>
+            <span *ngIf="form.get('descripcion')?.errors?.['minlength']">Mínimo 10 caracteres</span>
+          </div>
         </div>
 
+        <!-- ACTIONS -->
         <div class="actions">
           <button type="button" class="btn-outline" (click)="router.navigate(['/ver-equipos'])">
+            <span class="material-symbols-outlined">close</span>
             Cancelar
           </button>
 

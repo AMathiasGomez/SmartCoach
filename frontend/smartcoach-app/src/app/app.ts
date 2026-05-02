@@ -13,26 +13,4 @@ import { VerEquipos } from '../app/admin/equipo/ver-equipos/ver-equipos';
 })
 export class App {
   protected readonly title = signal('smartcoach');
-
-  constructor() {
-    // Mobile menu toggle functionality
-    this.initMobileMenu();
-  }
-
-  private initMobileMenu() {
-    const hamburgerBtn = document.getElementById('mobile-menu-btn') as HTMLButtonElement;
-    const sidebarOverlay = document.getElementById('sidebar-overlay') as HTMLDivElement;
-
-    if (hamburgerBtn && sidebarOverlay) {
-      hamburgerBtn.addEventListener('click', () => {
-        document.body.classList.toggle('sidebar-open');
-        sidebarOverlay.classList.toggle('active');
-      });
-
-      sidebarOverlay.addEventListener('click', () => {
-        document.body.classList.remove('sidebar-open');
-        sidebarOverlay.classList.remove('active');
-      });
-    }
-  }
 }

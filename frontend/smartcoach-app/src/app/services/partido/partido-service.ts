@@ -61,8 +61,12 @@ return this.http.get<any[]>(`https://smartcoach-production.up.railway.app/api/ju
     return this.http.get<any[]>(url);
   }
 
-  addEstadisticasPorSet(partidoId: number, setId: number, stats: any): Observable<any> {
+addEstadisticasPorSet(partidoId: number, setId: number, stats: any): Observable<any> {
     const url = `${this.apiUrl}/${partidoId}/sets/${setId}/estadisticas`;
     return this.http.post(url, stats);
+  }
+
+  getEstadisticasPorSets(partidoId: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/${partidoId}/estadisticas-sets`);
   }
 }

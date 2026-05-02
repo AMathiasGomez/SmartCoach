@@ -393,6 +393,90 @@ exports.getEstadisticas = async (req, res) => {
   res.json(rows);
 };
 
+exports.getEstadisticasPorSets = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // 1. Get all sets for this match
+    const [sets] = await db.query(`
+      SELECT id, numero_set, puntos_equipo, puntos_rival
+      FROM sets_partido
+      WHERE partido_id = ?
+      ORDER BY numero_set ASC
+    `, [id]);
+
+    if (sets.length === 0) {
+      return res.json([]);
+    }
+
+    // 2. Get all players in the match for this partido_id
+    const [jugadores] = await db.query(`
+      SELECT j.id, j.nombre, j.numero
+      FROM partido_jugador pj
+      JOIN jugadores j ON pj.jugador_id = j.id
+      WHERE pj.partido_id = ?
+    `, [id]);
+
+    // 3. For each set, get stats per player (include zero for players without stats)
+    const setsData = await Promise.all(sets.map(async (set) => {
+      // Get stats that exist
+      const [statsRows] = await db.query(`
+        SELECT 
+          e.jugador_id,
+          j.nombre,
+          j.numero,
+          COALESCE(e.ataques, 0) as ataques,
+          COALESCE(e.recepciones, 0) as recepciones,
+          COALESCE(e.errores, 0) as errores,
+          COALESCE(e.bloqueos, 0) as bloqueos
+        FROM estadisticas_jugador_set e
+        JOIN jugadores j ON e.jugador_id = j.id
+        WHERE e.set_id = ?
+      `, [set.id]);
+
+      // If no stats found, use all 0s - but we need to make sure we include all players
+      // Instead of returning rows with no data, we'll build the full list of all players with 0s
+      const playerStats = {};
+
+      // Index existing stats by jugador_id
+      statsRows.forEach(row => {
+        playerStats[row.jugador_id] = row;
+      });
+
+      // Build full list with zeros for missing
+      const fullStats = jugadores.map(jugador => {
+        if (playerStats[jugador.id]) {
+          return playerStats[jugador.id];
+        } else {
+          return {
+            jugador_id: jugador.id,
+            nombre: jugador.nombre,
+            numero: jugador.numero,
+            ataques: 0,
+            recepciones: 0,
+            errores: 0,
+            bloqueos: 0
+          };
+        }
+      });
+
+      return {
+        set_id: set.id,
+        numero_set: set.numero_set,
+        puntos_equipo: set.puntos_equipo,
+        puntos_rival: set.puntos_rival,
+        stats: fullStats
+      };
+    }));
+
+    res.json(setsData);
+
+  } catch (error) {
+    console.error('ERROR GET ESTADISTICAS POR SETS:', error);
+    res.status(500).json({ message: 'Error al obtener estadísticas por sets' });
+  }
+};
+
 exports.getJugadoresByPartido = async (req, res) => {
   try {
     const { partido_id } = req.params;

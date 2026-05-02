@@ -22,10 +22,12 @@ export class DetallePartido implements OnInit {
 
   partidoId!: number;
   partido: any;
+  sidebarOpen: boolean = false;
 
-  sets: any[] = [];
+sets: any[] = [];
   jugadoresConvocados: any[] = [];
   estadisticas: any[] = [];
+  estadisticasPorSets: any[] = []; // Stats grouped by set for final view
 
   tablaJugadores: any[] = [];
   formacion: (any | null)[] = [null, null, null, null, null, null];
@@ -194,11 +196,30 @@ export class DetallePartido implements OnInit {
     });
   }
 
-  finalizarPartido() {
-    alert("Realmente")
+finalizarPartido() {
+    if (!confirm('¿Realmente deseas FINALIZAR el partido?')) {
+      return;
+    }
 
-    this.partidoService.updateEstado(this.partidoId, 'finalizado').subscribe(() => {
-      this.partido.estado = 'finalizado';
+    this.partidoService.updateEstado(this.partidoId, 'finalizado').subscribe({
+      next: () => {
+        this.partido.estado = 'finalizado';
+        // Auto load stats grouped by set
+        this.cargarEstadisticasPorSets();
+        this.cd.detectChanges();
+      },
+      error: (err) => console.error(err)
+    });
+  }
+
+  cargarEstadisticasPorSets() {
+    this.partidoService.getEstadisticasPorSets(this.partidoId).subscribe({
+      next: (data) => {
+        this.estadisticasPorSets = data.sets;
+        console.log('Stats por sets:', this.estadisticasPorSets);
+        this.cd.detectChanges();
+      },
+      error: (err) => console.error('Error loading stats by sets:', err)
     });
   }
 
@@ -341,9 +362,17 @@ export class DetallePartido implements OnInit {
     });
   }
 
-  logOut() {
+logOut() {
     this.authService.logOut();
     this.router.navigate(['/login']);
+  }
+
+  toggleSidebar() {
+    this.sidebarOpen = !this.sidebarOpen;
+  }
+
+  closeSidebarOnNav() {
+    this.sidebarOpen = false;
   }
 
 }
