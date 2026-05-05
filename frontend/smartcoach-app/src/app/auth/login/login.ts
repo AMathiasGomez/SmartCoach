@@ -16,6 +16,9 @@ export class Login {
 
   email = '';
   password = '';
+  showPassword = false;
+  loading = false;
+  errorMessage = '';
 
   constructor(
     private authService: AuthService,
@@ -27,18 +30,24 @@ export class Login {
     return regex.test(email);
   }
 
+  togglePassword() {
+    this.showPassword = !this.showPassword;
+  }
 
   login() {
+    this.errorMessage = '';
 
     if (!this.email || !this.password) {
-      alert('Todos los campos son obligatorios');
+      this.errorMessage = 'Todos los campos son obligatorios';
       return;
     }
 
     if (!this.isValidEmail(this.email)) {
-      alert('El correo no tiene un formato válido');
+      this.errorMessage = 'El correo no tiene un formato válido';
       return;
     }
+
+    this.loading = true;
 
     const data = {
       email: this.email,
@@ -50,6 +59,7 @@ export class Login {
     this.authService.login(data).subscribe({
       next: (res: any) => {
         console.log('Login exitoso', res);
+        this.loading = false;
 
         localStorage.setItem('token', res.token);
 
@@ -72,18 +82,18 @@ export class Login {
           this.router.navigate([ruta]);
         } else {
           console.log('Rol no válido:', rol);
-
         }
       },
       error: (err) => {
         console.error('Error login', err);
+        this.loading = false;
 
         if (err.status === 401) {
-          alert('Credenciales incorrectas');
+          this.errorMessage = 'Credenciales incorrectas';
         } else if (err.status === 0) {
-          alert('No hay conexión con el servidor');
+          this.errorMessage = 'No hay conexión con el servidor';
         } else {
-          alert('Error en el servidor');
+          this.errorMessage = 'Error en el servidor';
         }
       }
     });

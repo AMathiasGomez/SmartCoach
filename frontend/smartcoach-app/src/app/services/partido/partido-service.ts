@@ -1,13 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PartidoService {
 
-  private apiUrl = 'https://smartcoach-production.up.railway.app/api/partidos';
+  private apiUrl = `${environment.apiUrl}/partidos`;
 
   constructor(private http: HttpClient) { }
 
@@ -42,17 +43,17 @@ export class PartidoService {
   addSet(id: number, data: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/${id}/sets`, data);
   }
-  
+
   getEstadisticas(partidoId: number) {
-  return this.http.get<any[]>(`${this.apiUrl}/${partidoId}/estadisticas`);
-}
+    return this.http.get<any[]>(`${this.apiUrl}/${partidoId}/estadisticas`);
+  }
 
   addEstadisticas(id: number, data: any) {
     return this.http.post(`${this.apiUrl}/${id}/estadisticas`, data);
   }
 
   getJugadoresByEquipo(equipoId: number) {
-return this.http.get<any[]>(`https://smartcoach-production.up.railway.app/api/jugadores/equipo/${equipoId}`);
+    return this.http.get<any[]>(`${environment.apiUrl}/jugadores/equipo/${equipoId}`);
   }
 
   getJugadoresByPartido(partidoId: number): Observable<any[]> {
@@ -61,12 +62,24 @@ return this.http.get<any[]>(`https://smartcoach-production.up.railway.app/api/ju
     return this.http.get<any[]>(url);
   }
 
-addEstadisticasPorSet(partidoId: number, setId: number, stats: any): Observable<any> {
+  addEstadisticasPorSet(partidoId: number, setId: number, stats: any): Observable<any> {
     const url = `${this.apiUrl}/${partidoId}/sets/${setId}/estadisticas`;
     return this.http.post(url, stats);
   }
 
   getEstadisticasPorSets(partidoId: number): Observable<any> {
     return this.http.get(`${this.apiUrl}/${partidoId}/estadisticas-sets`);
+  }
+
+  getEstadisticasJugador(jugadorId: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/jugador/${jugadorId}/estadisticas`);
+  }
+
+  saveAnalytics(partidoId: number, analysis: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/${partidoId}/analytics/save`, { analysis });
+  }
+
+  getAnalytics(partidoId: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/${partidoId}/analytics`);
   }
 }

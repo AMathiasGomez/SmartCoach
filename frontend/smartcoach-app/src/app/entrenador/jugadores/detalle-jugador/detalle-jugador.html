@@ -97,11 +97,80 @@
                 </div>
             </div>
 
-            <section class="stats-section">
+<section class="stats-section">
                 <h2 class="stats-title">Estadísticas</h2>
-                <p style="text-align: center; color: var(--text-muted); font-style: italic;">
-                    Estadísticas próximamente disponibles
-                </p>
+                
+                <div *ngIf="statsLoading" class="loading">
+                    <span class="material-symbols-outlined">hourglass_empty</span>
+                    Cargando estadísticas...
+                </div>
+
+                <div *ngIf="!statsLoading && stats">
+                    <div class="stats-summary">
+                        <div class="stat-card">
+                            <span class="material-symbols-outlined">sports_score</span>
+                            <div class="stat-value">{{ stats.partidos_jugados }}</div>
+                            <div class="stat-label">Partidos Jugados</div>
+                        </div>
+                    </div>
+
+                    <h3 class="stats-subtitle">Totales</h3>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <span class="material-symbols-outlined">trending_up</span>
+                            <div class="stat-value">{{ stats.totales.ataques }}</div>
+                            <div class="stat-label">Ataques</div>
+                        </div>
+                        <div class="stat-card">
+                            <span class="material-symbols-outlined">swap_vert</span>
+                            <div class="stat-value">{{ stats.totales.recepciones }}</div>
+                            <div class="stat-label">Recepciones</div>
+                        </div>
+                        <div class="stat-card">
+                            <span class="material-symbols-outlined">error</span>
+                            <div class="stat-value">{{ stats.totales.errores }}</div>
+                            <div class="stat-label">Errores</div>
+                        </div>
+                        <div class="stat-card">
+                            <span class="material-symbols-outlined">shield</span>
+                            <div class="stat-value">{{ stats.totales.bloqueos }}</div>
+                            <div class="stat-label">Bloqueos</div>
+                        </div>
+                    </div>
+
+                    <div *ngIf="stats.partidos && stats.partidos.length > 0" class="match-history">
+                        <h3 class="stats-subtitle">Historial por Partido</h3>
+                        <table class="stats-table">
+                            <thead>
+                                <tr>
+                                    <th>Partido</th>
+                                    <th>Fecha</th>
+                                    <th>Rival</th>
+                                    <th>Ataques</th>
+                                    <th>Recepciones</th>
+                                    <th>Errores</th>
+                                    <th>Bloqueos</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let p of stats.partidos">
+                                    <td>{{ p.partido_nombre }}</td>
+                                    <td>{{ p.fecha | date:'dd/MM/yyyy' }}</td>
+                                    <td>{{ p.rival }}</td>
+                                    <td>{{ p.ataques }}</td>
+                                    <td>{{ p.recepciones }}</td>
+                                    <td>{{ p.errores }}</td>
+                                    <td>{{ p.bloqueos }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div *ngIf="!statsLoading && !stats" class="no-stats">
+                    <p>No hay estadísticas disponible para este jugador.</p>
+                    <p class="no-stats-hint">Las estadísticas se registrarán en los partidos.</p>
+                </div>
             </section>
 
             <div class="action-section">

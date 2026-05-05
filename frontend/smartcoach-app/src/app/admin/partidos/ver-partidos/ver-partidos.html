@@ -89,11 +89,6 @@
 
                         <td class="text-right">
                             <div class="action-buttons">
-                                <button class="btn-icon btn-primary" title="Detalles" (click)="irDetalle(partido.id)">
-                                    <span class="material-symbols-outlined">
-                                        scoreboard
-                                    </span>
-                                </button>
                                 <button class="btn-icon btn-edit" [title]="partido.estado === 'finalizado' ? 'No se puede editar un partido finalizado' : ''" [routerLink]="['/editar-partido', partido.id]" [disabled]="partido.estado === 'finalizado'">
                                     <span class="material-symbols-outlined">edit</span>
                                 </button>

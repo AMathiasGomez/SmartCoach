@@ -7,6 +7,7 @@ import { CommonModule } from '@angular/common';
 import { PartidoService } from '../../../services/partido/partido-service';
 import { HttpClient } from '@angular/common/http';
 import { EquipoService } from '../../../services/equipo/equipo-service';
+import { environment } from '../../../../environments/environment.development';
 
 @Component({
   selector: 'app-crear-partidos',
@@ -60,7 +61,7 @@ export class CrearPartidos implements OnInit {
 
 
 
-this.http.get('https://smartcoach-production.up.railway.app/api/equipos')
+    this.http.get(`${environment.apiUrl}/equipos`)
       .subscribe((data: any) => {
         this.equipos = data;
       })
@@ -113,7 +114,7 @@ this.http.get('https://smartcoach-production.up.railway.app/api/equipos')
       .subscribe({
         next: (data) => {
           console.log('JUGADORES LISTA', data);
-          
+
           this.jugadores = data;
           this.convocados = [];
           this.cd.detectChanges();

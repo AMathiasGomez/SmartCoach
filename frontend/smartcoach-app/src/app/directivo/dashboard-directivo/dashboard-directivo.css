@@ -173,6 +173,55 @@
   padding: 1.5rem;
   border-radius: 16px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 20px -4px rgba(37, 99, 235, 0.15);
+}
+
+.kpi-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+  font-size: 24px;
+}
+
+.kpi-icon.players {
+  background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+  color: #2563eb;
+}
+
+.kpi-icon.teams {
+  background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+  color: #16a34a;
+}
+
+.kpi-icon.matches {
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  color: #d97706;
+}
+
+.kpi-icon.winrate {
+  background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+  color: #4f46e5;
+}
+
+.kpi-icon.training {
+  background: linear-gradient(135deg, #fce7f3, #fbcfe8);
+  color: #db2777;
+}
+
+.kpi-icon.performance {
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  color: #d97706;
 }
 
 .card-title {
@@ -187,7 +236,10 @@
   font-size: 1.75rem;
   font-weight: 800;
   margin: 0;
-  color: #0f172a;
+  background: linear-gradient(135deg, #1e293b, #475569);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .charts {

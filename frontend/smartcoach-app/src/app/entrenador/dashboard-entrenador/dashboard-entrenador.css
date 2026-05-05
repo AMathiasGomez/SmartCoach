@@ -135,6 +135,54 @@
   border-radius: 16px;
   border: 1px solid #e2e8f0;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.kpi-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 20px -4px rgba(37, 99, 235, 0.15);
+}
+
+.kpi-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+  font-size: 24px;
+}
+
+.kpi-icon.players {
+  background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+  color: #2563eb;
+}
+
+.kpi-icon.teams {
+  background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+  color: #16a34a;
+}
+
+.kpi-icon.matches {
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  color: #d97706;
+}
+
+.kpi-icon.training {
+  background: linear-gradient(135deg, #fce7f3, #fbcfe8);
+  color: #db2777;
+}
+
+.kpi-icon.performance {
+  background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+  color: #4f46e5;
+}
+
+.kpi-icon.injured {
+  background: linear-gradient(135deg, #fee2e2, #fecaca);
+  color: #dc2626;
 }
 
 .kpi-card h4 {
@@ -143,16 +191,30 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin: 0 0 12px 0;
+  font-weight: 600;
 }
 
-.kpi-card p {
+.kpi-card p.stat {
   font-size: 2rem;
   font-weight: 800;
   margin: 0;
+  background: linear-gradient(135deg, #1e293b, #475569);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-.kpi-card p.success { color: #10b981; }
-.kpi-card p.danger { color: #ef4444; }
+.kpi-card p.stat.success { 
+  color: #10b981;
+  background: none;
+  -webkit-text-fill-color: #10b981;
+}
+
+.kpi-card p.stat.danger { 
+  color: #ef4444;
+  background: none;
+  -webkit-text-fill-color: #ef4444;
+}
 
 /* --- ACTIONS --- */
 .actions {

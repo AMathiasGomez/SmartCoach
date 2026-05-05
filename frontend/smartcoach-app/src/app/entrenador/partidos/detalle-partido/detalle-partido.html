@@ -1,10 +1,8 @@
 <div class="app-container">
-  <!-- Mobile Menu Toggle -->
   <button class="menu-toggle" (click)="toggleSidebar()">
     <span class="material-symbols-outlined">{{ sidebarOpen ? 'close' : 'menu' }}</span>
   </button>
 
-  <!-- Sidebar Overlay -->
   <div class="sidebar-overlay" [class.active]="sidebarOpen" (click)="toggleSidebar()"></div>
 
   <aside class="sidebar" [class.active]="sidebarOpen">
@@ -64,288 +62,190 @@
       <p><strong>📅 Fecha:</strong> {{ partido.fecha | date:'mediumDate' }}</p>
       <p><strong>📍 Ubicación:</strong> {{ partido.ubicacion }}</p>
       <p><strong>🏆 Tipo:</strong> {{ partido.tipo }}</p>
-
-
       <p>
         <span [ngClass]="partido.estado" class="status-badge">
           {{ partido.estado === 'en_curso' ? '● EN VIVO' : partido.estado }}
         </span>
       </p>
-
       <div *ngIf="partido.estado === 'finalizado'" class="ganador">
-        🏆 Ganador:
-        {{ partido.ganador === 'equipo' ? partido.equipo_nombre : partido.rival }}
+        🏆 Ganador: {{ partido.ganador === 'equipo' ? partido.equipo_nombre : partido.rival }}
       </div>
     </div>
 
-    <div class="content">
+    <div class="set-form" *ngIf="partido.estado === 'en_curso'">
+      <div class="cardPuntos">
+        <h3>Marcador en vivo</h3>
+        <p class="reglas-set">Set a {{ puntosObjetivo }} puntos (mínimo 2 de diferencia)</p>
 
-      <div class="left">
+        <div class="setInfo">
+          <div class="cardEquipo">
+            <h4 class="nombreEquipo">{{ partido.equipo_nombre }}</h4>
+            <button type="button" class="Equipo" (click)="sumarPuntoEquipo()">
+              <p>{{ puntosEquipo }}</p>
+            </button>
+          </div>
 
-        <div class="set-form" *ngIf="partido.estado === 'en_curso'">
-
-          <div class="cardPuntos">
-            <h3>Marcador en vivo</h3>
-
-            <p class="reglas-set">
-              Set a {{ puntosObjetivo }} puntos (mínimo 2 de diferencia)
-            </p>
-
-            <div class="setInfo">
-
-              <div class="cardEquipo">
-                <h4 class="nombreEquipo">{{ partido.equipo_nombre }}</h4>
-                <button class="Equipo" (click)="sumarPuntoEquipo()">
-                  <p>{{ puntosEquipo }}</p>
-                </button>
-              </div>
-
-              <div class="column">
-
-                <div class="setsPartido">
-                  <div class="cardSetsEquipo">
-                    {{ setsGanadosEquipo }}
-                  </div>
-                  <div class="cardSetsRival">
-                    {{ setsGanadosRival }}
-                  </div>
-                </div>
-
-                <div class="deshacerPunto" (click)="deshacerUltimoPunto()" [class.disabled]="!puedeDeshacer">
-                  <span class="material-symbols-outlined">undo</span>
-                </div>
-
-              </div>
-
-              <div class="cardRival">
-                <h4 class="nombreRival">{{ partido.rival }}</h4>
-                <button class="Rival" (click)="sumarPuntoRival()">
-                  <p>{{ puntosRival }}</p>
-                </button>
-              </div>
-
+          <div class="column">
+            <div class="setsPartido">
+              <div class="cardSetsEquipo">{{ setsGanadosEquipo }}</div>
+              <div class="cardSetsRival">{{ setsGanadosRival }}</div>
             </div>
-
-            <div style="text-align: center; ">
-              <button (click)="agregarSet()" class="btn-primary" [disabled]="!puedeFinalizarSet()"
-                style="width: 200px;">
-                Finalizar Set
-              </button>
+            <div class="deshacerPunto" (click)="deshacerUltimoPunto()" [class.disabled]="!puedeDeshacer">
+              <span class="material-symbols-outlined">undo</span>
             </div>
+          </div>
 
+          <div class="cardRival">
+            <h4 class="nombreRival">{{ partido.rival }}</h4>
+            <button type="button" class="Rival" (click)="sumarPuntoRival()">
+              <p>{{ puntosRival }}</p>
+            </button>
           </div>
         </div>
 
-        <div class="sets-container" *ngIf="sets.length > 0">
-          <h3>Historial de Sets</h3>
-
-          <div class="set-grid">
-            <div class="set-card" *ngFor="let set of sets">
-              <span class="set-label">Set {{ set.numero_set }}</span>
-
-              <div class="set-score-badge">
-                <span class="score-team">{{ set.puntos_equipo }}</span>
-                <span class="score-divider">-</span>
-                <span class="score-rival">{{ set.puntos_rival }}</span>
-              </div>
-            </div>
-          </div>
+        <div style="text-align: center;">
+          <button type="button" (click)="agregarSet()" class="btn-primary" [disabled]="!puedeFinalizarSet()" style="width: 200px;">
+            Finalizar Set
+          </button>
         </div>
-
       </div>
+    </div>
 
-      <div class="right">
-
-        <div class="estadisticas" *ngIf="partido.estado === 'en_curso'">
-          <h3>Estadísticas - Set {{ sets.length + 1 }}</h3>
-
-          <div class="table-responsive">
-            <table class="modern-table">
-              <thead>
-                <tr>
-                  <th>Jugador</th>
-                  <th>Ataques</th>
-                  <th>Recepciones</th>
-                  <th>Errores</th>
-                  <th>Bloqueos</th>
-                  <th class="text-center">Acciones</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                <tr *ngFor="let j of tablaJugadores">
-                  <td class="nombre">{{ shortName(j.nombre) }}</td>
-
-                  <td>
-                    <div class="counter">
-                      <button class="button-minus" (click)="cambiarStat(j,'ataques',-1)"><span
-                          class="material-symbols-outlined">stat_minus_1</span></button>
-                      <span>{{ j.stats.ataques }}</span>
-                      <button class="button-add" (click)="cambiarStat(j,'ataques',1)"><span
-                          class="material-symbols-outlined">stat_1</span></button>
-                    </div>
-                  </td>
-
-                  <td>
-                    <div class="counter">
-                      <button class="button-minus" (click)="cambiarStat(j,'recepciones',-1)"><span
-                          class="material-symbols-outlined">stat_minus_1</span></button>
-                      <span>{{ j.stats.recepciones }}</span>
-                      <button class="button-add" (click)="cambiarStat(j,'recepciones',1)"><span
-                          class="material-symbols-outlined">stat_1</span></button>
-                    </div>
-                  </td>
-
-                  <td>
-                    <div class="counter error">
-                      <button class="button-minus" (click)="cambiarStat(j,'errores',-1)"><span
-                          class="material-symbols-outlined">stat_minus_1</span></button>
-                      <span>{{ j.stats.errores }}</span>
-                      <button class="button-add" (click)="cambiarStat(j,'errores',1)"><span
-                          class="material-symbols-outlined">stat_1</span></button>
-                    </div>
-                  </td>
-
-                  <td>
-                    <div class="counter">
-                      <button class="button-minus" (click)="cambiarStat(j,'bloqueos',-1)"><span
-                          class="material-symbols-outlined">stat_minus_1</span></button>
-                      <span>{{ j.stats.bloqueos }}</span>
-                      <button class="button-add" (click)="cambiarStat(j,'bloqueos',1)"><span
-                          class="material-symbols-outlined">stat_1</span></button>
-                    </div>
-                  </td>
-
-                  <td class="text-center">
-                    <button class="btn-clear" (click)="limpiarEstadisticas(j)">
-                      Limpiar
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <div class="save-all-container">
-            <button class="btn-save" (click)="guardarTodos()">
-              Guardar Stats del Set
-            </button>
-            <button class="btn-analytics" (click)="analizarRendimiento()" [disabled]="loadingAnalytics">
-              {{ loadingAnalytics ? 'Analizando...' : '🔬 Analizar Rendimiento (Sklearn)' }}
-            </button>
-          </div>
-
-          <!-- SECCIÓN SKLEARN ANALYTICS -->
-          <div class="analytics-section" *ngIf="mostrarAnalytics && playerAnalysis">
-            <h3>📊 Análisis Avanzado - SciKitLearn</h3>
-            <div class="analytics-results">
-              <div *ngFor="let player of playerAnalysis.analysis" class="player-card cluster-{{player.color}}">
-                <div class="player-card-header">
-                  <span class="player-name">{{player.name}}</span>
-                  <span class="cluster-badge">{{player.label}}</span>
-                </div>
-                <div class="player-card-stats">
-                  <div>Bloqueos: {{player.stats.blocks}}</div>
-                  <div>Ataques: {{player.stats.attacks}}</div>
-                  <div>Recepciones: {{player.stats.receptions}}</div>
-                  <div>Errores: {{player.stats.errors}}</div>
-                </div>
-                <div class="player-score">Score: {{player.score}}</div>
-                <div *ngIf="player.is_outlier" class="outlier-badge">
-                  ⭐ Outlier ({{player.outlier_score | number:'1.2-2'}})
-                </div>
-                <div *ngIf="!player.is_outlier" class="normal-badge">
-                  PCA: [{{player.pca.pca_components[0] | number:'1.2-2'}}, {{player.pca.pca_components[1] | number:'1.2-2'}}]
-                </div>
-              </div>
-            </div>
-            <div style="text-align: center; margin-top: 1rem; font-size: 0.9rem; color: #64748b;">
-              Powered by scikit-learn (KMeans + IsolationForest + PCA)
-            </div>
-          </div>
-
-          <div *ngIf="analyticsError" class="analytics-error">
-            Error en análisis. Verifica backend Python en puerto 8001.
-          </div>
-
-          <div *ngIf="loadingAnalytics" style="text-align: center; padding: 2rem;">
-            <div style="font-size: 1.2rem; color: #3b82f6;">Analizando rendimiento con IA...</div>
+    <div class="sets-container" *ngIf="sets.length > 0">
+      <h3>Historial de Sets</h3>
+      <div class="set-grid">
+        <div class="set-card" *ngFor="let set of sets">
+          <span class="set-label">Set {{ set.numero_set }}</span>
+          <div class="set-score-badge">
+            <span class="score-team">{{ set.puntos_equipo }}</span>
+            <span class="score-divider">-</span>
+            <span class="score-rival">{{ set.puntos_rival }}</span>
           </div>
         </div>
-        <div class="cancha-container" *ngIf="partido.estado === 'en_curso'">
-          <h3>Formación de {{ partido.equipo_nombre }}</h3>
-          <div class="formacion">
-            <div class="cancha-grid">
-              <ng-container *ngFor="let posicion of [3, 2, 1, 4, 5, 0]; let i = index">
-                <div class="posicion-celda" [class.ocupada]="formacion[posicion] !== null" (click)="abrirSeleccion(posicion)">
-  
-                  <ng-container *ngIf="formacion[posicion]; else vacia">
-                    <span class="jugador-numero">#{{ formacion[posicion].numero }}</span>
-                    <span class="jugador-nombre">{{ formacion[posicion].nombre.split(' ')[0] }}</span>
-                    <button class="btn-quitar" (click)="$event.stopPropagation(); quitarJugadorDePosicion(posicion)">✕</button>
-                  </ng-container>
-  
-                  <ng-template #vacia>
-                    <span class="numero-posicion">{{ posicion + 1 }}</span>
-                  </ng-template>
+      </div>
+    </div>
+
+    <div class="estadisticas" *ngIf="partido.estado === 'en_curso'">
+      <h3>Estadísticas - Set {{ sets.length + 1 }}</h3>
+
+      <div class="table-responsive">
+        <table class="modern-table">
+          <thead>
+            <tr>
+              <th>Jugador</th>
+              <th>Ataques</th>
+              <th>Recepciones</th>
+              <th>Errores</th>
+              <th>Bloqueos</th>
+              <th class="text-center">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let j of tablaJugadores">
+              <td class="nombre">{{ shortName(j.nombre) }}</td>
+              <td>
+                <div class="counter">
+                  <button type="button" class="button-minus" (click)="cambiarStat(j,'ataques',-1)"><span
+                      class="material-symbols-outlined">stat_minus_1</span></button>
+                  <span>{{ j.stats.ataques }}</span>
+                  <button type="button" class="button-add" (click)="cambiarStat(j,'ataques',1)"><span
+                      class="material-symbols-outlined">stat_1</span></button>
                 </div>
+              </td>
+              <td>
+                <div class="counter">
+                  <button type="button" class="button-minus" (click)="cambiarStat(j,'recepciones',-1)"><span
+                      class="material-symbols-outlined">stat_minus_1</span></button>
+                  <span>{{ j.stats.recepciones }}</span>
+                  <button type="button" class="button-add" (click)="cambiarStat(j,'recepciones',1)"><span
+                      class="material-symbols-outlined">stat_1</span></button>
+                </div>
+              </td>
+              <td>
+                <div class="counter error">
+                  <button type="button" class="button-minus" (click)="cambiarStat(j,'errores',-1)"><span
+                      class="material-symbols-outlined">stat_minus_1</span></button>
+                  <span>{{ j.stats.errores }}</span>
+                  <button type="button" class="button-add" (click)="cambiarStat(j,'errores',1)"><span
+                      class="material-symbols-outlined">stat_1</span></button>
+                </div>
+              </td>
+              <td>
+                <div class="counter">
+                  <button type="button" class="button-minus" (click)="cambiarStat(j,'bloqueos',-1)"><span
+                      class="material-symbols-outlined">stat_minus_1</span></button>
+                  <span>{{ j.stats.bloqueos }}</span>
+                  <button type="button" class="button-add" (click)="cambiarStat(j,'bloqueos',1)"><span
+                      class="material-symbols-outlined">stat_1</span></button>
+                </div>
+              </td>
+              <td class="text-center">
+                <button type="button" class="btn-clear" (click)="limpiarEstadisticas(j)">Limpiar</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="cancha-container" *ngIf="partido.estado === 'pendiente' || partido.estado === 'en_curso'">
+      <h3>Formación de {{ partido.equipo_nombre }}</h3>
+      <div class="formacion">
+        <div class="cancha-grid">
+          <ng-container *ngFor="let posicion of [3, 2, 1, 4, 5, 0, 6]; let i = index">
+            <div class="posicion-celda" [class.ocupada]="formacion[posicion] !== null" [class.libero]="posicion === 6"
+              (click)="abrirSeleccion(posicion)">
+              <ng-container *ngIf="formacion[posicion]; else vacia">
+                <span class="jugador-numero">#{{ formacion[posicion].numero }}</span>
+                <span class="jugador-nombre">{{ formacion[posicion].nombre.split(' ')[0] }}</span>
+                <button type="button" class="btn-quitar"
+                  (click)="$event.stopPropagation(); quitarJugadorDePosicion(posicion)">✕</button>
               </ng-container>
+              <ng-template #vacia>
+                <span class="numero-posicion">{{ posicion === 6 ? 'L' : (posicion + 1) }}</span>
+              </ng-template>
             </div>
-          </div>
+          </ng-container>
 
         </div>
+      </div>
+    </div>
 
-        <!-- MODAL SELECCIÓN DE JUGADOR -->
-        <div class="modal-overlay" *ngIf="mostrarModalFormacion" (click)="cerrarModal()">
-          <div class="modal-card" (click)="$event.stopPropagation()">
+    <div class="modal-overlay" *ngIf="mostrarModalFormacion" (click)="cerrarModal()">
+      <div class="modal-card" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Posición {{ posicionSeleccionada !== null ? posicionSeleccionada + 1 : '' }}</h3>
+          <button type="button" (click)="cerrarModal()">✕</button>
+        </div>
 
-            <div class="modal-header">
-              <h3>Posición {{ posicionSeleccionada !== null ? posicionSeleccionada + 1 : '' }}</h3>
-              <button (click)="cerrarModal()">✕</button>
-            </div>
+        <div *ngIf="formacion[posicionSeleccionada!] !== null" class="jugador-actual">
+          <span>En cancha: <strong>{{ formacion[posicionSeleccionada!]?.nombre }}</strong></span>
+          <button type="button" (click)="quitarJugadorDePosicion(posicionSeleccionada!); cerrarModal()">Quitar</button>
+        </div>
 
-            <!-- Jugador actual en esa posición -->
-            <div *ngIf="formacion[posicionSeleccionada!] !== null" class="jugador-actual">
-              <span>En cancha: <strong>{{ formacion[posicionSeleccionada!]?.nombre }}</strong></span>
-              <button (click)="quitarJugadorDePosicion(posicionSeleccionada!); cerrarModal()">
-                Quitar
-              </button>
-            </div>
+        <p class="modal-subtitulo">Jugadores disponibles</p>
+        <div *ngIf="jugadoresEnBanquillo.length === 0" class="sin-jugadores">No hay jugadores disponibles en el
+          banquillo.</div>
 
-            <!-- Lista de jugadores disponibles -->
-            <p class="modal-subtitulo">Jugadores disponibles</p>
-
-            <div *ngIf="jugadoresEnBanquillo.length === 0" class="sin-jugadores">
-              No hay jugadores disponibles en el banquillo.
-            </div>
-
-            <div *ngFor="let jugador of jugadoresEnBanquillo" class="jugador-item" (click)="asignarJugador(jugador)">
-              <span class="jugador-item-numero">#{{ jugador.numero }}</span>
-              <div>
-                <p class="jugador-item-nombre">{{ jugador.nombre }}</p>
-                <p class="jugador-item-posicion">{{ jugador.posicion }}</p>
-              </div>
-            </div>
-
+        <div *ngFor="let jugador of jugadoresEnBanquillo" class="jugador-item" (click)="asignarJugador(jugador)">
+          <span class="jugador-item-numero">#{{ jugador.numero }}</span>
+          <div>
+            <p class="jugador-item-nombre">{{ jugador.nombre }}</p>
+            <p class="jugador-item-posicion">{{ jugador.posicion }}</p>
           </div>
         </div>
       </div>
-
     </div>
 
-
-<!-- ESTADÍSTICAS FINALES POR SET (cuando termina el partido) -->
     <div class="final-stats-container" *ngIf="partido.estado === 'finalizado' && estadisticasPorSets.length > 0">
       <h3 style="text-align: center; margin: 2rem 0 1rem;">📊 Estadísticas Finales por Set</h3>
-      
+
       <div *ngFor="let setData of estadisticasPorSets" class="set-stats-card">
         <div class="set-header">
           <h4>Set {{ setData.set.numero_set }}</h4>
-          <span class="score-badge">
-            {{ setData.set.puntos_equipo }} - {{ setData.set.puntos_rival }}
-          </span>
+          <span class="score-badge">{{ setData.set.puntos_equipo }} - {{ setData.set.puntos_rival }}</span>
         </div>
-        
+
         <div class="table-responsive">
           <table class="modern-table">
             <thead>
@@ -372,17 +272,60 @@
         </div>
       </div>
     </div>
+    <div *ngIf="partido.estado === 'finalizado'" class="analytics-final-container">
 
-    <!-- ACCIONES -->
-    <div class="actions">
-      <button *ngIf="partido.estado === 'pendiente'" (click)="iniciarPartido()" class="btn-start-full">
-        INICIAR PARTIDO
-      </button>
+      <div *ngIf="loadingAnalytics" style="text-align: center; padding: 2rem;">
+        <div style="font-size: 1.2rem; color: #3b82f6;">⏳ Analizando rendimiento con IA...</div>
+      </div>
 
-      <button *ngIf="partido.estado === 'en_curso'" (click)="finalizarPartido()" class="btn-danger-outline">
-        FINALIZAR PARTIDO
-      </button>
+      <div *ngIf="analyticsError" class="analytics-error">
+        ⚠️ Error en análisis sklearn. Verifica que el backend Python esté corriendo en puerto 8001.
+      </div>
+
+      <div class="analytics-section" *ngIf="mostrarAnalytics && playerAnalysis">
+        <h3>📊 Análisis Final de Rendimiento — scikit-learn</h3>
+        <p style="color:#64748b; margin-bottom:1rem;">
+          Basado en KMeans clustering + IsolationForest + PCA sobre los jugadores en cancha
+        </p>
+        <div class="analytics-results">
+          <div *ngFor="let player of playerAnalysis.analysis" class="player-card cluster-{{player.color}}">
+            <div class="player-card-header">
+              <span class="player-name">{{ player.name }}</span>
+              <span class="cluster-badge">{{ player.label }}</span>
+            </div>
+            <div class="player-card-stats">
+              <div>🏐 Ataques: {{ player.stats.attacks }}</div>
+              <div>🤲 Recepciones: {{ player.stats.receptions }}</div>
+              <div>🛡️ Bloqueos: {{ player.stats.blocks }}</div>
+              <div>❌ Errores: {{ player.stats.errors }}</div>
+            </div>
+            <div class="player-score">Score: {{ player.score }}</div>
+            <div *ngIf="player.is_outlier" class="outlier-badge">
+              ⭐ Destaca del grupo ({{ player.outlier_score | number:'1.2-2' }})
+            </div>
+            <div *ngIf="!player.is_outlier && player.pca" class="normal-badge">
+              PCA: [{{ player.pca.pca_components[0] | number:'1.2-2' }}, {{ player.pca.pca_components[1] |
+              number:'1.2-2' }}]
+            </div>
+          </div>
+        </div>
+        <div style="text-align:center; margin-top:1rem; font-size:0.85rem; color:#64748b;">
+          Powered by scikit-learn — KMeans + IsolationForest + PCA
+        </div>
+      </div>
+
     </div>
 
+    <div class="actions">
+      <button type="button" *ngIf="partido.estado === 'pendiente'" (click)="iniciarPartido()" class="btn-start-full"
+        [disabled]="!isFormacionCompleta">INICIAR PARTIDO</button>
+      <div *ngIf="partido.estado === 'pendiente' && !isFormacionCompleta" class="warning-message">
+        ⚠️ Completa la formación (7 jugadores: 6 + líbero) para iniciar el partido
+      </div>
+    </div>
+
+    <button type="button" *ngIf="partido.estado === 'en_curso'" (click)="finalizarPartido()" class="btn-danger-outline">FINALIZAR
+      PARTIDO</button>
   </div>
+
 </div>

@@ -3,6 +3,7 @@ const router = express.Router();
 const { analyzeMatchPlayers } = require('../services/analyticsService');
 
 router.post('/:id/analytics', async (req, res) => {
+  console.log('>>> Petición recibida en analytics, match:', req.params.id);
   try {
     const { players } = req.body;
 

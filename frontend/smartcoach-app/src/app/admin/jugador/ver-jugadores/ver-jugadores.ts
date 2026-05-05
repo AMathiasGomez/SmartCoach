@@ -4,11 +4,12 @@ import { AuthService } from '../../../services/auth/auth-service';
 import { JugadorService } from '../../../services/jugador/jugador-service';
 import { CommonModule } from '@angular/common';
 import { Jugador } from '../../../models/jugador.model';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-ver-jugadores',
   standalone: true,
-  imports: [RouterLink, CommonModule],
+  imports: [RouterLink, CommonModule, FormsModule],
   templateUrl: './ver-jugadores.html',
   styleUrls: ['./ver-jugadores.css'],
 })
@@ -17,13 +18,19 @@ export class VerJugadores implements OnInit {
   private apiBaseUrl = 'https://smartcoach-production.up.railway.app';
   loading = false;
   jugadores: Jugador[] = [];
+  filtroNombre = '';
+  filtroPosicion = '';
+  filtroEquipo = '';
+  jugadoresFiltrados: Jugador[] = [];
+  posiciones: string[] = [];
+  equipos: string[] = [];
 
   constructor(
     private jugadorService: JugadorService,
     public router: Router,
     private cd: ChangeDetectorRef,
     private authService: AuthService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.cargarJugadores();
@@ -36,8 +43,10 @@ export class VerJugadores implements OnInit {
 
     this.jugadorService.getJugadores().subscribe({
       next: (data) => {
-        console.log("datos recibidos del servicio:", data);
         this.jugadores = data;
+        this.posiciones = [...new Set(data.map(j => j.posicion).filter((p): p is string => !!p))].sort();
+        this.equipos = [...new Set(data.map(j => j.equipo_nombre).filter((e): e is string => !!e))].sort();
+        this.jugadoresFiltrados = data;
         this.loading = false;
         this.cd.detectChanges();
       },
@@ -71,11 +80,9 @@ export class VerJugadores implements OnInit {
     if (!fotoUrl || fotoUrl.trim() === '') {
       return '';
     }
-    // Already full URL (from external source)
     if (fotoUrl.startsWith('http')) {
       return fotoUrl;
     }
-    // Relative path - prepend API base URL
     return this.apiBaseUrl + fotoUrl;
   }
 
@@ -83,17 +90,37 @@ export class VerJugadores implements OnInit {
     return !!jugador.foto_url && jugador.foto_url.trim() !== '';
   }
 
-  // Handle image error - instead of hiding, show default avatar
   onImageError(event: Event) {
     const img = event.target as HTMLImageElement;
-    // Hide the failed image
     img.style.display = 'none';
   }
 
-  // Get initials for default avatar
   getInitials(nombre: string): string {
     if (!nombre) return '?';
     return nombre.charAt(0).toUpperCase();
+  }
+
+  aplicarFiltros() {
+    const nombre = this.filtroNombre.toLowerCase().trim();
+    const posicion = this.filtroPosicion;
+    const equipo = this.filtroEquipo;
+
+    this.jugadoresFiltrados = this.jugadores.filter(j =>
+      (!nombre || j.nombre.toLowerCase().includes(nombre)) &&
+      (!posicion || j.posicion === posicion) &&
+      (!equipo || j.equipo_nombre === equipo)
+    );
+  }
+
+  limpiarFiltros() {
+    this.filtroNombre = '';
+    this.filtroPosicion = '';
+    this.filtroEquipo = '';
+    this.jugadoresFiltrados = [...this.jugadores];
+  }
+
+  hayFiltrosActivos(): boolean {
+    return !!(this.filtroNombre || this.filtroPosicion || this.filtroEquipo);
   }
 
   logout() {

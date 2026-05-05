@@ -61,22 +61,34 @@
       <button routerLink="/crear-entrenamiento">Programar entrenamiento</button>
     </section>
 
-    <section class="cards">
+<section class="cards">
       <div class="card">
+        <div class="card-icon players">
+          <span class="material-symbols-outlined">person</span>
+        </div>
         <h3>Total Jugadores</h3>
-        <p></p>
+        <p class="stat-value">{{ totalJugadores }}</p>
       </div>
       <div class="card">
-        <h3>Total Equipo</h3>
-        <p></p>
+        <div class="card-icon teams">
+          <span class="material-symbols-outlined">group</span>
+        </div>
+        <h3>Total Equipos</h3>
+        <p class="stat-value">{{ totalEquipos }}</p>
       </div>
       <div class="card">
-        <h3>Partidos registrados</h3>
-        <p></p>
+        <div class="card-icon matches">
+          <span class="material-symbols-outlined">sports_soccer</span>
+        </div>
+        <h3>Partidos Registrados</h3>
+        <p class="stat-value">{{ totalPartidos }}</p>
       </div>
       <div class="card">
-        <h3>Sesiones de entrenamiento</h3>
-        <p></p>
+        <div class="card-icon training">
+          <span class="material-symbols-outlined">fitness_center</span>
+        </div>
+        <h3>Entrenamientos</h3>
+        <p class="stat-value">{{ totalEntrenamientos }}</p>
       </div>
     </section>
 

@@ -17,7 +17,10 @@ export class Register {
   rol = 'usuario';
   email = '';
   nombre = '';
-  password = ''
+  password = '';
+  showPassword = false;
+  loading = false;
+  errorMessage = '';
 
   constructor(
     private authService: AuthService,
@@ -29,17 +32,29 @@ export class Register {
     return regex.test(email);
   }
 
-  register() {
+  togglePassword() {
+    this.showPassword = !this.showPassword;
+  }
 
-    if (!this.email || !this.password) {
-      alert('Todos los campos son obligatorios');
+  register() {
+    this.errorMessage = '';
+
+    if (!this.nombre || !this.email || !this.password) {
+      this.errorMessage = 'Todos los campos son obligatorios';
       return;
     }
 
     if (!this.isValidEmail(this.email)) {
-      alert('El correo no tiene un formato válido');
+      this.errorMessage = 'El correo no tiene un formato válido';
       return;
     }
+
+    if (this.password.length < 6) {
+      this.errorMessage = 'La contraseña debe tener al menos 6 caracteres';
+      return;
+    }
+
+    this.loading = true;
 
     const data = {
       rol: this.rol,
@@ -53,19 +68,21 @@ export class Register {
     this.authService.register(data).subscribe({
       next: (res: any) => {
         console.log('Registro exitoso', res);
+        this.loading = false;
         
         alert('Registro exitoso, ahora puedes iniciar sesión');
         this.router.navigate(['/login']);
       },
       error: (err) => {
         console.error('Error en registro', err);
+        this.loading = false;
 
         if(err.status === 400) {
-          alert('El usuario ya existe');
+          this.errorMessage = 'El usuario ya existe';
         } else if (err.status === 0) {
-          alert('No hay conexión con el servidor.');
+          this.errorMessage = 'No hay conexión con el servidor.';
         } else {
-          alert('Error en el servidor.');
+          this.errorMessage = 'Error en el servidor.';
         }
         
       }

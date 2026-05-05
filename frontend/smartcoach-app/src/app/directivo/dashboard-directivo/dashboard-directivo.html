@@ -60,30 +60,48 @@
         </div>
       </section>
 
-      <section class="kpi-grid">
+<section class="kpi-grid">
         <div class="card">
+          <div class="kpi-icon players">
+            <span class="material-symbols-outlined">person</span>
+          </div>
           <p class="card-title">TOTAL JUGADORES</p>
-          <h3>124</h3>
+          <h3>{{ totalJugadores }}</h3>
         </div>
         <div class="card">
+          <div class="kpi-icon teams">
+            <span class="material-symbols-outlined">group</span>
+          </div>
           <p class="card-title">EQUIPOS</p>
-          <h3>12</h3>
+          <h3>{{ totalEquipos }}</h3>
         </div>
         <div class="card">
+          <div class="kpi-icon matches">
+            <span class="material-symbols-outlined">sports_soccer</span>
+          </div>
           <p class="card-title">PARTIDOS JUGADOS</p>
-          <h3>48</h3>
+          <h3>{{ totalPartidos }}</h3>
         </div>
         <div class="card">
+          <div class="kpi-icon winrate">
+            <span class="material-symbols-outlined">emoji_events</span>
+          </div>
           <p class="card-title">WIN RATE</p>
-          <h3>76%</h3>
+          <h3>{{ winRate }}%</h3>
         </div>
         <div class="card">
+          <div class="kpi-icon training">
+            <span class="material-symbols-outlined">fitness_center</span>
+          </div>
           <p class="card-title">ENTRENAMIENTOS</p>
-          <h3>156</h3>
+          <h3>{{ totalEntrenamientos }}</h3>
         </div>
         <div class="card">
+          <div class="kpi-icon performance">
+            <span class="material-symbols-outlined">star</span>
+          </div>
           <p class="card-title">ÍNDICE PROMEDIO</p>
-          <h3>8.4/10</h3>
+          <h3>{{ promedioRendimiento }}/10</h3>
         </div>
       </section>
 
@@ -95,16 +113,22 @@
           </div>
         </div>
 
-        <div class="side-widgets">
+<div class="side-widgets">
           <div class="best-team">
             <h4>Mejor Equipo</h4>
-            <p>Valkyries Elite U18</p>
-            <span>94% de eficiencia</span>
+            <p>{{ mejorEquipo?.nombre || 'Cargando...' }}</p>
+            <span>{{ mejorEquipo?.eficiencia || 0 }}% de eficiencia</span>
           </div>
 
           <div class="alerts">
             <h4>Alertas y Acciones</h4>
-            <p>3 jugadores requieren revisión médica.</p>
+            @if (alertas.length > 0) {
+              @for (alerta of alertas; track $index) {
+                <p>{{ alerta }}</p>
+              }
+            } @else {
+              <p>No hay alertas pendientes.</p>
+            }
           </div>
         </div>
       </section>

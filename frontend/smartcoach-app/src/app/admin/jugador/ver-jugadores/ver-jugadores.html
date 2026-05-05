@@ -57,8 +57,39 @@
         Crear nuevo jugador
       </button>
     </header>
+    
+    <section class="filters-bar">
+      <div class="filter-group">
+        <span class="material-symbols-outlined">search</span>
+        <input type="text" placeholder="Buscar por nombre..." [(ngModel)]="filtroNombre" (input)="aplicarFiltros()" />
+      </div>
 
-    <!-- TABLE CARD -->
+      <div class="filter-group">
+        <span class="material-symbols-outlined">sports</span>
+        <select [(ngModel)]="filtroPosicion" (change)="aplicarFiltros()">
+          <option value="">Todas las posiciones</option>
+          <option *ngFor="let pos of posiciones" [value]="pos">{{ pos }}</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <span class="material-symbols-outlined">shield</span>
+        <select [(ngModel)]="filtroEquipo" (change)="aplicarFiltros()">
+          <option value="">Todos los equipos</option>
+          <option *ngFor="let eq of equipos" [value]="eq">{{ eq }}</option>
+        </select>
+      </div>
+
+      <button class="btn-reset" (click)="limpiarFiltros()" *ngIf="hayFiltrosActivos()">
+        <span class="material-symbols-outlined">close</span>
+        Limpiar
+      </button>
+    </section>
+
+    <p class="results-count" *ngIf="jugadoresFiltrados.length !== jugadores.length">
+      Mostrando {{ jugadoresFiltrados.length }} de {{ jugadores.length }} jugadores
+    </p>
+
     <section class="card">
       <div class="card-header">
         <div class="card-title">
@@ -68,13 +99,11 @@
         <span class="badge-count">{{ jugadores.length }}</span>
       </div>
 
-      <!-- LOADING STATE -->
       <div *ngIf="loading" class="loading-container">
         <div class="loading-spinner"></div>
         <p>Cargando jugadores...</p>
       </div>
 
-      <!-- TABLE -->
       <div *ngIf="!loading" class="table-scroll">
         <table>
           <thead>
@@ -90,7 +119,6 @@
           <tbody>
             <tr *ngFor="let jugador of jugadores">
               <td>
-                <!-- Player Photo or Default Avatar -->
                 <div class="user-info">
                   <ng-container *ngIf="hasPhoto(jugador); else defaultAvatar">
                     <img [src]="getFotoUrl(jugador.foto_url)" 
@@ -128,7 +156,6 @@
                 </div>
               </td>
             </tr>
-            <!-- Empty State -->
             <tr *ngIf="jugadores.length === 0">
               <td colspan="6" class="text-center">
                 <div class="empty-state">

@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Entrenamiento } from '../../models/entrenamiento.model';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -10,7 +11,7 @@ export class EntrenamientoService {
 
   entrenamiento: Entrenamiento[] = [];
 
-  private apiUrl = 'https://smartcoach-production.up.railway.app/api/entrenamientos';
+  private apiUrl = `${environment.apiUrl}/entrenamientos`;
 
   constructor(private http: HttpClient) {}
 

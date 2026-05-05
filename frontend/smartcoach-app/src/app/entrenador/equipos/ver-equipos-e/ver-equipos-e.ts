@@ -16,15 +16,19 @@ export class VerEquiposE {
 
   loading = false;
   equipos: Equipo[] = [];
+  filtroNombre = '';
+  filtroCategoria = '';
+  equiposFiltrados: Equipo[] = [];
+  categorias: string[] = [];
 
-private baseUrl = 'https://smartcoach-production.up.railway.app';
+  private baseUrl = 'https://smartcoach-production.up.railway.app';
 
   constructor(
     private equipoService: EquipoService,
     public router: Router,
     private cd: ChangeDetectorRef,
     private authService: AuthService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.cargarEquipos();
@@ -36,8 +40,9 @@ private baseUrl = 'https://smartcoach-production.up.railway.app';
 
     this.equipoService.getEquipos().subscribe({
       next: (data) => {
-        console.log('Datos recibidos del servicio:', data);
         this.equipos = data;
+        this.categorias = [...new Set(data.map(e => e.categoria).filter(Boolean))].sort();
+        this.equiposFiltrados = data;
         this.loading = false;
         this.cd.detectChanges();
       },
@@ -77,6 +82,26 @@ private baseUrl = 'https://smartcoach-production.up.railway.app';
         },
       });
     }
+  }
+
+  aplicarFiltros() {
+    const nombre = this.filtroNombre.toLowerCase().trim();
+    const categoria = this.filtroCategoria;
+
+    this.equiposFiltrados = this.equipos.filter(e =>
+      (!nombre || e.nombre.toLowerCase().includes(nombre)) &&
+      (!categoria || e.categoria === categoria)
+    );
+  }
+
+  limpiarFiltros() {
+    this.filtroNombre = '';
+    this.filtroCategoria = '';
+    this.equiposFiltrados = [...this.equipos];
+  }
+
+  hayFiltrosActivos(): boolean {
+    return !!(this.filtroNombre || this.filtroCategoria);
   }
 
   logout(): void {

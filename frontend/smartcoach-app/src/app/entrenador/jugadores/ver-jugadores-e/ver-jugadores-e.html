@@ -45,11 +45,39 @@
         <h1>Lista de jugadores</h1>
         <p class="sub">Gestiona y visualiza la información de tus jugadores registrados.</p>
       </div>
-      <button class="btn-primary" (click)="router.navigate(['/crear-jugador'])">
-        <span class="material-symbols-outlined">add_circle</span>
-        Crear nuevo jugador
-      </button>
     </header>
+
+    <section class="filters-bar">
+      <div class="filter-group">
+        <span class="material-symbols-outlined">search</span>
+        <input type="text" placeholder="Buscar por nombre..." [(ngModel)]="filtroNombre" (input)="aplicarFiltros()" />
+      </div>
+
+      <div class="filter-group">
+        <span class="material-symbols-outlined">sports</span>
+        <select [(ngModel)]="filtroPosicion" (change)="aplicarFiltros()">
+          <option value="">Todas las posiciones</option>
+          <option *ngFor="let pos of posiciones" [value]="pos">{{ pos }}</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <span class="material-symbols-outlined">shield</span>
+        <select [(ngModel)]="filtroEquipo" (change)="aplicarFiltros()">
+          <option value="">Todos los equipos</option>
+          <option *ngFor="let eq of equipos" [value]="eq">{{ eq }}</option>
+        </select>
+      </div>
+
+      <button class="btn-reset" (click)="limpiarFiltros()" *ngIf="hayFiltrosActivos()">
+        <span class="material-symbols-outlined">close</span>
+        Limpiar
+      </button>
+    </section>
+
+    <p class="results-count" *ngIf="jugadoresFiltrados.length !== jugadores.length">
+      Mostrando {{ jugadoresFiltrados.length }} de {{ jugadores.length }} jugadores
+    </p>
 
     <section class="card table-container">
       <table>
@@ -64,11 +92,12 @@
         </thead>
 
         <tbody>
-          <tr *ngFor="let jugador of jugadores">
+          <tr *ngFor="let jugador of jugadoresFiltrados">
             <td>
               <div class="user-info">
-                <img *ngIf="jugador.foto_url; else avatarLetra" [src]="'https://smartcoach-production.up.railway.app' + jugador.foto_url"
-                  alt="{{ jugador.nombre }}" class="user-avatar-img">
+                <img *ngIf="jugador.foto_url; else avatarLetra"
+                  [src]="'https://smartcoach-production.up.railway.app' + jugador.foto_url" alt="{{ jugador.nombre }}"
+                  class="user-avatar-img">
                 <ng-template #avatarLetra>
                   <div class="user-avatar font-bold text-blue">{{ jugador.nombre | slice:0:1 }}</div>
                 </ng-template>
@@ -81,10 +110,11 @@
 
             <td class="text-right">
               <div class="action-buttons">
-                <a class="btn-icon" title="Detalle" [routerLink]="['/detalle-jugador', jugador.id!]" style="color: #2563eb; display: inline-flex; align-items: center; justify-content: center;">
+                <a class="btn-icon" title="Detalle" [routerLink]="['/detalle-jugador', jugador.id!]"
+                  style="color: #2563eb; display: inline-flex; align-items: center; justify-content: center;">
                   <span class="material-symbols-outlined">visibility</span>
                 </a>
-                
+
               </div>
             </td>
           </tr>

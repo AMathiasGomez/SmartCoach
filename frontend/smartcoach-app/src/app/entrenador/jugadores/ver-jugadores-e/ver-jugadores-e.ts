@@ -4,24 +4,31 @@ import { JugadorService } from '../../../services/jugador/jugador-service';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../services/auth/auth-service';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-ver-jugadores-e',
-  imports: [RouterLink, CommonModule],
+  imports: [RouterLink, CommonModule, FormsModule],
   templateUrl: './ver-jugadores-e.html',
   styleUrl: './ver-jugadores-e.css',
 })
-export class VerJugadoresE implements OnInit{
+export class VerJugadoresE implements OnInit {
 
-    loading = false;
+  loading = false;
   jugadores: Jugador[] = [];
+  filtroNombre = '';
+  filtroPosicion = '';
+  filtroEquipo = '';
+  jugadoresFiltrados: Jugador[] = [];
+  posiciones: string[] = [];
+  equipos: string[] = [];
 
   constructor(
     private jugadorService: JugadorService,
     public router: Router,
     private cd: ChangeDetectorRef,
     private authService: AuthService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.cargarJugadores();
@@ -34,8 +41,10 @@ export class VerJugadoresE implements OnInit{
 
     this.jugadorService.getJugadores().subscribe({
       next: (data) => {
-        console.log("datos recibidos del servicio:", data);
         this.jugadores = data;
+        this.posiciones = [...new Set(data.map(j => j.posicion).filter((p): p is string => !!p))].sort();
+        this.equipos = [...new Set(data.map(j => j.equipo_nombre).filter((e): e is string => !!e))].sort();
+        this.jugadoresFiltrados = data;
         this.loading = false;
         this.cd.detectChanges();
       },
@@ -63,6 +72,29 @@ export class VerJugadoresE implements OnInit{
         }
       });
     }
+  }
+
+  aplicarFiltros() {
+    const nombre = this.filtroNombre.toLowerCase().trim();
+    const posicion = this.filtroPosicion;
+    const equipo = this.filtroEquipo;
+
+    this.jugadoresFiltrados = this.jugadores.filter(j =>
+      (!nombre || j.nombre.toLowerCase().includes(nombre)) &&
+      (!posicion || j.posicion === posicion) &&
+      (!equipo || j.equipo_nombre === equipo)
+    );
+  }
+
+  limpiarFiltros() {
+    this.filtroNombre = '';
+    this.filtroPosicion = '';
+    this.filtroEquipo = '';
+    this.jugadoresFiltrados = [...this.jugadores];
+  }
+
+  hayFiltrosActivos(): boolean {
+    return !!(this.filtroNombre || this.filtroPosicion || this.filtroEquipo);
   }
 
   logout() {

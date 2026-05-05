@@ -2,6 +2,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 export interface PlayerAnalysis {
   player_id: string;
@@ -35,7 +36,7 @@ export interface MatchAnalyticsResponse {
 
 @Injectable({ providedIn: 'root' })
 export class AnalyticsService {
-  private readonly API = '/api';
+  private readonly API = `${environment.apiUrl}`;
 
   constructor(private http: HttpClient) {}
 

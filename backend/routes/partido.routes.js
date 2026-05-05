@@ -22,6 +22,11 @@ router.post('/:id/sets', partidoController.addSet);
 router.post('/:id/estadisticas', partidoController.addEstadisticas);
 router.get('/:id/estadisticas', partidoController.getEstadisticas);
 router.get('/:id/estadisticas-sets', partidoController.getEstadisticasPorSets);
+router.post('/:id/analytics/save', partidoController.saveAnalytics);
+router.get('/:id/analytics', partidoController.getAnalytics);  
+
+// Jugador statistics
+router.get('/jugador/:id/estadisticas', partidoController.getEstadisticasJugador);
 
 router.post('/:partido_id/sets/:set_id/estadisticas', partidoController.addEstadisticasPorSet);
 

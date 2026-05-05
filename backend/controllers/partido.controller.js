@@ -103,10 +103,21 @@ exports.deletePartido = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const [result] = await db.query(
-      'DELETE FROM partidos WHERE id = ?',
-      [id]
-    );
+    // 1. Primero eliminar la tabla que depende de sets_partido
+    await db.query(`
+      DELETE ejs FROM estadisticas_jugador_set ejs
+      INNER JOIN sets_partido sp ON ejs.set_id = sp.id
+      WHERE sp.partido_id = ?
+    `, [id]);
+
+    // 2. Luego las demás dependencias de partidos
+    await db.query('DELETE FROM estadisticas_jugador WHERE partido_id = ?', [id]);
+    await db.query('DELETE FROM estadisticas_partido WHERE partido_id = ?', [id]);
+    await db.query('DELETE FROM partido_jugador WHERE partido_id = ?', [id]);
+    await db.query('DELETE FROM sets_partido WHERE partido_id = ?', [id]);
+
+    // 3. Finalmente el partido
+    const [result] = await db.query('DELETE FROM partidos WHERE id = ?', [id]);
 
     if (result.affectedRows === 0) {
       return res.status(404).json({ message: 'Partido no encontrado' });
@@ -151,6 +162,8 @@ exports.getSets = async (req, res) => {
 };
 
 exports.addSet = async (req, res) => {
+  let totales = []
+
   try {
     const { id } = req.params; // partido_id
     let { puntos_equipo, puntos_rival } = req.body;
@@ -228,7 +241,7 @@ exports.addSet = async (req, res) => {
     }
 
     // 7. Insertar set
-const [insertResult] = await db.query(`
+    const [insertResult] = await db.query(`
       INSERT INTO sets_partido 
       (partido_id, numero_set, puntos_equipo, puntos_rival)
       VALUES (?, ?, ?, ?)
@@ -265,18 +278,46 @@ const [insertResult] = await db.query(`
     // 🔥 10. Cerrar partido si hay ganador
     if (ganador) {
       await db.query(`
-        UPDATE partidos 
-        SET estado = 'finalizado', ganador = ?
-        WHERE id = ?
-      `, [ganador, id]);
+    UPDATE partidos 
+    SET estado = 'finalizado', ganador = ?
+    WHERE id = ?
+  `, [ganador, id]);
+
+      // ← NUEVO: calcular totales y guardar en estadisticas_jugador
+      const [totales] = await db.query(`
+    SELECT 
+      ejs.jugador_id,
+      SUM(ejs.ataques)     AS ataques,
+      SUM(ejs.recepciones) AS recepciones,
+      SUM(ejs.errores)     AS errores,
+      SUM(ejs.bloqueos)    AS bloqueos
+    FROM estadisticas_jugador_set ejs
+    JOIN sets_partido sp ON ejs.set_id = sp.id
+    WHERE sp.partido_id = ?
+    GROUP BY ejs.jugador_id
+  `, [id]);
+
+      for (const stat of totales) {
+        await db.query(`
+      INSERT INTO estadisticas_jugador 
+        (jugador_id, partido_id, ataques, recepciones, errores, bloqueos)
+      VALUES (?, ?, ?, ?, ?, ?)
+      ON DUPLICATE KEY UPDATE
+        ataques     = VALUES(ataques),
+        recepciones = VALUES(recepciones),
+        errores     = VALUES(errores),
+        bloqueos    = VALUES(bloqueos)
+    `, [stat.jugador_id, id, stat.ataques, stat.recepciones, stat.errores, stat.bloqueos]);
+      }
     }
 
-res.json({
+    res.json({
       message: 'Set agregado correctamente',
       numero_set,
       set_id: setId,
       marcador: `${ganadosEquipo} - ${ganadosRival}`,
-      ganador_partido: ganador || null
+      ganador_partido: ganador || null,
+      totales_jugadores: ganador ? totales : null
     });
 
   } catch (error) {
@@ -393,6 +434,60 @@ exports.getEstadisticas = async (req, res) => {
   res.json(rows);
 };
 
+// Get aggregated statistics for a specific player across all matches
+exports.getEstadisticasJugador = async (req, res) => {
+  try {
+    const { id } = req.params; // jugador_id
+
+    // Get all matches the player has stats for
+    const [rows] = await db.query(`
+      SELECT 
+        e.partido_id,
+        p.nombre AS partido_nombre,
+        p.fecha,
+        p.rival,
+        e.ataques,
+        e.recepciones,
+        e.errores,
+        e.bloqueos
+      FROM estadisticas_jugador e
+      JOIN partidos p ON e.partido_id = p.id
+      WHERE e.jugador_id = ?
+      ORDER BY p.fecha DESC
+    `, [id]);
+
+    // Calculate aggregated totals
+    let total_ataques = 0;
+    let total_recepciones = 0;
+    let total_errores = 0;
+    let total_bloqueos = 0;
+    let partidos_jugados = rows.length;
+
+    rows.forEach(row => {
+      total_ataques += Number(row.ataques) || 0;
+      total_recepciones += Number(row.recepciones) || 0;
+      total_errores += Number(row.errores) || 0;
+      total_bloqueos += Number(row.bloqueos) || 0;
+    });
+
+    res.json({
+      jugador_id: id,
+      partidos_jugados,
+      partidos: rows,
+      totales: {
+        ataques: total_ataques,
+        recepciones: total_recepciones,
+        errores: total_errores,
+        bloqueos: total_bloqueos
+      }
+    });
+
+  } catch (error) {
+    console.error('ERROR GET ESTADISTICAS JUGADOR:', error);
+    res.status(500).json({ message: 'Error al obtener estadísticas del jugador' });
+  }
+};
+
 exports.getEstadisticasPorSets = async (req, res) => {
   try {
     const { id } = req.params;
@@ -493,5 +588,34 @@ exports.getJugadoresByPartido = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Error al obtener jugadores del partido' });
+  }
+};
+
+exports.saveAnalytics = async (req, res) => {
+  try {
+    const { analysis } = req.body;
+    await db.query(
+      'UPDATE partidos SET analytics_result = ? WHERE id = ?',
+      [JSON.stringify(analysis), req.params.id]
+    );
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('Error guardando analytics:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.getAnalytics = async (req, res) => {
+  try {
+    const [rows] = await db.query(
+      'SELECT analytics_result FROM partidos WHERE id = ?',
+      [req.params.id]
+    );
+    const result = rows[0]?.analytics_result;
+
+    res.json(result || null);
+  } catch (err) {
+    console.error('Error obteniendo analytics:', err.message);
+    res.status(500).json({ error: err.message });
   }
 };

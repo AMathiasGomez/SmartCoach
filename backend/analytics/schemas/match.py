@@ -4,6 +4,7 @@ from typing import Optional, List
 class PlayerStats(BaseModel):
     player_id: str
     name: str
+    position: str = 'Punta' 
     errors: int
     blocks: int
     attacks: int

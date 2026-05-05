@@ -45,11 +45,31 @@
           Gestiona y visualiza la información de tus clubes registrados.
         </p>
       </div>
-      <button class="btn-primary" (click)="router.navigate(['/crear-equipo'])">
-        <span class="material-symbols-outlined">add_circle</span>
-        Crear nuevo equipo
-      </button>
     </header>
+
+    <section class="filters-bar">
+      <div class="filter-group">
+        <span class="material-symbols-outlined">search</span>
+        <input type="text" placeholder="Buscar por nombre..." [(ngModel)]="filtroNombre" (input)="aplicarFiltros()" />
+      </div>
+
+      <div class="filter-group">
+        <span class="material-symbols-outlined">category</span>
+        <select [(ngModel)]="filtroCategoria" (change)="aplicarFiltros()">
+          <option value="">Todas las categorías</option>
+          <option *ngFor="let cat of categorias" [value]="cat">{{ cat }}</option>
+        </select>
+      </div>
+
+      <button class="btn-reset" (click)="limpiarFiltros()" *ngIf="hayFiltrosActivos()">
+        <span class="material-symbols-outlined">close</span>
+        Limpiar
+      </button>
+    </section>
+
+    <p class="results-count" *ngIf="equiposFiltrados.length !== equipos.length">
+      Mostrando {{ equiposFiltrados.length }} de {{ equipos.length }} equipos
+    </p>
 
     <section class="card table-container">
       <table>
@@ -63,15 +83,12 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let equipo of equipos">
+          <tr *ngFor="let equipo of equiposFiltrados">
+
             <td>
               <div class="user-info">
-                <img
-                  *ngIf="equipo.foto_url; else avatarEquipo"
-                  [src]="getFotoEquipo(equipo.foto_url)"
-                  alt="{{ equipo.nombre }}"
-                  class="user-avatar-img"
-                />
+                <img *ngIf="equipo.foto_url; else avatarEquipo" [src]="getFotoEquipo(equipo.foto_url)"
+                  alt="{{ equipo.nombre }}" class="user-avatar-img" />
 
                 <ng-template #avatarEquipo>
                   <div class="user-avatar font-bold text-blue">
@@ -93,16 +110,17 @@
 
             <td class="text-right">
               <div class="action-buttons">
-                <a class="btn-icon" title="Detalle" [routerLink]="['/detalle-equipo', equipo.id!]" style="color: #2563eb; display: inline-flex; align-items: center; justify-content: center;">
+                <a class="btn-icon" title="Detalle" [routerLink]="['/detalle-equipo', equipo.id!]"
+                  style="color: #2563eb; display: inline-flex; align-items: center; justify-content: center;">
                   <span class="material-symbols-outlined">visibility</span>
                 </a>
               </div>
             </td>
           </tr>
 
-          <tr *ngIf="equipos.length === 0">
+          <tr *ngIf="equiposFiltrados.length === 0">
             <td colspan="5" class="text-center text-muted">
-              No hay equipos registrados.
+              No hay equipos que coincidan con los filtros.
             </td>
           </tr>
         </tbody>

@@ -49,31 +49,49 @@
         <p>Monitor and enhance your team's performance with real-time analytics.</p>
       </div>
 
-      <!-- KPI Cards -->
+<!-- KPI Cards -->
       <div class="kpi-grid">
         <div class="kpi-card">
-          <h4>Total Players</h4>
-          <p>24</p>
+          <div class="kpi-icon players">
+            <span class="material-symbols-outlined">person</span>
+          </div>
+          <h4>Total Jugadores</h4>
+          <p class="stat">{{ totalJugadores }}</p>
         </div>
         <div class="kpi-card">
-          <h4>Active Teams</h4>
-          <p>2</p>
+          <div class="kpi-icon teams">
+            <span class="material-symbols-outlined">group</span>
+          </div>
+          <h4>Equipos Activos</h4>
+          <p class="stat">{{ totalEquipos }}</p>
         </div>
         <div class="kpi-card">
-          <h4>Upcoming Matches</h4>
-          <p>3</p>
+          <div class="kpi-icon matches">
+            <span class="material-symbols-outlined">sports_soccer</span>
+          </div>
+          <h4>Partidos Jugados</h4>
+          <p class="stat">{{ totalPartidos }}</p>
         </div>
         <div class="kpi-card">
-          <h4>Scheduled Training</h4>
-          <p>5</p>
+          <div class="kpi-icon training">
+            <span class="material-symbols-outlined">fitness_center</span>
+          </div>
+          <h4>Entrenamientos</h4>
+          <p class="stat">{{ totalEntrenamientos }}</p>
         </div>
         <div class="kpi-card">
-          <h4>Avg Team Performance</h4>
-          <p class="success">8.2</p>
+          <div class="kpi-icon performance">
+            <span class="material-symbols-outlined">trending_up</span>
+          </div>
+          <h4>Rendimiento Promedio</h4>
+          <p class="stat success">{{ promedioRendimiento }}</p>
         </div>
         <div class="kpi-card">
-          <h4>Injured/Inactive</h4>
-          <p class="danger">1</p>
+          <div class="kpi-icon injured">
+            <span class="material-symbols-outlined">health_and_safety</span>
+          </div>
+          <h4>Lesionados</h4>
+          <p class="stat danger">{{ jugadoresLesionados }}</p>
         </div>
       </div>
 

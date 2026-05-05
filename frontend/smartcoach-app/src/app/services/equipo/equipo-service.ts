@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Equipo } from '../../models/equipo.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -9,7 +10,7 @@ import { Equipo } from '../../models/equipo.model';
 export class EquipoService {
   equipo: Equipo[] = [];
 
-  private api = 'https://smartcoach-production.up.railway.app/api/equipos';
+  private api = `${environment.apiUrl}/equipos`;
 
   constructor(private http: HttpClient) {}
 

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { JugadorService } from '../../../services/jugador/jugador-service';
+import { PartidoService } from '../../../services/partido/partido-service';
 import { Jugador } from '../../../models/jugador.model';
 import { AuthService } from '../../../services/auth/auth-service';
 import { ChangeDetectorRef } from '@angular/core';
@@ -17,11 +18,14 @@ export class DetalleJugador implements OnInit {
   jugador: Jugador | null = null;
   loading = false;
   error = '';
+  stats: any = null;
+  statsLoading = false;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private jugadorService: JugadorService,
+    private partidoService: PartidoService,
     private authService: AuthService,
     private cd: ChangeDetectorRef
   ) { }
@@ -44,12 +48,29 @@ export class DetalleJugador implements OnInit {
       next: (data) => {
         this.jugador = data as Jugador;
         this.loading = false;
+        this.loadEstadisticas(id);
         this.cd.detectChanges();
       },
       error: (err: unknown) => {
         console.error('Error loading jugador:', err);
         this.error = 'Error al cargar el jugador';
         this.loading = false;
+      }
+    });
+  }
+
+  loadEstadisticas(jugadorId: number): void {
+    this.statsLoading = true;
+    this.partidoService.getEstadisticasJugador(jugadorId).subscribe({
+      next: (data) => {
+        this.stats = data;
+        this.statsLoading = false;
+        this.cd.detectChanges();
+      },
+      error: (err: unknown) => {
+        console.error('Error loading stats:', err);
+        this.stats = null;
+        this.statsLoading = false;
       }
     });
   }

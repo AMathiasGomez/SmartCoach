@@ -53,7 +53,7 @@ export class EditarPartido {
 
 
 
-this.http.get('https://smartcoach-production.up.railway.app/api/equipos')
+this.http.get('${environment.apiUrl}/equipos')
       .subscribe((data: any) => {
         this.equipos = data;
       })

@@ -1,3 +1,6 @@
+const { kmeans } = require('ml-kmeans');
+console.log('analyticsService cargado, kmeans:', typeof kmeans);
+
 const WEIGHTS = {
   blocks:     1.5,
   attacks:    1.2,
@@ -60,8 +63,8 @@ function analyzeMatchPlayers(matchId, players) {
   const matrix = players.map(p => [p.blocks, p.attacks, p.receptions, p.errors]);
   const scaled = standardize(matrix);
 
-  const result = kmeans(scaled, 3, { seed: 42 });
-  const labels = result.clusters;
+const result = kmeans(scaled, 3, { seed: 42 });
+const labels = result.clusters;
 
   // Calcular score promedio por cluster para ordenarlos (0=mejor)
   const clusterScores = {};

@@ -20,17 +20,22 @@ interface EstadoPuntos {
 })
 export class DetallePartido implements OnInit {
 
+
+  get isFormacionCompleta(): boolean {
+    return this.formacion.filter(j => j !== null).length === 7;
+  }
+
   partidoId!: number;
   partido: any;
   sidebarOpen: boolean = false;
 
-sets: any[] = [];
+  sets: any[] = [];
   jugadoresConvocados: any[] = [];
   estadisticas: any[] = [];
   estadisticasPorSets: any[] = []; // Stats grouped by set for final view
 
   tablaJugadores: any[] = [];
-  formacion: (any | null)[] = [null, null, null, null, null, null];
+  formacion: (any | null)[] = [null, null, null, null, null, null, null];
 
   puntosEquipo: number = 0;
   puntosRival: number = 0;
@@ -61,6 +66,7 @@ sets: any[] = [];
     this.cargarPartido();
     this.cargarSets();
     this.cargarJugadoresYEstadisticas();
+    this.cargarAnalyticsGuardado();
   }
 
   get puedeDeshacer(): boolean {
@@ -143,7 +149,7 @@ sets: any[] = [];
     this.partidoService.getPartidoById(this.partidoId).subscribe({
       next: (data) => {
         this.partido = data;
-        this.cargarJugadoresYEstadisticas();
+        this.cd.detectChanges();
       },
       error: (err: any) => console.error(err)
     });
@@ -157,7 +163,7 @@ sets: any[] = [];
       next: ({ jugadores, estadisticas }) => {
         this.jugadoresConvocados = jugadores;
         this.estadisticas = estadisticas;
-        this.construirTabla(); // se ejecuta solo cuando AMBAS respondieron
+        this.construirTabla();
         this.cd.detectChanges();
       },
       error: (err) => console.error(err)
@@ -166,7 +172,10 @@ sets: any[] = [];
 
   cargarSets() {
     this.partidoService.getSets(this.partidoId).subscribe({
-      next: (data) => this.sets = data,
+      next: (data) =>  { 
+        this.sets = data; 
+        this.cd.detectChanges(); 
+      },
       error: (err: any) => console.error(err)
     });
   }
@@ -186,8 +195,6 @@ sets: any[] = [];
         }
       };
     });
-
-    this.cd.detectChanges();
   }
 
   iniciarPartido() {
@@ -196,17 +203,14 @@ sets: any[] = [];
     });
   }
 
-finalizarPartido() {
-    if (!confirm('¿Realmente deseas FINALIZAR el partido?')) {
-      return;
-    }
+  finalizarPartido() {
+    if (!confirm('¿Realmente deseas FINALIZAR el partido?')) return;
 
     this.partidoService.updateEstado(this.partidoId, 'finalizado').subscribe({
       next: () => {
         this.partido.estado = 'finalizado';
-        // Auto load stats grouped by set
         this.cargarEstadisticasPorSets();
-        this.cd.detectChanges();
+        this.analizarRendimiento();
       },
       error: (err) => console.error(err)
     });
@@ -215,7 +219,7 @@ finalizarPartido() {
   cargarEstadisticasPorSets() {
     this.partidoService.getEstadisticasPorSets(this.partidoId).subscribe({
       next: (data) => {
-        this.estadisticasPorSets = data.sets;
+        this.estadisticasPorSets = data;
         console.log('Stats por sets:', this.estadisticasPorSets);
         this.cd.detectChanges();
       },
@@ -256,20 +260,33 @@ finalizarPartido() {
     this.analyticsError = false;
     this.mostrarAnalytics = false;
 
-    const playersData = this.tablaJugadores.map(j => ({
-      player_id: j.id.toString(),
-      name: j.nombre,
-      blocks: j.stats.bloqueos,
-      attacks: j.stats.ataques,
-      receptions: j.stats.recepciones,
-      errors: j.stats.errores
-    }));
+    const jugadoresEnCancha = this.formacion
+      .filter(j => j !== null)
+      .map(j => j.id);
+
+    const playersData = this.tablaJugadores
+      .filter(j => jugadoresEnCancha.includes(j.id))
+      .map(j => ({
+        player_id: j.id.toString(),
+        name: j.nombre,
+        blocks: j.stats.bloqueos,
+        attacks: j.stats.ataques,
+        receptions: j.stats.recepciones,
+        errors: j.stats.errores
+      }));
+
+    if (playersData.length === 0) {
+      alert('Primero arma la formación en la cancha');
+      this.loadingAnalytics = false;
+      return;
+    }
 
     this.analyticsService.analyzeMatch(this.partidoId, playersData).subscribe({
       next: (response) => {
         this.playerAnalysis = response;
         this.mostrarAnalytics = true;
         this.loadingAnalytics = false;
+        this.partidoService.saveAnalytics(this.partidoId, response).subscribe();
         this.showNotif('🎯 Análisis sklearn completado');
         this.cd.detectChanges();
       },
@@ -304,6 +321,7 @@ finalizarPartido() {
     this.showNotification = true;
     setTimeout(() => {
       this.showNotification = false;
+      this.cd.detectChanges();
     }, 5000);
     this.cd.detectChanges();
   }
@@ -323,46 +341,49 @@ finalizarPartido() {
     this.partidoService.addSet(this.partidoId, data).subscribe({
       next: (response) => {
         const setId = response.set_id;
+        const partidoFinalizado = !!response.ganador_partido;
 
-        // Auto save stats per player for this set (parallel)
-        const saveRequests = this.tablaJugadores.map(j => 
+        const saveRequests = this.tablaJugadores.map(j =>
           this.partidoService.addEstadisticasPorSet(this.partidoId, setId, {
             jugador_id: j.id,
             ataques: j.stats.ataques,
             recepciones: j.stats.recepciones,
             errores: j.stats.errores,
-            bloqueos: j.stats.bloqueos
+            bloqueos: j.stats.bloqueos,
           })
         );
 
         forkJoin(saveRequests).subscribe({
           next: () => {
-            // Auto generate sklearn analysis
-            this.showNotif('✅ Stats del set guardados automáticamente. Generando análisis...');
-            this.analizarRendimiento();
-
-            // Reset stats for next set (clean input)
+            // Reset stats y puntos
             this.tablaJugadores.forEach(j => {
               j.stats = { ataques: 0, recepciones: 0, errores: 0, bloqueos: 0 };
             });
-
-            // Reset points
             this.puntosEquipo = 0;
             this.puntosRival = 0;
             this.historialPuntos = [];
 
             this.cargarSets();
-            this.cargarPartido();
-            this.cd.detectChanges();
+            this.cargarPartido(); 
+
+            if (partidoFinalizado) {
+              // El partido terminó — correr análisis con totales del partido
+              this.showNotif('🏆 Partido finalizado. Generando análisis final...');
+              this.cargarEstadisticasPorSets();
+              this.analizarRendimientoFinalConDatos(response.totales_jugadores);
+            } else {
+              this.showNotif('✅ Set guardado correctamente.'); 
+            }
           },
           error: console.error
         });
       },
       error: (err: any) => console.error(err)
-    });
+    }
+  );
   }
 
-logOut() {
+  logOut() {
     this.authService.logOut();
     this.router.navigate(['/login']);
   }
@@ -375,4 +396,104 @@ logOut() {
     this.sidebarOpen = false;
   }
 
+  cargarAnalyticsGuardado(): void {
+    this.partidoService.getAnalytics(this.partidoId).subscribe({
+      next: (data) => {
+        if (data) {
+          this.playerAnalysis = data;
+          this.mostrarAnalytics = true;
+          this.cd.detectChanges();
+        }
+      },
+      error: () => { }
+    });
+  }
+
+  analizarRendimientoFinal() {
+    this.loadingAnalytics = true;
+    this.analyticsError = false;
+    this.mostrarAnalytics = false;
+
+    this.partidoService.getEstadisticas(this.partidoId).subscribe({
+      next: (estadisticas: any[]) => {
+        // Sin filtro — todos los jugadores con estadísticas
+        const playersData = estadisticas.map((e: any) => ({
+          player_id: e.jugador_id.toString(),
+          name: e.jugador_nombre,
+          blocks: e.bloqueos,
+          attacks: e.ataques,
+          receptions: e.recepciones,
+          errors: e.errores
+        }));
+
+        if (playersData.length === 0) {
+          this.loadingAnalytics = false;
+          return;
+        }
+
+        this.analyticsService.analyzeMatch(this.partidoId, playersData).subscribe({
+          next: (response) => {
+            this.playerAnalysis = response;
+            this.mostrarAnalytics = true;
+            this.loadingAnalytics = false;
+            this.partidoService.saveAnalytics(this.partidoId, response).subscribe();
+            this.showNotif('🎯 Análisis sklearn completado');
+            this.cd.detectChanges();
+          },
+          error: (err) => {
+            console.error('Analytics error:', err);
+            this.analyticsError = true;
+            this.loadingAnalytics = false;
+          }
+        });
+      },
+      error: (err) => {
+        console.error('Error cargando estadísticas:', err);
+        this.loadingAnalytics = false;
+      }
+    });
+  }
+
+  analizarRendimientoFinalConDatos(totales: any[]) {
+    this.loadingAnalytics = true;
+    this.analyticsError = false;
+    this.mostrarAnalytics = false;
+
+    // Necesitamos los nombres — cruzamos con jugadoresConvocados
+    const playersData = totales.map((e: any) => {
+      const jugador = this.jugadoresConvocados.find(j => j.id === e.jugador_id);
+      return {
+        player_id: e.jugador_id.toString(),
+        name: jugador?.nombre || 'Jugador',
+        position: jugador?.posicion || 'Punta',
+        blocks: Number(e.bloqueos),
+        attacks: Number(e.ataques),
+        receptions: Number(e.recepciones),
+        errors: Number(e.errores)
+      };
+    });
+
+    if (playersData.length === 0) {
+      this.loadingAnalytics = false;
+      return;
+    }
+
+    this.analyticsService.analyzeMatch(this.partidoId, playersData).subscribe({
+      next: (response) => {
+        this.playerAnalysis = response;
+        this.mostrarAnalytics = true;
+        this.loadingAnalytics = false;
+        this.partidoService.saveAnalytics(this.partidoId, response).subscribe();
+        this.showNotif('🎯 Análisis sklearn completado');
+        this.cd.detectChanges();
+      },
+      error: (err) => {
+        console.error('Analytics error:', err);
+        this.analyticsError = true;
+        this.loadingAnalytics = false;
+      }
+    });
+  }
 }
+
+
