@@ -91,13 +91,7 @@
     </p>
 
     <section class="card">
-      <div class="card-header">
-        <div class="card-title">
-          <span class="material-symbols-outlined">people</span>
-          <h5>Jugadores Registrados</h5>
-        </div>
-        <span class="badge-count">{{ jugadores.length }}</span>
-      </div>
+      
 
       <div *ngIf="loading" class="loading-container">
         <div class="loading-spinner"></div>
@@ -117,7 +111,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let jugador of jugadores">
+            <tr *ngFor="let jugador of jugadoresFiltrados">
               <td>
                 <div class="user-info">
                   <ng-container *ngIf="hasPhoto(jugador); else defaultAvatar">
@@ -168,6 +162,11 @@
                 </div>
               </td>
             </tr>
+            <tr *ngIf="jugadoresFiltrados.length === 0">
+            <td colspan="5" class="text-center text-muted">
+              No hay jugadores que coincidan con los filtros.
+            </td>
+          </tr>
           </tbody>
         </table>
       </div>

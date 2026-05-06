@@ -55,7 +55,31 @@
       </button>
     </header>
 
-<section class="card table-container">
+    <section class="filters-bar">
+      <div class="filter-group">
+        <span class="material-symbols-outlined">search</span>
+        <input type="text" placeholder="Buscar por nombre..." [(ngModel)]="filtroNombre" (input)="aplicarFiltros()" />
+      </div>
+
+      <div class="filter-group">
+        <span class="material-symbols-outlined">category</span>
+        <select [(ngModel)]="filtroCategoria" (change)="aplicarFiltros()">
+          <option value="">Todas las categorías</option>
+          <option *ngFor="let cat of categorias" [value]="cat">{{ cat }}</option>
+        </select>
+      </div>
+
+      <button class="btn-reset" (click)="limpiarFiltros()" *ngIf="hayFiltrosActivos()">
+        <span class="material-symbols-outlined">close</span>
+        Limpiar
+      </button>
+    </section>
+
+    <p class="results-count" *ngIf="equiposFiltrados.length !== equipos.length">
+      Mostrando {{ equiposFiltrados.length }} de {{ equipos.length }} equipos
+    </p>
+
+    <section class="card table-container">
       <div class="table-scroll">
         <table>
           <thead>
@@ -68,22 +92,30 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let equipo of equipos">
+            <tr *ngFor="let equipo of equiposFiltrados">
               <td>
                 <div class="user-info">
                   <img *ngIf="equipo.foto_url; else avatarEquipo" [src]="getFotoEquipo(equipo.foto_url)"
                     alt="{{ equipo.nombre }}" class="user-avatar-img" />
+
                   <ng-template #avatarEquipo>
                     <div class="user-avatar font-bold text-blue">
                       {{ equipo.nombre | slice: 0:1 }}
                     </div>
                   </ng-template>
+
                   <span class="font-bold text-blue">{{ equipo.nombre }}</span>
                 </div>
               </td>
-              <td><span class="badge">{{ equipo.categoria }}</span></td>
-              <td>{{ equipo.ano_fundacion }}</td>
+
+              <td>
+                <span class="badge">{{ equipo.categoria }}</span>
+              </td>
+              <td>
+                {{ equipo.ano_fundacion }}
+              </td>
               <td class="text-muted">{{ equipo.descripcion }}</td>
+
               <td class="text-right">
                 <div class="action-buttons">
                   <button class="btn-icon btn-edit" title="Editar" (click)="editar(equipo.id!)">
@@ -95,8 +127,8 @@
                 </div>
               </td>
             </tr>
-            <tr *ngIf="equipos.length === 0">
-              <td colspan="5" class="text-center text-muted">No hay equipos registrados.</td>
+            <tr *ngIf="equiposFiltrados.length === 0">
+              <td colspan="5" class="text-center text-muted">No hay equipos que coincidan con los filtros.</td>
             </tr>
           </tbody>
         </table>

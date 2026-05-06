@@ -16,6 +16,11 @@ import { CommonModule } from '@angular/common';
 export class VerEquipos implements OnInit {
   loading = false;
   equipos: Equipo[] = [];
+  filtroNombre = '';
+  filtroCategoria = '';
+  equiposFiltrados: Equipo[] = [];
+  categorias: string[] = [];
+
 
   private baseUrl = 'https://smartcoach-production.up.railway.app:3006';
 
@@ -36,8 +41,9 @@ export class VerEquipos implements OnInit {
 
     this.equipoService.getEquipos().subscribe({
       next: (data) => {
-        console.log('Datos recibidos del servicio:', data);
         this.equipos = data;
+        this.categorias = [...new Set(data.map(e => e.categoria).filter(Boolean))].sort();
+        this.equiposFiltrados = data;
         this.loading = false;
         this.cd.detectChanges();
       },
@@ -77,6 +83,26 @@ export class VerEquipos implements OnInit {
         },
       });
     }
+  }
+
+  aplicarFiltros() {
+    const nombre = this.filtroNombre.toLowerCase().trim();
+    const categoria = this.filtroCategoria;
+
+    this.equiposFiltrados = this.equipos.filter(e =>
+      (!nombre || e.nombre.toLowerCase().includes(nombre)) &&
+      (!categoria || e.categoria === categoria)
+    );
+  }
+
+  limpiarFiltros() {
+    this.filtroNombre = '';
+    this.filtroCategoria = '';
+    this.equiposFiltrados = [...this.equipos];
+  }
+
+  hayFiltrosActivos(): boolean {
+    return !!(this.filtroNombre || this.filtroCategoria);
   }
 
   logout(): void {

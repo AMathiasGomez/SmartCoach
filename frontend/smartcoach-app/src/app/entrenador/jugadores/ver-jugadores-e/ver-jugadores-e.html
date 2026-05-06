@@ -118,6 +118,12 @@
               </div>
             </td>
           </tr>
+
+          <tr *ngIf="jugadoresFiltrados.length === 0">
+            <td colspan="5" class="text-center text-muted">
+              No hay equipos que coincidan con los filtros.
+            </td>
+          </tr>
         </tbody>
       </table>
     </section>
