@@ -1,213 +1,407 @@
 <div class="app-container">
-
-  <aside class="sidebar">
+  <aside class="sidebar" [class.open]="sidebarOpen">
     <div class="logo">
       <div class="logo-icon">SC</div>
       <div class="logo-text-wrapper">
         <h3 class="logo-text">SmartCoach</h3>
-        <p class="logo-subtext">GESTIÓN DEPORTIVA</p>
+        <p class="logo-subtext">GESTI&Oacute;N DEPORTIVA</p>
       </div>
     </div>
 
     <nav>
-      <a class="active" routerLink="/dashboard-admin">
+      <a class="active" routerLink="/dashboard-directivo" (click)="closeSidebar()">
         <span class="material-symbols-outlined">space_dashboard</span>
-        <span>Panel de Control</span>
+        <span class="nav-label">Panel directivo</span>
       </a>
-      <a routerLink="/ver-equipos">
-        <span class="material-symbols-outlined">group</span>
-        <span>Equipos</span>
+      <a href="javascript:void(0)" (click)="scrollTo('reportes')">
+        <span class="material-symbols-outlined">summarize</span>
+        <span class="nav-label">Reportes</span>
       </a>
-      <a routerLink="/ver-jugadores">
-        <span class="material-symbols-outlined">person</span>
-        <span>Jugadores</span>
+      <a href="javascript:void(0)" (click)="scrollTo('club')">
+        <span class="material-symbols-outlined">corporate_fare</span>
+        <span class="nav-label">Club</span>
       </a>
-      <a routerLink="/ver-entrenamientos">
-        <span class="material-symbols-outlined">fitness_center</span>
-        <span>Entrenamientos</span>
+      <a href="javascript:void(0)" (click)="scrollTo('equipos')">
+        <span class="material-symbols-outlined">groups</span>
+        <span class="nav-label">Equipos</span>
       </a>
-      <a routerLink="/ver-partidos">
-        <span class="material-symbols-outlined">sports_soccer</span>
-        <span>Partidos</span>
-      </a>
-      <a routerLink="/ver-usuarios">
-        <span class="material-symbols-outlined">emoji_people</span>
-        <span>Usuarios</span>
+      <a href="javascript:void(0)" (click)="scrollTo('alertas')">
+        <span class="material-symbols-outlined">notification_important</span>
+        <span class="nav-label">Alertas</span>
       </a>
     </nav>
 
     <button class="logout" (click)="logout()">
       <span class="material-symbols-outlined">logout</span>
-      Cerrar sesión
+      <span class="nav-label">Cerrar sesi&oacute;n</span>
     </button>
   </aside>
 
+  <div class="sidebar-overlay" [class.visible]="sidebarOpen" (click)="closeSidebar()"></div>
+
   <main class="main-content">
+    <button class="hamburger" (click)="toggleSidebar()" aria-label="Abrir menu">
+      <span class="material-symbols-outlined">menu</span>
+    </button>
 
+    <section class="welcome">
+      <div>
+        <p class="eyebrow">Direccion del club</p>
+        <h1>Panel ejecutivo SmartCoach</h1>
+        <p class="sub">
+          Control institucional, reportes de gestion deportiva y lectura general del estado del club.
+        </p>
+      </div>
 
-    <div class="content">
+      <div class="actions">
+        <button class="btn btn-secondary" (click)="printReport()">
+          <span class="material-symbols-outlined">print</span>
+          Imprimir
+        </button>
+        <button class="btn btn-primary" (click)="downloadReport()">
+          <span class="material-symbols-outlined">download</span>
+          Exportar CSV
+        </button>
+      </div>
+    </section>
 
-      <section class="welcome">
-        <div>
-          <h1>Bienvenido, Director</h1>
-          <p>
-            Resumen estratégico del rendimiento de su organización deportiva.
-          </p>
-        </div>
-        <div class="actions">
-          <button class="btn btn-secondary">Descargar PDF</button>
-          <button class="btn btn-primary">Generar Reporte</button>
-        </div>
+    <div class="state-card" *ngIf="loading">Cargando informacion directiva...</div>
+    <div class="state-card error" *ngIf="!loading && error">{{ error }}</div>
+
+    <ng-container *ngIf="!loading && !error">
+      <section class="quick-actions">
+        <button (click)="downloadReport()">
+          <span class="material-symbols-outlined">summarize</span>
+          Generar reporte general
+        </button>
+        <button class="success" (click)="scrollTo('equipos')">
+          <span class="material-symbols-outlined">groups</span>
+          Revisar equipos
+        </button>
+        <button class="light" (click)="scrollTo('alertas')">
+          <span class="material-symbols-outlined">crisis_alert</span>
+          Ver prioridades
+        </button>
+        <button class="light" (click)="printReport()">
+          <span class="material-symbols-outlined">picture_as_pdf</span>
+          Preparar PDF
+        </button>
       </section>
 
-<section class="kpi-grid">
-        <div class="card">
+      <section class="kpi-grid" id="club">
+        <article class="kpi-card">
           <div class="kpi-icon players">
             <span class="material-symbols-outlined">person</span>
           </div>
-          <p class="card-title">TOTAL JUGADORES</p>
+          <p>Total jugadores</p>
           <h3>{{ totalJugadores }}</h3>
-        </div>
-        <div class="card">
+          <span>{{ promedioJugadoresPorEquipo }} por equipo</span>
+        </article>
+
+        <article class="kpi-card">
           <div class="kpi-icon teams">
-            <span class="material-symbols-outlined">group</span>
+            <span class="material-symbols-outlined">groups</span>
           </div>
-          <p class="card-title">EQUIPOS</p>
+          <p>Equipos activos</p>
           <h3>{{ totalEquipos }}</h3>
-        </div>
-        <div class="card">
+          <span>Base institucional</span>
+        </article>
+
+        <article class="kpi-card">
           <div class="kpi-icon matches">
-            <span class="material-symbols-outlined">sports_soccer</span>
+            <span class="material-symbols-outlined">sports_volleyball</span>
           </div>
-          <p class="card-title">PARTIDOS JUGADOS</p>
+          <p>Partidos</p>
           <h3>{{ totalPartidos }}</h3>
-        </div>
-        <div class="card">
+          <span>{{ partidosFinalizados }} finalizados</span>
+        </article>
+
+        <article class="kpi-card">
           <div class="kpi-icon winrate">
             <span class="material-symbols-outlined">emoji_events</span>
           </div>
-          <p class="card-title">WIN RATE</p>
+          <p>Efectividad</p>
           <h3>{{ winRate }}%</h3>
-        </div>
-        <div class="card">
+          <span>Sobre partidos cerrados</span>
+        </article>
+
+        <article class="kpi-card">
           <div class="kpi-icon training">
             <span class="material-symbols-outlined">fitness_center</span>
           </div>
-          <p class="card-title">ENTRENAMIENTOS</p>
+          <p>Entrenamientos</p>
           <h3>{{ totalEntrenamientos }}</h3>
-        </div>
-        <div class="card">
-          <div class="kpi-icon performance">
-            <span class="material-symbols-outlined">star</span>
+          <span>{{ coberturaEntrenamiento }}% cobertura</span>
+        </article>
+
+        <article class="kpi-card">
+          <div class="kpi-icon activity">
+            <span class="material-symbols-outlined">query_stats</span>
           </div>
-          <p class="card-title">ÍNDICE PROMEDIO</p>
-          <h3>{{ promedioRendimiento }}/10</h3>
+          <p>Actividad competitiva</p>
+          <h3>{{ actividadCompetitiva }}</h3>
+          <span>Partidos por equipo</span>
+        </article>
+      </section>
+
+      <section class="dashboard-grid">
+        <div class="left-column">
+          <article class="card chart-card">
+            <div class="card-header">
+              <div>
+                <h3>Indicadores institucionales</h3>
+                <p>Lectura visual para consejo directivo</p>
+              </div>
+              <span class="badge">{{ saludInstitucional }}% salud</span>
+            </div>
+
+            <div class="bar-chart">
+              <div class="bar-row" *ngFor="let item of tendenciaClub">
+                <div class="bar-label">
+                  <strong>{{ item.label }}</strong>
+                  <span>{{ item.detail }}</span>
+                </div>
+                <div class="bar-track">
+                  <div class="bar-fill" [ngClass]="item.color" [style.width.%]="item.value"></div>
+                </div>
+                <b>{{ item.value }}%</b>
+              </div>
+            </div>
+          </article>
+
+          <article class="card table-section">
+            <div class="card-header">
+              <div>
+                <h3>Actualizaciones recientes</h3>
+                <p>Eventos deportivos y operativos del club</p>
+              </div>
+            </div>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Evento</th>
+                    <th>Objeto</th>
+                    <th>Estado</th>
+                    <th>Fecha</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let update of actualizaciones">
+                    <td>
+                      <span class="table-event">
+                        <span class="material-symbols-outlined">{{ update.icon }}</span>
+                        {{ update.event }}
+                      </span>
+                    </td>
+                    <td class="strong">{{ update.object }}</td>
+                    <td><span class="badge neutral">{{ update.status }}</span></td>
+                    <td>{{ update.date | date:'shortDate' }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="empty" *ngIf="actualizaciones.length === 0">
+              Aun no hay actividad reciente para mostrar.
+            </div>
+          </article>
+        </div>
+
+        <div class="right-column">
+          <article class="card dark-card">
+            <h3>Salud institucional</h3>
+            <div class="radial-score" [style.--score]="saludInstitucional">
+              <span>{{ saludInstitucional }}%</span>
+            </div>
+            <p>Calculada con base deportiva, competencia, entrenamientos y alertas abiertas.</p>
+          </article>
+
+          <article class="card">
+            <h3>Distribucion por categoria</h3>
+            <div class="category-list" *ngIf="distribucionCategorias.length > 0">
+              <div class="category-item" *ngFor="let categoria of distribucionCategorias">
+                <div>
+                  <strong>{{ categoria.name }}</strong>
+                  <span>{{ categoria.total }} equipo(s)</span>
+                </div>
+                <div class="mini-track">
+                  <div [style.width.%]="categoria.percentage"></div>
+                </div>
+              </div>
+            </div>
+            <div class="empty" *ngIf="distribucionCategorias.length === 0">
+              Sin categorias registradas.
+            </div>
+          </article>
         </div>
       </section>
 
-      <section class="charts">
-        <div class="chart-card">
-          <h3>Tendencias de Rendimiento</h3>
-          <div class="chart-placeholder">
-            Gráfico de Rendimiento
+      <section class="executive-grid">
+        <article class="panel performance-panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Lectura ejecutiva</p>
+              <h2>Estado general del club</h2>
+            </div>
+            <span class="pill">Actualizado hoy</span>
           </div>
+
+          <div class="score-row">
+            <div class="score-card">
+              <span>Entrenamiento</span>
+              <strong>{{ coberturaEntrenamiento }}%</strong>
+              <div class="progress-bar">
+                <div class="fill green" [style.width.%]="coberturaEntrenamiento"></div>
+              </div>
+            </div>
+            <div class="score-card">
+              <span>Resultados</span>
+              <strong>{{ winRate }}%</strong>
+              <div class="progress-bar">
+                <div class="fill blue" [style.width.%]="winRate"></div>
+              </div>
+            </div>
+            <div class="score-card">
+              <span>Competencia</span>
+              <strong>{{ totalPartidos }}</strong>
+              <div class="progress-bar">
+                <div class="fill amber" [style.width.%]="totalPartidos > 0 ? 80 : 10"></div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <aside class="panel best-panel">
+          <p class="eyebrow">Equipo destacado</p>
+          <h2>{{ mejorEquipo?.nombre || 'Sin informacion' }}</h2>
+          <div class="best-stats">
+            <span>{{ mejorEquipo?.jugadores || 0 }} jugadores</span>
+            <span>{{ mejorEquipo?.entrenamientos || 0 }} entrenamientos</span>
+            <span>{{ mejorEquipo?.partidos || 0 }} partidos</span>
+          </div>
+        </aside>
+      </section>
+
+      <section class="insights">
+        <article class="insight" *ngFor="let insight of insights" [ngClass]="insight.tone">
+          <span class="material-symbols-outlined">{{ insight.icon }}</span>
+          <div>
+            <h3>{{ insight.title }}</h3>
+            <p>{{ insight.detail }}</p>
+          </div>
+        </article>
+      </section>
+
+      <section class="split-grid">
+        <article class="panel" id="reportes">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Reportes ejecutivos</p>
+              <h2>Informes disponibles</h2>
+            </div>
+            <button class="icon-button" (click)="downloadReport()" title="Descargar todos">
+              <span class="material-symbols-outlined">download</span>
+            </button>
+          </div>
+
+          <div class="reports-list">
+            <article class="report-row" *ngFor="let reporte of reportes">
+              <div>
+                <h3>{{ reporte.title }}</h3>
+                <p>{{ reporte.summary }}</p>
+                <span>{{ reporte.category }} · {{ reporte.owner }}</span>
+              </div>
+              <div class="report-meta">
+                <strong>{{ reporte.metric }}</strong>
+                <span class="status" [ngClass]="getReportClass(reporte.status)">{{ reporte.status }}</span>
+                <button class="small-button" (click)="downloadReport(reporte)">CSV</button>
+              </div>
+            </article>
+          </div>
+        </article>
+
+        <article class="panel" id="alertas">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Gestion</p>
+              <h2>Alertas y prioridades</h2>
+            </div>
+          </div>
+
+          <div class="empty" *ngIf="alertas.length === 0">
+            No hay alertas pendientes con la informacion actual.
+          </div>
+
+          <ul class="alerts" *ngIf="alertas.length > 0">
+            <li *ngFor="let alerta of alertas">
+              <span class="material-symbols-outlined">priority_high</span>
+              {{ alerta }}
+            </li>
+          </ul>
+        </article>
+      </section>
+
+      <section class="panel" id="equipos">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Club</p>
+            <h2>Resumen por equipo</h2>
+          </div>
+          <span class="pill">{{ equiposResumen.length }} registros</span>
         </div>
 
-<div class="side-widgets">
-          <div class="best-team">
-            <h4>Mejor Equipo</h4>
-            <p>{{ mejorEquipo?.nombre || 'Cargando...' }}</p>
-            <span>{{ mejorEquipo?.eficiencia || 0 }}% de eficiencia</span>
-          </div>
-
-          <div class="alerts">
-            <h4>Alertas y Acciones</h4>
-            @if (alertas.length > 0) {
-              @for (alerta of alertas; track $index) {
-                <p>{{ alerta }}</p>
-              }
-            } @else {
-              <p>No hay alertas pendientes.</p>
-            }
-          </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Equipo</th>
+                <th>Categoria</th>
+                <th>Jugadores</th>
+                <th>Entrenamientos</th>
+                <th>Partidos</th>
+                <th>Indice</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let equipo of equiposResumen">
+                <td class="strong">{{ equipo.nombre }}</td>
+                <td>{{ equipo.categoria || 'Sin categoria' }}</td>
+                <td>{{ equipo.jugadores }}</td>
+                <td>{{ equipo.entrenamientos }}</td>
+                <td>{{ equipo.partidos }}</td>
+                <td><span class="index-pill">{{ equipo.score }}</span></td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </section>
 
-      <section class="progress-section">
-        <h3>Progreso Estratégico Institucional</h3>
-
-        <div class="progress-grid">
-          <div class="progress-item">
-            <p>Desarrollo de Equipos</p>
-            <h4>92%</h4>
-            <div class="progress-bar">
-              <div class="fill" style="width: 92%"></div>
-            </div>
-          </div>
-
-          <div class="progress-item">
-            <p>Objetivos de Temporada</p>
-            <h4>78%</h4>
-            <div class="progress-bar">
-              <div class="fill blue" style="width: 78%"></div>
-            </div>
-          </div>
-
-          <div class="progress-item">
-            <p>Mejora de Atletas</p>
-            <h4>85%</h4>
-            <div class="progress-bar">
-              <div class="fill" style="width: 85%"></div>
-            </div>
-          </div>
-
-          <div class="progress-item">
-            <p>Efectividad del Entrenamiento</p>
-            <h4>64%</h4>
-            <div class="progress-bar">
-              <div class="fill purple" style="width: 64%"></div>
-            </div>
+      <section class="panel activity-panel">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Agenda</p>
+            <h2>Proximas actividades</h2>
           </div>
         </div>
-      </section>
 
-      <section class="reports">
-        <h3>Reportes Estratégicos</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>Reporte</th>
-              <th>Fecha</th>
-              <th>Categoría</th>
-              <th>Estado</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Quarterly Growth Assessment</td>
-              <td>May 12, 2025</td>
-              <td>Institucional</td>
-              <td class="status completed">Completado</td>
-            </tr>
-            <tr>
-              <td>Player Performance Index Q2</td>
-              <td>May 10, 2025</td>
-              <td>Técnico</td>
-              <td class="status processing">En proceso</td>
-            </tr>
-          </tbody>
-        </table>
-      </section>
-
-      <footer class="footer">
-        <p>© 2025 SmartCoach – Sports Analytics Platform</p>
-        <div>
-          <a href="#">Privacidad</a>
-          <a href="#">Soporte</a>
+        <div class="empty" *ngIf="proximasActividades.length === 0">
+          No hay actividades futuras registradas.
         </div>
-      </footer>
 
-    </div>
+        <div class="activity-list" *ngIf="proximasActividades.length > 0">
+          <article class="activity-item" *ngFor="let item of proximasActividades">
+            <span class="material-symbols-outlined">
+              {{ item.rival ? 'sports_volleyball' : 'fitness_center' }}
+            </span>
+            <div>
+              <h3>{{ item.nombre || item.tipo || 'Actividad del club' }}</h3>
+              <p>{{ item.fecha | date:'mediumDate' }} {{ item.hora || '' }}</p>
+            </div>
+          </article>
+        </div>
+      </section>
+    </ng-container>
   </main>
-
 </div>
