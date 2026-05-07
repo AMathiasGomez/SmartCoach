@@ -1,4 +1,5 @@
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:3006/api'
+  apiUrl: 'http://localhost:3006/api',
 };
+console.log('DEV ENV LOADED');
