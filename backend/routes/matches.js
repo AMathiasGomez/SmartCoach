@@ -11,7 +11,6 @@ router.post('/:id/analytics', async (req, res) => {
       return res.status(400).json({ error: 'Se requiere al menos un jugador' });
     }
 
-    // Transformar datos al formato esperado por el servicio local
     const playersData = players.map(p => ({
       player_id: p.player_id,
       name: p.name || 'Unknown',

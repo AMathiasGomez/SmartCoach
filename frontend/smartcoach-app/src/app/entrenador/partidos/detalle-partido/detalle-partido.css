@@ -373,7 +373,7 @@
   text-align: left;
   font-size: 0.85rem;
   color: white;
-  background: linear-gradient(90deg, #1e3a8a, #d97706);
+  background: #1e3a8a;
   border-bottom: 3px solid rgba(255,255,255,0.15);
   font-weight: 600;
 }

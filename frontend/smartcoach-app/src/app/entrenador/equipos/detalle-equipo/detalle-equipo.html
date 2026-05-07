@@ -1,5 +1,5 @@
 <div class="app-container">
-
+ 
   <aside class="sidebar">
     <div class="logo">
       <div class="logo-icon">SC</div>
@@ -8,95 +8,246 @@
         <p class="logo-subtext">GESTIÓN DEPORTIVA</p>
       </div>
     </div>
-
     <nav>
       <a routerLink="/dashboard-entrenador">
-        <span class="material-symbols-outlined">space_dashboard</span>
-        <span>Panel de Control</span>
+        <span class="material-symbols-outlined">space_dashboard</span><span>Panel de Control</span>
       </a>
       <a class="active" routerLink="/ver-equipos-e">
-        <span class="material-symbols-outlined">group</span>
-        <span>Equipos</span>
+        <span class="material-symbols-outlined">group</span><span>Equipos</span>
       </a>
       <a routerLink="/ver-jugadores-e">
-        <span class="material-symbols-outlined">person</span>
-        <span>Jugadores</span>
+        <span class="material-symbols-outlined">person</span><span>Jugadores</span>
       </a>
       <a routerLink="/ver-entrenamientos-e">
-        <span class="material-symbols-outlined">fitness_center</span>
-        <span>Entrenamientos</span>
+        <span class="material-symbols-outlined">fitness_center</span><span>Entrenamientos</span>
       </a>
       <a routerLink="/ver-partidos-e">
-        <span class="material-symbols-outlined">sports_soccer</span>
-        <span>Partidos</span>
+        <span class="material-symbols-outlined">sports_soccer</span><span>Partidos</span>
       </a>
     </nav>
-
     <button class="logout" (click)="logout()">
-      <span class="material-symbols-outlined">logout</span>
-      Cerrar sesión
+      <span class="material-symbols-outlined">logout</span>Cerrar sesión
     </button>
   </aside>
-
+ 
   <main class="main-content">
-
+ 
     <header class="page-header-detail">
       <div>
         <button class="btn-back" (click)="back()">
-          <span class="material-symbols-outlined">arrow_back</span>
-          Volver a equipos
+          <span class="material-symbols-outlined">arrow_back</span>Volver a equipos
         </button>
       </div>
-      <div>
-        <h1 class="detail-title">Detalle del Equipo</h1>
-      </div>
+      <div><h1 class="detail-title">Detalle del Equipo</h1></div>
     </header>
-
+ 
     <div *ngIf="loading" class="loading">
-      <span class="material-symbols-outlined">hourglass_empty</span>
-      Cargando equipo...
+      <span class="material-symbols-outlined">hourglass_empty</span> Cargando equipo...
     </div>
-
     <div *ngIf="error" class="error">
-      <span class="material-symbols-outlined">error</span>
-      {{ error }}
+      <span class="material-symbols-outlined">error</span> {{ error }}
     </div>
-
+ 
     <div *ngIf="equipo">
-
-      <!-- Hero Section -->
+ 
+      <!-- Hero -->
       <section class="hero-section">
-        <img *ngIf="equipo.foto_url; else avatarTeam" 
-             [src]="'https://smartcoach-production.up.railway.app' + equipo.foto_url" 
-             alt="{{ equipo.nombre }}" 
-             class="team-avatar-large">
+        <img *ngIf="equipo.foto_url; else avatarTeam"
+          [src]="'https://smartcoach-production.up.railway.app' + equipo.foto_url"
+          alt="{{ equipo.nombre }}" class="team-avatar-large">
         <ng-template #avatarTeam>
-          <div class="team-avatar-large">
-            {{ equipo.nombre | slice:0:1 | uppercase }}
-          </div>
+          <div class="team-avatar-large">{{ equipo.nombre | slice:0:1 | uppercase }}</div>
         </ng-template>
-        
         <h1 class="team-name">{{ equipo.nombre }}</h1>
         <div class="category-badge">{{ equipo.categoria }}</div>
       </section>
-
+ 
       <!-- Info Grid -->
       <div class="info-grid">
-        <div class="info-card">
-          <h3>Años activos</h3>
-          <div class="value">{{ getYearsActive() }}</div>
-        </div>
-        <div class="info-card">
-          <h3>Categoría</h3>
-          <div class="value">{{ equipo.categoria }}</div>
-        </div>
-        <div class="info-card">
-          <h3>Año fundación</h3>
-          <div class="value">{{ equipo.ano_fundacion }}</div>
-        </div>
+        <div class="info-card"><h3>Años activos</h3><div class="value">{{ getYearsActive() }}</div></div>
+        <div class="info-card"><h3>Categoría</h3><div class="value">{{ equipo.categoria }}</div></div>
+        <div class="info-card"><h3>Año fundación</h3><div class="value">{{ equipo.ano_fundacion }}</div></div>
+        <div class="info-card"><h3>Jugadores</h3><div class="value">{{ jugadores.length }}</div></div>
       </div>
-
-      <!-- Players List -->
+ 
+      <!-- ══════════ ANÁLISIS DE RENDIMIENTO DEL EQUIPO ══════════ -->
+      <section class="analytics-section">
+        <div class="analytics-header">
+          <span class="material-symbols-outlined analytics-icon">query_stats</span>
+          <h2 class="analytics-title">Análisis de Rendimiento</h2>
+          <span class="analytics-badge">IA • scikit-learn</span>
+        </div>
+ 
+        <div *ngIf="analyticsLoading" class="analytics-loading">
+          <div class="spinner"></div><span>Procesando análisis del equipo...</span>
+        </div>
+ 
+        <div *ngIf="!analyticsLoading && (!analytics || !analytics.analysis)" class="analytics-empty">
+          <span class="material-symbols-outlined">bar_chart</span>
+          <p>El análisis aparecerá cuando los jugadores del equipo tengan estadísticas en partidos.</p>
+        </div>
+ 
+        <div *ngIf="!analyticsLoading && analytics?.analysis" class="analytics-content">
+ 
+          <!-- KPIs -->
+          <div class="analytics-kpi-row">
+ 
+            <div class="kpi-card kpi-main">
+              <div class="kpi-label">Score del Equipo</div>
+              <div class="kpi-score-ring">
+                <svg viewBox="0 0 100 100" class="ring-svg">
+                  <circle cx="50" cy="50" r="42" class="ring-bg"/>
+                  <circle cx="50" cy="50" r="42" class="ring-fill"
+                    [style.strokeDasharray]="'263.9'"
+                    [style.strokeDashoffset]="263.9 - (263.9 * getOverallPercent() / 100)"/>
+                </svg>
+                <div class="ring-value">{{ analytics.analysis.overall_score | number:'1.1-1' }}</div>
+                <div class="ring-max">/10</div>
+              </div>
+            </div>
+ 
+            <div class="kpi-card">
+              <div class="kpi-label">Nivel</div>
+              <div class="kpi-nivel" [ngClass]="getNivelClass()">
+                {{ analytics.analysis.nivel }}
+              </div>
+            </div>
+ 
+            <div class="kpi-card">
+              <div class="kpi-label">Tendencia</div>
+              <div class="kpi-tendencia" [ngClass]="getTendenciaClass()">
+                <span class="material-symbols-outlined">{{ getTendenciaIcon() }}</span>
+                <span>{{ analytics.analysis.tendencia | titlecase }}</span>
+              </div>
+            </div>
+ 
+            <!-- Jugador destacado -->
+            <div class="kpi-card kpi-destacado" *ngIf="analytics.analysis.jugador_destacado">
+              <div class="kpi-label">Jugador Destacado</div>
+              <div class="destacado-nombre">
+                <span class="material-symbols-outlined">star</span>
+                {{ analytics.analysis.jugador_destacado.nombre }}
+              </div>
+              <div class="destacado-meta">
+                {{ analytics.analysis.jugador_destacado.posicion }} •
+                {{ analytics.analysis.jugador_destacado.score | number:'1.1-1' }}/10
+              </div>
+            </div>
+ 
+          </div>
+ 
+          <!-- Radar + Barras -->
+          <div class="analytics-charts-row">
+ 
+            <div class="radar-wrapper">
+              <h3 class="chart-subtitle">Perfil Colectivo</h3>
+              <canvas #radarCanvasEquipo width="300" height="300" class="radar-canvas"></canvas>
+            </div>
+ 
+            <div class="scores-bars-wrapper">
+              <h3 class="chart-subtitle">Promedios del Equipo (0–10)</h3>
+ 
+              <div class="score-bar-item">
+                <div class="score-bar-header">
+                  <span class="material-symbols-outlined">trending_up</span><span>Ataques</span>
+                  <span class="score-num">{{ analytics.analysis.promedios_equipo.ataques | number:'1.1-1' }}/10</span>
+                </div>
+                <div class="score-bar-track">
+                  <div class="score-bar-fill fill-ataques"
+                    [style.width.%]="analytics.analysis.promedios_equipo.ataques * 10"></div>
+                </div>
+              </div>
+ 
+              <div class="score-bar-item">
+                <div class="score-bar-header">
+                  <span class="material-symbols-outlined">shield</span><span>Bloqueos</span>
+                  <span class="score-num">{{ analytics.analysis.promedios_equipo.bloqueos | number:'1.1-1' }}/10</span>
+                </div>
+                <div class="score-bar-track">
+                  <div class="score-bar-fill fill-bloqueos"
+                    [style.width.%]="analytics.analysis.promedios_equipo.bloqueos * 10"></div>
+                </div>
+              </div>
+ 
+              <div class="score-bar-item">
+                <div class="score-bar-header">
+                  <span class="material-symbols-outlined">swap_vert</span><span>Recepciones</span>
+                  <span class="score-num">{{ analytics.analysis.promedios_equipo.recepciones | number:'1.1-1' }}/10</span>
+                </div>
+                <div class="score-bar-track">
+                  <div class="score-bar-fill fill-recepciones"
+                    [style.width.%]="analytics.analysis.promedios_equipo.recepciones * 10"></div>
+                </div>
+              </div>
+ 
+              <div class="score-bar-item">
+                <div class="score-bar-header">
+                  <span class="material-symbols-outlined">verified</span><span>Eficiencia</span>
+                  <span class="score-num">{{ analytics.analysis.promedios_equipo.eficiencia | number:'1.1-1' }}/10</span>
+                </div>
+                <div class="score-bar-track">
+                  <div class="score-bar-fill fill-eficiencia"
+                    [style.width.%]="analytics.analysis.promedios_equipo.eficiencia * 10"></div>
+                </div>
+              </div>
+ 
+              <!-- Totales -->
+              <div class="totales-row">
+                <div class="total-chip">
+                  <span class="material-symbols-outlined">trending_up</span>
+                  <span>{{ analytics.analysis.totales_equipo.ataques }}</span>
+                  <span class="chip-label">ataques totales</span>
+                </div>
+                <div class="total-chip">
+                  <span class="material-symbols-outlined">shield</span>
+                  <span>{{ analytics.analysis.totales_equipo.bloqueos }}</span>
+                  <span class="chip-label">bloqueos totales</span>
+                </div>
+                <div class="total-chip">
+                  <span class="material-symbols-outlined">swap_vert</span>
+                  <span>{{ analytics.analysis.totales_equipo.recepciones }}</span>
+                  <span class="chip-label">recepciones totales</span>
+                </div>
+                <div class="total-chip total-chip-err">
+                  <span class="material-symbols-outlined">error</span>
+                  <span>{{ analytics.analysis.totales_equipo.errores }}</span>
+                  <span class="chip-label">errores totales</span>
+                </div>
+              </div>
+ 
+              <p class="analytics-note">
+                <span class="material-symbols-outlined">info</span>
+                Score calculado con scikit-learn. Los promedios se normalizan con MinMaxScaler
+                y cada jugador se pondera según su posición.
+              </p>
+            </div>
+          </div>
+ 
+          <!-- Ranking jugadores -->
+          <div class="ranking-section" *ngIf="analytics.analysis.ranking_jugadores?.length > 0">
+            <h3 class="chart-subtitle">Ranking de Jugadores</h3>
+            <div class="ranking-list">
+              <div *ngFor="let j of analytics.analysis.ranking_jugadores; let i = index"
+                class="ranking-row" [class.ranking-top]="i === 0">
+                <div class="ranking-pos">{{ i + 1 }}</div>
+                <div class="ranking-info">
+                  <span class="ranking-nombre">{{ j.nombre }}</span>
+                  <span class="ranking-pos-label">{{ j.posicion }}</span>
+                </div>
+                <div class="ranking-bar-mini">
+                  <div class="ranking-bar-fill" [style.width.%]="j.score * 10"></div>
+                </div>
+                <div class="ranking-score">{{ j.score | number:'1.1-1' }}</div>
+                <span *ngIf="i === 0" class="material-symbols-outlined ranking-star">star</span>
+              </div>
+            </div>
+          </div>
+ 
+        </div>
+      </section>
+      <!-- ══════════ FIN ANÁLISIS ══════════ -->
+ 
+      <!-- Jugadores -->
       <section class="players-section">
         <h2 class="players-title">
           <span class="material-symbols-outlined">person</span>
@@ -104,19 +255,15 @@
         </h2>
         <table class="players-table" *ngIf="jugadores.length > 0">
           <thead>
-            <tr>
-              <th>Foto</th>
-              <th>Nombre</th>
-              <th>Posición</th>
-              <th>Dorsal</th>
-            </tr>
+            <tr><th>Foto</th><th>Nombre</th><th>Posición</th><th>Dorsal</th></tr>
           </thead>
           <tbody>
             <tr *ngFor="let jugador of jugadores">
               <td>
-                <img *ngIf="jugador.foto_url" [src]="'https://smartcoach-production.up.railway.app' + jugador.foto_url" 
-                     alt="{{ jugador.nombre }}" class="user-avatar-img" style="width: 40px; height: 40px;">
-                <div *ngIf="!jugador.foto_url" class="user-avatar" style="width: 40px; height: 40px; font-size: 0.8rem;">
+                <img *ngIf="jugador.foto_url"
+                  [src]="'https://smartcoach-production.up.railway.app' + jugador.foto_url"
+                  alt="{{ jugador.nombre }}" class="user-avatar-img" style="width:40px;height:40px;">
+                <div *ngIf="!jugador.foto_url" class="user-avatar" style="width:40px;height:40px;font-size:0.8rem;">
                   {{ jugador.nombre | slice:0:1 | uppercase }}
                 </div>
               </td>
@@ -126,24 +273,21 @@
             </tr>
           </tbody>
         </table>
-        <p *ngIf="jugadores.length === 0" class="text-muted" style="text-align: center; padding: 2rem;">
+        <p *ngIf="jugadores.length === 0" class="text-muted" style="text-align:center;padding:2rem;">
           No hay jugadores en este equipo
         </p>
       </section>
-
+ 
       <!-- Actions -->
       <div class="action-section">
         <button class="btn-edit-detail" (click)="editar()">
-          <span class="material-symbols-outlined">edit</span>
-          Editar Equipo
+          <span class="material-symbols-outlined">edit</span>Editar Equipo
         </button>
         <button class="btn-delete-detail" (click)="eliminar()">
-          <span class="material-symbols-outlined">delete</span>
-          Eliminar Equipo
+          <span class="material-symbols-outlined">delete</span>Eliminar Equipo
         </button>
       </div>
-
+ 
     </div>
-
   </main>
 </div>

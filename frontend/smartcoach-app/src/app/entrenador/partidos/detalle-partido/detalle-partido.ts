@@ -172,9 +172,9 @@ export class DetallePartido implements OnInit {
 
   cargarSets() {
     this.partidoService.getSets(this.partidoId).subscribe({
-      next: (data) =>  { 
-        this.sets = data; 
-        this.cd.detectChanges(); 
+      next: (data) => {
+        this.sets = data;
+        this.cd.detectChanges();
       },
       error: (err: any) => console.error(err)
     });
@@ -251,6 +251,8 @@ export class DetallePartido implements OnInit {
   }
 
   analizarRendimiento() {
+
+
     if (this.tablaJugadores.length === 0) {
       alert('Carga primero las estadísticas de los jugadores');
       return;
@@ -274,6 +276,9 @@ export class DetallePartido implements OnInit {
         receptions: j.stats.recepciones,
         errors: j.stats.errores
       }));
+
+    console.log('>>> jugadoresEnCancha:', jugadoresEnCancha);
+    console.log('>>> playersData:', playersData);
 
     if (playersData.length === 0) {
       alert('Primero arma la formación en la cancha');
@@ -364,7 +369,7 @@ export class DetallePartido implements OnInit {
             this.historialPuntos = [];
 
             this.cargarSets();
-            this.cargarPartido(); 
+            this.cargarPartido();
 
             if (partidoFinalizado) {
               // El partido terminó — correr análisis con totales del partido
@@ -372,7 +377,7 @@ export class DetallePartido implements OnInit {
               this.cargarEstadisticasPorSets();
               this.analizarRendimientoFinalConDatos(response.totales_jugadores);
             } else {
-              this.showNotif('✅ Set guardado correctamente.'); 
+              this.showNotif('✅ Set guardado correctamente.');
             }
           },
           error: console.error
@@ -380,7 +385,7 @@ export class DetallePartido implements OnInit {
       },
       error: (err: any) => console.error(err)
     }
-  );
+    );
   }
 
   logOut() {
@@ -399,7 +404,7 @@ export class DetallePartido implements OnInit {
   cargarAnalyticsGuardado(): void {
     this.partidoService.getAnalytics(this.partidoId).subscribe({
       next: (data) => {
-        if (data) {
+        if (data && data.analysis) {
           this.playerAnalysis = data;
           this.mostrarAnalytics = true;
           this.cd.detectChanges();
@@ -455,6 +460,9 @@ export class DetallePartido implements OnInit {
   }
 
   analizarRendimientoFinalConDatos(totales: any[]) {
+    console.log('>>> totales recibidos:', totales); // ← agrega esto
+    console.log('>>> jugadoresConvocados:', this.jugadoresConvocados);
+
     this.loadingAnalytics = true;
     this.analyticsError = false;
     this.mostrarAnalytics = false;

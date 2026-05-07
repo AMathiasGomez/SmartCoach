@@ -58,7 +58,6 @@ export class PartidoService {
 
   getJugadoresByPartido(partidoId: number): Observable<any[]> {
     const url = `${this.apiUrl}/${partidoId}/jugadores`;
-    console.log('URL FINAL:', url);
     return this.http.get<any[]>(url);
   }
 

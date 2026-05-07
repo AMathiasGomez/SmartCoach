@@ -162,7 +162,7 @@ exports.getSets = async (req, res) => {
 };
 
 exports.addSet = async (req, res) => {
-  let totales = []
+  let totalesJugadores = []
 
   try {
     const { id } = req.params; // partido_id
@@ -276,6 +276,8 @@ exports.addSet = async (req, res) => {
     }
 
     // 🔥 10. Cerrar partido si hay ganador
+    let totalesJugadores = [];
+
     if (ganador) {
       await db.query(`
     UPDATE partidos 
@@ -283,8 +285,7 @@ exports.addSet = async (req, res) => {
     WHERE id = ?
   `, [ganador, id]);
 
-      // ← NUEVO: calcular totales y guardar en estadisticas_jugador
-      const [totales] = await db.query(`
+      const [rows] = await db.query(`
     SELECT 
       ejs.jugador_id,
       SUM(ejs.ataques)     AS ataques,
@@ -297,7 +298,10 @@ exports.addSet = async (req, res) => {
     GROUP BY ejs.jugador_id
   `, [id]);
 
-      for (const stat of totales) {
+      // Asignar a la variable externa
+      totalesJugadores = rows;
+
+      for (const stat of totalesJugadores) {
         await db.query(`
       INSERT INTO estadisticas_jugador 
         (jugador_id, partido_id, ataques, recepciones, errores, bloqueos)
@@ -317,7 +321,7 @@ exports.addSet = async (req, res) => {
       set_id: setId,
       marcador: `${ganadosEquipo} - ${ganadosRival}`,
       ganador_partido: ganador || null,
-      totales_jugadores: ganador ? totales : null
+      totales_jugadores: totalesJugadores  // ← ahora sí tiene datos
     });
 
   } catch (error) {
@@ -593,7 +597,10 @@ exports.getJugadoresByPartido = async (req, res) => {
 
 exports.saveAnalytics = async (req, res) => {
   try {
+    console.log('BODY completo:', JSON.stringify(req.body));
     const { analysis } = req.body;
+    console.log('ANALYSIS a guardar:', typeof analysis, analysis);
+    // Guardar el objeto completo, no solo el array
     await db.query(
       'UPDATE partidos SET analytics_result = ? WHERE id = ?',
       [JSON.stringify(analysis), req.params.id]
@@ -611,9 +618,15 @@ exports.getAnalytics = async (req, res) => {
       'SELECT analytics_result FROM partidos WHERE id = ?',
       [req.params.id]
     );
-    const result = rows[0]?.analytics_result;
+    console.log('ROW:', rows[0]);                          // ← agrega esto
+    console.log('RAW:', rows[0]?.analytics_result);
 
-    res.json(result || null);
+    const raw = rows[0]?.analytics_result;
+    if (!raw) return res.json(null);
+
+    // Parsear si viene como string
+    const result = typeof raw === 'string' ? JSON.parse(raw) : raw;
+    res.json(result);
   } catch (err) {
     console.error('Error obteniendo analytics:', err.message);
     res.status(500).json({ error: err.message });

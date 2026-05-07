@@ -1,16 +1,8 @@
-# TODO: Implement Formation Validation in Detalle Partido
+# TODO - SmartCoach
 
-## Approved Plan Steps:
-- [x] 1. Add `isFormacionCompleta()` getter to detalle-partido.ts
-- [x] 2. Update detalle-partido.html: Move formation section to show in 'pendiente' || 'en_curso', add disabled to INICIAR button, add warning message
-- [ ] 3. Test changes: Create partido pendiente, verify button disabled until 6 players assigned
-- [ ] 4. Mark complete & attempt_completion
-
-## Approved Plan Steps:
-- [x] 1. Add `isFormacionCompleta()` getter to detalle-partido.ts
-- [x] 2. Update detalle-partido.html: Move formation section to show in 'pendiente' || 'en_curso', add disabled to INICIAR button, add warning message
-- [x] 3. Test changes: Create partido pendiente, verify button disabled until 6 players assigned
-- [x] 4. Mark complete & attempt_completion
-
-✅ Task complete!
+- [ ] Implementar en `detalle-partido` (frontend) una columna extra visible solo si `partido.estado === 'finalizado'` con:
+  - marcador total (equipo vs rival) y
+  - Victoria/Derrota según `partido.ganador`.
+- [ ] Renderizar esa información en la tabla correspondiente (historial de sets o vista final), asegurando que no afecte la vista “en curso”.
+- [ ] Ejecutar build/lint de frontend si existe script y validar que compila.
 

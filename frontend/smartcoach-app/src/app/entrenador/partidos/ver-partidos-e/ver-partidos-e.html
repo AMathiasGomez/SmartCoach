@@ -62,6 +62,7 @@
                         <th>Fecha</th>
                         <th>Estado</th>
                         <th>Acción</th>
+                        <th>Resultado</th>
                     </tr>
                 </thead>
 
@@ -87,6 +88,13 @@
                                     </span>
                                 </button>
                             </div>
+                        </td>
+
+                        <td>
+                            <span *ngIf="partido.estado === 'finalizado'">
+                                {{ partido.ganador === 'equipo' ? 'Victoria' : 'Derrota' }}
+                            </span>
+                            <span *ngIf="partido.estado !== 'finalizado'">—</span>
                         </td>
 
                     </tr>

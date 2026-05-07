@@ -104,7 +104,8 @@
         </div>
 
         <div style="text-align: center;">
-          <button type="button" (click)="agregarSet()" class="btn-primary" [disabled]="!puedeFinalizarSet()" style="width: 200px;">
+          <button type="button" (click)="agregarSet()" class="btn-primary" [disabled]="!puedeFinalizarSet()"
+            style="width: 200px;">
             Finalizar Set
           </button>
         </div>
@@ -237,41 +238,6 @@
       </div>
     </div>
 
-    <div class="final-stats-container" *ngIf="partido.estado === 'finalizado' && estadisticasPorSets.length > 0">
-      <h3 style="text-align: center; margin: 2rem 0 1rem;">📊 Estadísticas Finales por Set</h3>
-
-      <div *ngFor="let setData of estadisticasPorSets" class="set-stats-card">
-        <div class="set-header">
-          <h4>Set {{ setData.set.numero_set }}</h4>
-          <span class="score-badge">{{ setData.set.puntos_equipo }} - {{ setData.set.puntos_rival }}</span>
-        </div>
-
-        <div class="table-responsive">
-          <table class="modern-table">
-            <thead>
-              <tr>
-                <th>Jugador</th>
-                <th>#</th>
-                <th>Ataques</th>
-                <th>Recepciones</th>
-                <th>Errores</th>
-                <th>Bloqueos</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let stat of setData.stats">
-                <td class="nombre">{{ stat.nombre?.split(' ').slice(0, 2).join(' ') }}</td>
-                <td>{{ stat.numero }}</td>
-                <td>{{ stat.ataques }}</td>
-                <td>{{ stat.recepciones }}</td>
-                <td class="error-stat">{{ stat.errores }}</td>
-                <td>{{ stat.bloqueos }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
     <div *ngIf="partido.estado === 'finalizado'" class="analytics-final-container">
 
       <div *ngIf="loadingAnalytics" style="text-align: center; padding: 2rem;">
@@ -324,7 +290,8 @@
       </div>
     </div>
 
-    <button type="button" *ngIf="partido.estado === 'en_curso'" (click)="finalizarPartido()" class="btn-danger-outline">FINALIZAR
+    <button type="button" *ngIf="partido.estado === 'en_curso'" (click)="finalizarPartido()"
+      class="btn-danger-outline">FINALIZAR
       PARTIDO</button>
   </div>
 

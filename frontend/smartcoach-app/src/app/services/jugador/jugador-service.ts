@@ -4,13 +4,9 @@ import { Observable } from 'rxjs';
 import { Jugador } from '../../models/jugador.model';
 import { environment } from '../../../environments/environment';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class JugadorService {
-
   jugador: Jugador[] = [];
-
   private apiUrl = `${environment.apiUrl}/jugadores`;
 
   constructor(private http: HttpClient) { }
@@ -21,13 +17,13 @@ export class JugadorService {
 
   crearJugador(formData: FormData): Observable<any> {
     return this.http.post(`${this.apiUrl}`, formData, {
-      headers: { 'Accept': 'application/json' }
+      headers: { Accept: 'application/json' }
     });
   }
 
   actualizarJugador(id: number, formData: FormData): Observable<any> {
     return this.http.post(`${this.apiUrl}/${id}/foto`, formData, {
-      headers: { 'Accept': 'application/json' }
+      headers: { Accept: 'application/json' }
     });
   }
 
@@ -45,5 +41,9 @@ export class JugadorService {
 
   getJugadoresByEquipo(equipoId: number): Observable<Jugador[]> {
     return this.http.get<Jugador[]>(`${this.apiUrl}/equipo/${equipoId}`);
+  }
+  
+  getPlayerAnalytics(jugadorId: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/${jugadorId}/analytics`);
   }
 }

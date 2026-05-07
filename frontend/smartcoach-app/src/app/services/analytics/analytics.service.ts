@@ -38,12 +38,12 @@ export interface MatchAnalyticsResponse {
 export class AnalyticsService {
   private readonly API = `${environment.apiUrl}`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   analyzeMatch(matchId: number, players: any[]): Observable<MatchAnalyticsResponse> {
     return this.http.post<MatchAnalyticsResponse>(
-      `${this.API}/matches/${matchId}/analytics`,
+      `${this.API}/partidos/${matchId}/analytics`,  // era /matches/
       { players }
     );
-  }
+  } 
 }

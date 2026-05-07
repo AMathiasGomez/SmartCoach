@@ -12,7 +12,7 @@ export class EquipoService {
 
   private api = `${environment.apiUrl}/equipos`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getEquipos(): Observable<Equipo[]> {
     return this.http.get<Equipo[]>(this.api);
@@ -32,5 +32,9 @@ export class EquipoService {
 
   getEquipo(id: number) {
     return this.http.get(`${this.api}/${id}`);
+  }
+
+  getTeamAnalytics(equipoId: number): Observable<any> {
+    return this.http.get(`${this.api}/${equipoId}/analytics`);
   }
 }

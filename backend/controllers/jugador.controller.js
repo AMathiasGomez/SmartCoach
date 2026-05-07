@@ -133,7 +133,18 @@ exports.updateJugador = async (req, res) => {
 exports.getJugadorById = async (req, res) => {
   try {
     const { id } = req.params;
-    const [rows] = await db.query('SELECT * FROM jugadores WHERE id = ?', [id]);
+
+    // Incluir el nombre del equipo para que el frontend pueda mostrarlo en el detalle.
+    const sql = `
+      SELECT
+        j.*, 
+        e.nombre AS equipo_nombre
+      FROM jugadores j
+      LEFT JOIN equipos e ON j.equipo_id = e.id
+      WHERE j.id = ?
+    `;
+
+    const [rows] = await db.query(sql, [id]);
 
     if (rows.length === 0) {
       return res.status(404).json({ message: 'Jugador no encontrado' });
@@ -141,6 +152,7 @@ exports.getJugadorById = async (req, res) => {
 
     res.json(rows[0]);
   } catch (error) {
+    console.error('ERROR getJugadorById:', error);
     res.status(500).json({ message: 'Error' });
   }
 };
@@ -154,7 +166,7 @@ exports.updateJugadorFoto = async (req, res) => {
     posicion = posicion?.trim();
     numero = Number(numero);
     equipo_id = Number(equipo_id);
-        const fechaFormateada = new Date(fecha_nacimiento).toISOString().split('T')[0];
+    const fechaFormateada = new Date(fecha_nacimiento).toISOString().split('T')[0];
 
     const foto_url = req.file ? `/uploads/jugadores/${req.file.filename}` : undefined;
 
