@@ -7,7 +7,7 @@ import { CommonModule } from '@angular/common';
 import { PartidoService } from '../../../services/partido/partido-service';
 import { HttpClient } from '@angular/common/http';
 import { EquipoService } from '../../../services/equipo/equipo-service';
-import { environment } from '../../../../environments/environment.development';
+import { environment } from '../../../../environments/environment.prod';
 
 @Component({
   selector: 'app-crear-partidos',
