@@ -26,6 +26,7 @@ import { VerJugadoresE } from './entrenador/jugadores/ver-jugadores-e/ver-jugado
 import { DetalleJugador } from './entrenador/jugadores/detalle-jugador/detalle-jugador';
 import { VerEquiposE } from './entrenador/equipos/ver-equipos-e/ver-equipos-e';
 import { DetalleEquipo } from './entrenador/equipos/detalle-equipo/detalle-equipo';
+import { ClasificacionJugadores } from './entrenador/jugadores/clasificacion-jugadores/clasificacion-jugadores';
 
 export const routes: Routes = [
   // AUTENTICACION
@@ -55,6 +56,7 @@ export const routes: Routes = [
   //ENTRENADOR
   { path: 'ver-jugadores-e', component: VerJugadoresE, canActivate: [authGuard], data: { roles: ['entrenador'] } },
   { path: 'detalle-jugador/:id', component: DetalleJugador, canActivate: [authGuard], data: { roles: ['entrenador'] } },
+  { path: 'clasificacion-jugadores', component: ClasificacionJugadores, canActivate: [authGuard], data: { roles: ['entrenador', 'directivo']}},
   
   
   //PARTIDOS

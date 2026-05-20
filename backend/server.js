@@ -24,8 +24,13 @@ app.use('/api/jugadores', require('./routes/jugador.routes'));
 app.use('/api/partidos', require('./routes/partido.routes'));
 app.use('/api/entrenamientos', require('./routes/entrenamiento.routes'));
 app.use('/api/usuarios', require('./routes/user.routes'));
+app.use('/api/comentarios', require('./routes/comentarios.routes'));
+
 const equipoAnalyticsRouter = require('./routes/equipoAnalytics.routes');
 app.use('/api/equipos', equipoAnalyticsRouter);
+
+const generalClassifyRoute = require("./routes/performanceClassification.routes");
+app.use("/api/analysis", generalClassifyRoute);
 
 app.listen(3006, () => {
   console.log('Servidor corriendo en puerto 3006');

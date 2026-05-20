@@ -61,8 +61,8 @@
                         <th>Rival</th>
                         <th>Fecha</th>
                         <th>Estado</th>
-                        <th>Acción</th>
                         <th>Resultado</th>
+                        <th>Acción</th>
                     </tr>
                 </thead>
 
@@ -80,6 +80,13 @@
                             </span>
                         </td>
 
+                        <td>
+                            <span *ngIf="partido.estado === 'finalizado'">
+                                {{ partido.ganador === 'equipo' ? 'Victoria' : 'Derrota' }}
+                            </span>
+                            <span *ngIf="partido.estado !== 'finalizado'">—</span>
+                        </td>
+
                         <td class="text-right">
                             <div class="action-buttons">
                                 <button class="btn-icon btn-primary" title="Detalles" (click)="irDetalle(partido.id)">
@@ -88,13 +95,6 @@
                                     </span>
                                 </button>
                             </div>
-                        </td>
-
-                        <td>
-                            <span *ngIf="partido.estado === 'finalizado'">
-                                {{ partido.ganador === 'equipo' ? 'Victoria' : 'Derrota' }}
-                            </span>
-                            <span *ngIf="partido.estado !== 'finalizado'">—</span>
                         </td>
 
                     </tr>

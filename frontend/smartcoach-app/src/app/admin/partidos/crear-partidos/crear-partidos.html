@@ -96,7 +96,7 @@
               <select formControlName="equipo_id"
                       (change)="onEquipoChange()"
                       [class.input-error]="partidoForm.get('equipo_id')?.invalid && partidoForm.get('equipo_id')?.touched">
-                <option [ngValue]="0">Selecciona un equipo</option>
+                <option [ngValue]="0" disabled>Selecciona un equipo</option>
                 <option *ngFor="let equipo of equipos" [ngValue]="equipo.id">
                   {{ equipo.nombre }}
                 </option>

@@ -1,52 +1,34 @@
-const axios = require('axios');
-
-const PYTHON_API = process.env.PYTHON_API_URL;
-
-async function analyzePlayer(jugadorId, posicion, partidos) {
-
-    try {
-
-        const payload = {
-            match_id: jugadorId,
-            players: [
-                {
-                    player_id: jugadorId,
-                    position: posicion,
-                    stats: partidos
-                }
-            ]
-        };
-
-        console.log('Enviando jugador a Python:', payload);
-
-        const response = await axios.post(
-            `${PYTHON_API}/analyze/players`,
-            payload,
-            {
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                timeout: 30000
-            }
-        );
-
-        console.log('Respuesta Python:', response.data);
-
-        return response.data;
-
-    } catch (error) {
-
-        console.error(
-            'Error análisis jugador:',
-            error.response?.data || error.message
-        );
-
-        throw new Error(
-            error.response?.data?.detail ||
-            error.message ||
-            'Error en análisis Python'
-        );
-    }
+const { spawn } = require('child_process');
+const path = require('path');
+ 
+const PYTHON_SCRIPT = path.join(__dirname, '..', 'analytics', 'models', 'playerAnalytics.py');
+ 
+function analyzePlayer(jugadorId, posicion, partidos) {
+  return new Promise((resolve, reject) => {
+    const input = JSON.stringify({ jugador_id: jugadorId, posicion, partidos });
+ 
+    const py = spawn('py', [PYTHON_SCRIPT]);
+ 
+    let stdout = '';
+    let stderr = '';
+ 
+    py.stdout.on('data', (chunk) => { stdout += chunk; });
+    py.stderr.on('data', (chunk) => { stderr += chunk; });
+ 
+    py.on('close', (code) => {
+      if (code !== 0) {
+        return reject(new Error(`Python exited ${code}: ${stderr}`));
+      }
+      try {
+        resolve(JSON.parse(stdout.trim()));
+      } catch (e) {
+        reject(new Error(`Invalid JSON from Python: ${stdout}`));
+      }
+    });
+ 
+    py.stdin.write(input);
+    py.stdin.end();
+  });
 }
-
+ 
 module.exports = { analyzePlayer };

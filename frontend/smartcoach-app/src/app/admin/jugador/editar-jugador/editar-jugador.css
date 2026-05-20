@@ -20,7 +20,7 @@
 .app-container {
   min-height: 100vh;
   background: var(--bg-main);
-  font-family: 'Lexend', sans-serif;
+  font-family: "Outfit", sans-serif;
   color: var(--text-main);
 }
 

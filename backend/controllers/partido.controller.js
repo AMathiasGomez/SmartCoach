@@ -1,5 +1,69 @@
 const db = require('../config/db');
 
+const DETAILED_STAT_COLUMNS = [
+  'ataques_positivos',
+  'errores_ataque',
+  'aces',
+  'errores_saque',
+  'bloqueos_positivos',
+  'errores_bloqueo',
+  'recepciones_positivas',
+  'recepciones_negativas',
+  'defensas_positivas',
+  'defensas_negativas',
+  'asistencias',
+  'errores_armado',
+];
+
+function number(value) {
+  const parsed = Number(value || 0);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function detailedStatsFromBody(body = {}) {
+  return {
+    ataques_positivos: number(body.ataques_positivos ?? body.ataques),
+    errores_ataque: number(body.errores_ataque),
+    aces: number(body.aces),
+    errores_saque: number(body.errores_saque),
+    bloqueos_positivos: number(body.bloqueos_positivos ?? body.bloqueos),
+    errores_bloqueo: number(body.errores_bloqueo),
+    recepciones_positivas: number(body.recepciones_positivas ?? body.recepciones),
+    recepciones_negativas: number(body.recepciones_negativas),
+    defensas_positivas: number(body.defensas_positivas),
+    defensas_negativas: number(body.defensas_negativas),
+    asistencias: number(body.asistencias),
+    errores_armado: number(body.errores_armado),
+  };
+}
+
+function legacyStatsFromDetailed(stats = {}) {
+  return {
+    ataques: number(stats.ataques_positivos),
+    recepciones: number(stats.recepciones_positivas),
+    bloqueos: number(stats.bloqueos_positivos),
+    errores:
+      number(stats.errores_ataque) +
+      number(stats.errores_saque) +
+      number(stats.errores_bloqueo) +
+      number(stats.recepciones_negativas) +
+      number(stats.defensas_negativas) +
+      number(stats.errores_armado),
+  };
+}
+
+function detailedSumSelect(alias = 'ejs') {
+  return DETAILED_STAT_COLUMNS
+    .map(column => `COALESCE(SUM(${alias}.${column}), 0) AS ${column}`)
+    .join(',\n      ');
+}
+
+function detailedCoalesceSelect(alias = 'e') {
+  return DETAILED_STAT_COLUMNS
+    .map(column => `COALESCE(${alias}.${column}, 0) AS ${column}`)
+    .join(',\n          ');
+}
+
 exports.createPartido = async (req, res) => {
   try {
     let { nombre, equipo_id, rival, fecha, ubicacion, tipo, convocados } = req.body;
@@ -165,13 +229,12 @@ exports.addSet = async (req, res) => {
   let totalesJugadores = []
 
   try {
-    const { id } = req.params; // partido_id
+    const { id } = req.params;
     let { puntos_equipo, puntos_rival } = req.body;
 
     puntos_equipo = Number(puntos_equipo);
     puntos_rival = Number(puntos_rival);
 
-    // 1. Validar datos básicos
     if (isNaN(puntos_equipo) || isNaN(puntos_rival)) {
       return res.status(400).json({
         message: 'Puntos inválidos'
@@ -184,7 +247,6 @@ exports.addSet = async (req, res) => {
       });
     }
 
-    // 2. Validar partido
     const [partidoRows] = await db.query(
       'SELECT cantidad_sets, estado FROM partidos WHERE id = ?',
       [id]
@@ -196,14 +258,12 @@ exports.addSet = async (req, res) => {
 
     const partido = partidoRows[0];
 
-    // 🚨 3. No permitir si ya terminó
     if (partido.estado === 'finalizado') {
       return res.status(400).json({
         message: 'El partido ya finalizó'
       });
     }
 
-    // 4. Contar sets actuales
     const [countResult] = await db.query(
       'SELECT COUNT(*) as total FROM sets_partido WHERE partido_id = ?',
       [id]
@@ -211,14 +271,12 @@ exports.addSet = async (req, res) => {
 
     const numero_set = countResult[0].total + 1;
 
-    // 🚨 5. Validar límite de sets
     if (numero_set > partido.cantidad_sets) {
       return res.status(400).json({
         message: 'Se superó la cantidad máxima de sets'
       });
     }
 
-    // 🔥 6. VALIDACIÓN REAL DE VOLEIBOL
 
     const esUltimoSet = numero_set === partido.cantidad_sets;
 
@@ -226,7 +284,6 @@ exports.addSet = async (req, res) => {
     let max = Math.max(puntos_equipo, puntos_rival);
     let min = Math.min(puntos_equipo, puntos_rival);
 
-    // Debe alcanzar el mínimo
     if (max < puntosMinimos) {
       return res.status(400).json({
         message: `El set debe llegar mínimo a ${puntosMinimos} puntos`
@@ -288,10 +345,18 @@ exports.addSet = async (req, res) => {
       const [rows] = await db.query(`
     SELECT 
       ejs.jugador_id,
-      SUM(ejs.ataques)     AS ataques,
-      SUM(ejs.recepciones) AS recepciones,
-      SUM(ejs.errores)     AS errores,
-      SUM(ejs.bloqueos)    AS bloqueos
+      ${detailedSumSelect('ejs')},
+      COALESCE(SUM(ejs.ataques_positivos), 0) AS ataques,
+      COALESCE(SUM(ejs.recepciones_positivas), 0) AS recepciones,
+      COALESCE(SUM(ejs.bloqueos_positivos), 0) AS bloqueos,
+      COALESCE(SUM(
+        ejs.errores_ataque +
+        ejs.errores_saque +
+        ejs.errores_bloqueo +
+        ejs.recepciones_negativas +
+        ejs.defensas_negativas +
+        ejs.errores_armado
+      ), 0) AS errores
     FROM estadisticas_jugador_set ejs
     JOIN sets_partido sp ON ejs.set_id = sp.id
     WHERE sp.partido_id = ?
@@ -303,15 +368,16 @@ exports.addSet = async (req, res) => {
 
       for (const stat of totalesJugadores) {
         await db.query(`
-      INSERT INTO estadisticas_jugador 
-        (jugador_id, partido_id, ataques, recepciones, errores, bloqueos)
-      VALUES (?, ?, ?, ?, ?, ?)
-      ON DUPLICATE KEY UPDATE
-        ataques     = VALUES(ataques),
-        recepciones = VALUES(recepciones),
-        errores     = VALUES(errores),
-        bloqueos    = VALUES(bloqueos)
-    `, [stat.jugador_id, id, stat.ataques, stat.recepciones, stat.errores, stat.bloqueos]);
+    INSERT INTO estadisticas_jugador 
+      (jugador_id, partido_id, ${DETAILED_STAT_COLUMNS.join(', ')})
+    VALUES (?, ?, ${DETAILED_STAT_COLUMNS.map(() => '?').join(', ')})
+    ON DUPLICATE KEY UPDATE
+      ${DETAILED_STAT_COLUMNS.map(col => `${col} = VALUES(${col})`).join(',\n      ')}
+  `, [
+          stat.jugador_id,
+          id,
+          ...DETAILED_STAT_COLUMNS.map(col => stat[col] || 0)
+        ]);
       }
     }
 
@@ -333,37 +399,22 @@ exports.addSet = async (req, res) => {
 exports.addEstadisticas = async (req, res) => {
   try {
     const { id } = req.params; // partido_id
-    const { jugador_id, ataques, recepciones, errores, bloqueos } = req.body;
+    const payload = Array.isArray(req.body) ? req.body : [req.body];
 
-    const [rows] = await db.query(`
-      SELECT 
-        jugador_id,
-        SUM(ataques) as ataques,
-        SUM(recepciones) as recepciones,
-        SUM(errores) as errores,
-        SUM(bloqueos) as bloqueos
-      FROM estadisticas_jugador_set
-      JOIN sets_partido ON sets_partido.id = estadisticas_jugador_set.set_id
-      WHERE sets_partido.partido_id = ?
-      GROUP BY jugador_id;
-    `, [jugador_id, id]);
+    for (const item of payload) {
+      const { jugador_id } = item;
+      const legacy = legacyStatsFromDetailed(detailedStatsFromBody(item));
 
-    if (rows.length > 0) {
-      await db.query(`
-        UPDATE estadisticas_jugador SET
-          ataques = ataques + ?,
-          recepciones = recepciones + ?,
-          errores = errores + ?,
-          bloqueos = bloqueos + ?
-        WHERE jugador_id = ? AND partido_id = ?
-      `, [ataques, recepciones, errores, bloqueos, jugador_id, id]);
-
-    } else {
       await db.query(`
         INSERT INTO estadisticas_jugador 
         (jugador_id, partido_id, ataques, recepciones, errores, bloqueos)
         VALUES (?, ?, ?, ?, ?, ?)
-      `, [jugador_id, id, ataques, recepciones, errores, bloqueos]);
+        ON DUPLICATE KEY UPDATE
+          ataques = VALUES(ataques),
+          recepciones = VALUES(recepciones),
+          errores = VALUES(errores),
+          bloqueos = VALUES(bloqueos)
+      `, [jugador_id, id, legacy.ataques, legacy.recepciones, legacy.errores, legacy.bloqueos]);
     }
 
     res.json({ message: 'Estadísticas actualizadas' });
@@ -377,7 +428,8 @@ exports.addEstadisticas = async (req, res) => {
 exports.addEstadisticasPorSet = async (req, res) => {
   try {
     const { set_id } = req.params;
-    const { jugador_id, ataques, recepciones, errores, bloqueos } = req.body;
+    const { jugador_id } = req.body;
+    const stats = detailedStatsFromBody(req.body);
 
     // 1. Validar que el set existe
     const [setRows] = await db.query(
@@ -391,7 +443,7 @@ exports.addEstadisticasPorSet = async (req, res) => {
 
     // 2. Verificar si ya existen stats
     const [rows] = await db.query(`
-      SELECT * FROM estadisticas_jugador_set
+      SELECT id FROM estadisticas_jugador_set
       WHERE jugador_id = ? AND set_id = ?
     `, [jugador_id, set_id]);
 
@@ -399,20 +451,25 @@ exports.addEstadisticasPorSet = async (req, res) => {
       // 🔥 actualizar acumulando
       await db.query(`
         UPDATE estadisticas_jugador_set SET
-          ataques = ataques + ?,
-          recepciones = recepciones + ?,
-          errores = errores + ?,
-          bloqueos = bloqueos + ?
+          ${DETAILED_STAT_COLUMNS.map(column => `${column} = ${column} + ?`).join(',\n          ')}
         WHERE jugador_id = ? AND set_id = ?
-      `, [ataques, recepciones, errores, bloqueos, jugador_id, set_id]);
+      `, [
+        ...DETAILED_STAT_COLUMNS.map(column => stats[column]),
+        jugador_id,
+        set_id
+      ]);
 
     } else {
       // 🔥 insertar
       await db.query(`
         INSERT INTO estadisticas_jugador_set
-        (jugador_id, set_id, ataques, recepciones, errores, bloqueos)
-        VALUES (?, ?, ?, ?, ?, ?)
-      `, [jugador_id, set_id, ataques, recepciones, errores, bloqueos]);
+        (jugador_id, set_id, ${DETAILED_STAT_COLUMNS.join(', ')})
+        VALUES (?, ?, ${DETAILED_STAT_COLUMNS.map(() => '?').join(', ')})
+      `, [
+        jugador_id,
+        set_id,
+        ...DETAILED_STAT_COLUMNS.map(column => stats[column])
+      ]);
     }
 
     res.json({ message: 'Estadísticas por set actualizadas' });
@@ -428,11 +485,25 @@ exports.getEstadisticas = async (req, res) => {
 
   const [rows] = await db.query(`
     SELECT 
-      e.*,
-      j.nombre AS jugador_nombre
-    FROM estadisticas_jugador e
-    JOIN jugadores j ON e.jugador_id = j.id
-    WHERE e.partido_id = ?
+      ejs.jugador_id,
+      j.nombre AS jugador_nombre,
+      ${detailedSumSelect('ejs')},
+      COALESCE(SUM(ejs.ataques_positivos), 0) AS ataques,
+      COALESCE(SUM(ejs.recepciones_positivas), 0) AS recepciones,
+      COALESCE(SUM(ejs.bloqueos_positivos), 0) AS bloqueos,
+      COALESCE(SUM(
+        ejs.errores_ataque +
+        ejs.errores_saque +
+        ejs.errores_bloqueo +
+        ejs.recepciones_negativas +
+        ejs.defensas_negativas +
+        ejs.errores_armado
+      ), 0) AS errores
+    FROM estadisticas_jugador_set ejs
+    JOIN sets_partido sp ON ejs.set_id = sp.id
+    JOIN jugadores j ON ejs.jugador_id = j.id
+    WHERE sp.partido_id = ?
+    GROUP BY ejs.jugador_id, j.nombre
   `, [id]);
 
   res.json(rows);
@@ -446,17 +517,27 @@ exports.getEstadisticasJugador = async (req, res) => {
     // Get all matches the player has stats for
     const [rows] = await db.query(`
       SELECT 
-        e.partido_id,
+        sp.partido_id,
         p.nombre AS partido_nombre,
         p.fecha,
         p.rival,
-        e.ataques,
-        e.recepciones,
-        e.errores,
-        e.bloqueos
-      FROM estadisticas_jugador e
-      JOIN partidos p ON e.partido_id = p.id
-      WHERE e.jugador_id = ?
+        ${detailedSumSelect('ejs')},
+        COALESCE(SUM(ejs.ataques_positivos), 0) AS ataques,
+        COALESCE(SUM(ejs.recepciones_positivas), 0) AS recepciones,
+        COALESCE(SUM(ejs.bloqueos_positivos), 0) AS bloqueos,
+        COALESCE(SUM(
+          ejs.errores_ataque +
+          ejs.errores_saque +
+          ejs.errores_bloqueo +
+          ejs.recepciones_negativas +
+          ejs.defensas_negativas +
+          ejs.errores_armado
+        ), 0) AS errores
+      FROM estadisticas_jugador_set ejs
+      JOIN sets_partido sp ON ejs.set_id = sp.id
+      JOIN partidos p ON sp.partido_id = p.id
+      WHERE ejs.jugador_id = ?
+      GROUP BY sp.partido_id, p.nombre, p.fecha, p.rival
       ORDER BY p.fecha DESC
     `, [id]);
 
@@ -465,6 +546,7 @@ exports.getEstadisticasJugador = async (req, res) => {
     let total_recepciones = 0;
     let total_errores = 0;
     let total_bloqueos = 0;
+    const totales_detallados = detailedStatsFromBody();
     let partidos_jugados = rows.length;
 
     rows.forEach(row => {
@@ -472,6 +554,9 @@ exports.getEstadisticasJugador = async (req, res) => {
       total_recepciones += Number(row.recepciones) || 0;
       total_errores += Number(row.errores) || 0;
       total_bloqueos += Number(row.bloqueos) || 0;
+      DETAILED_STAT_COLUMNS.forEach(column => {
+        totales_detallados[column] += Number(row[column]) || 0;
+      });
     });
 
     res.json({
@@ -482,7 +567,8 @@ exports.getEstadisticasJugador = async (req, res) => {
         ataques: total_ataques,
         recepciones: total_recepciones,
         errores: total_errores,
-        bloqueos: total_bloqueos
+        bloqueos: total_bloqueos,
+        ...totales_detallados
       }
     });
 
@@ -524,10 +610,19 @@ exports.getEstadisticasPorSets = async (req, res) => {
           e.jugador_id,
           j.nombre,
           j.numero,
-          COALESCE(e.ataques, 0) as ataques,
-          COALESCE(e.recepciones, 0) as recepciones,
-          COALESCE(e.errores, 0) as errores,
-          COALESCE(e.bloqueos, 0) as bloqueos
+          ${detailedCoalesceSelect('e')},
+          COALESCE(e.ataques_positivos, 0) AS ataques,
+          COALESCE(e.recepciones_positivas, 0) AS recepciones,
+          COALESCE(e.bloqueos_positivos, 0) AS bloqueos,
+          COALESCE(
+            e.errores_ataque +
+            e.errores_saque +
+            e.errores_bloqueo +
+            e.recepciones_negativas +
+            e.defensas_negativas +
+            e.errores_armado,
+            0
+          ) AS errores
         FROM estadisticas_jugador_set e
         JOIN jugadores j ON e.jugador_id = j.id
         WHERE e.set_id = ?
@@ -551,6 +646,7 @@ exports.getEstadisticasPorSets = async (req, res) => {
             jugador_id: jugador.id,
             nombre: jugador.nombre,
             numero: jugador.numero,
+            ...detailedStatsFromBody(),
             ataques: 0,
             recepciones: 0,
             errores: 0,
@@ -581,7 +677,7 @@ exports.getJugadoresByPartido = async (req, res) => {
     const { partido_id } = req.params;
 
     const [jugadores] = await db.query(`
-      SELECT j.id, j.nombre, j.numero, j.posicion
+      SELECT j.id, j.nombre, j.numero, j.posicion, j.foto
       FROM partido_jugador pj
       JOIN jugadores j ON pj.jugador_id = j.id
       WHERE pj.partido_id = ?
@@ -597,13 +693,11 @@ exports.getJugadoresByPartido = async (req, res) => {
 
 exports.saveAnalytics = async (req, res) => {
   try {
-    console.log('BODY completo:', JSON.stringify(req.body));
-    const { analysis } = req.body;
-    console.log('ANALYSIS a guardar:', typeof analysis, analysis);
-    // Guardar el objeto completo, no solo el array
+    const body = req.body; 
+    const toSave = body.analysis || body; 
     await db.query(
       'UPDATE partidos SET analytics_result = ? WHERE id = ?',
-      [JSON.stringify(analysis), req.params.id]
+      [JSON.stringify(toSave), req.params.id]
     );
     res.json({ ok: true });
   } catch (err) {

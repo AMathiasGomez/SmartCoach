@@ -12,6 +12,7 @@ export class EntrenamientoService {
   entrenamiento: Entrenamiento[] = [];
 
   private apiUrl = `${environment.apiUrl}/entrenamientos`;
+  private comentariosUrl = `${environment.apiUrl}/comentarios`;
 
   constructor(private http: HttpClient) {}
 
@@ -35,4 +36,17 @@ export class EntrenamientoService {
     return this.http.post(`${this.apiUrl}/${entrenamientoId}/asistencia`, { asistencias });
   }
 
+  // ── Comentarios ─────────────────────────────────────────────────────────────
+
+  getComentarios(entrenamientoId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.comentariosUrl}?entrenamiento_id=${entrenamientoId}`);
+  }
+
+  crearComentario(payload: { contenido: string; fecha: string; usuarios_id: number; entrenamiento_id: number }): Observable<any> {
+    return this.http.post(this.comentariosUrl, payload);
+  }
+
+  eliminarComentario(id: number): Observable<any> {
+    return this.http.delete(`${this.comentariosUrl}/${id}`);
+  }
 }

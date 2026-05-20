@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from schemas.match import MatchAnalyticsRequest
-from models.clustering import analyze_players
+from models.positionPerformance import analyze_match
 
 app = FastAPI(title="Volleyball Analytics API")
 
@@ -25,10 +25,10 @@ def analyze(data: MatchAnalyticsRequest):
     if not data.players:
         raise HTTPException(status_code=400, detail="Se requiere al menos un jugador")
     
-    analysis = analyze_players(data.players)
-    
-    return {
+    return analyze_match({
         "match_id": data.match_id,
-        "total_players": len(data.players),
-        "analysis": analysis
-    }
+        "players": [
+            player.model_dump() if hasattr(player, "model_dump") else player.dict()
+            for player in data.players
+        ]
+    })

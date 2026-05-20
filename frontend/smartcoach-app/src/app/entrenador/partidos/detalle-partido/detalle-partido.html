@@ -80,7 +80,7 @@
         <div class="setInfo">
           <div class="cardEquipo">
             <h4 class="nombreEquipo">{{ partido.equipo_nombre }}</h4>
-            <button type="button" class="Equipo" (click)="sumarPuntoEquipo()">
+            <button type="button" class="Equipo" (click)="sumarPuntoEquipo()" [disabled]="!puedeEquipoSumar">
               <p>{{ puntosEquipo }}</p>
             </button>
           </div>
@@ -97,7 +97,7 @@
 
           <div class="cardRival">
             <h4 class="nombreRival">{{ partido.rival }}</h4>
-            <button type="button" class="Rival" (click)="sumarPuntoRival()">
+            <button type="button" class="Rival" (click)="sumarPuntoRival()" [disabled]="!puedeRivalSumar">
               <p>{{ puntosRival }}</p>
             </button>
           </div>
@@ -129,59 +129,44 @@
     <div class="estadisticas" *ngIf="partido.estado === 'en_curso'">
       <h3>Estadísticas - Set {{ sets.length + 1 }}</h3>
 
+      <div class="position-tabs" role="tablist" aria-label="Filtrar estadisticas por posicion">
+        <button type="button" *ngFor="let posicion of posicionesEstadisticas"
+          [class.active]="posicionEstadisticasActiva === posicion" (click)="cambiarPosicionEstadisticas(posicion)">
+          {{ posicion }}
+        </button>
+      </div>
+
       <div class="table-responsive">
         <table class="modern-table">
           <thead>
             <tr>
               <th>Jugador</th>
-              <th>Ataques</th>
-              <th>Recepciones</th>
-              <th>Errores</th>
-              <th>Bloqueos</th>
+              <th *ngFor="let campo of camposEstadisticasActivos">{{ campo.label }}</th>
               <th class="text-center">Acciones</th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let j of tablaJugadores">
-              <td class="nombre">{{ shortName(j.nombre) }}</td>
-              <td>
-                <div class="counter">
-                  <button type="button" class="button-minus" (click)="cambiarStat(j,'ataques',-1)"><span
-                      class="material-symbols-outlined">stat_minus_1</span></button>
-                  <span>{{ j.stats.ataques }}</span>
-                  <button type="button" class="button-add" (click)="cambiarStat(j,'ataques',1)"><span
-                      class="material-symbols-outlined">stat_1</span></button>
-                </div>
+            <tr *ngFor="let j of jugadoresFiltradosPorPosicion">
+              <td class="nombre">
+                {{ shortName(j.nombre) }}
+                <span class="position-chip">{{ j.posicion }}</span>
               </td>
-              <td>
-                <div class="counter">
-                  <button type="button" class="button-minus" (click)="cambiarStat(j,'recepciones',-1)"><span
-                      class="material-symbols-outlined">stat_minus_1</span></button>
-                  <span>{{ j.stats.recepciones }}</span>
-                  <button type="button" class="button-add" (click)="cambiarStat(j,'recepciones',1)"><span
-                      class="material-symbols-outlined">stat_1</span></button>
-                </div>
-              </td>
-              <td>
-                <div class="counter error">
-                  <button type="button" class="button-minus" (click)="cambiarStat(j,'errores',-1)"><span
-                      class="material-symbols-outlined">stat_minus_1</span></button>
-                  <span>{{ j.stats.errores }}</span>
-                  <button type="button" class="button-add" (click)="cambiarStat(j,'errores',1)"><span
-                      class="material-symbols-outlined">stat_1</span></button>
-                </div>
-              </td>
-              <td>
-                <div class="counter">
-                  <button type="button" class="button-minus" (click)="cambiarStat(j,'bloqueos',-1)"><span
-                      class="material-symbols-outlined">stat_minus_1</span></button>
-                  <span>{{ j.stats.bloqueos }}</span>
-                  <button type="button" class="button-add" (click)="cambiarStat(j,'bloqueos',1)"><span
-                      class="material-symbols-outlined">stat_1</span></button>
+              <td *ngFor="let campo of camposEstadisticasActivos">
+                <div class="counter" [class.error]="campo.negative">
+                  <button type="button" class="button-minus" (click)="cambiarStat(j,campo.key,-1)"><span
+                      class="material-symbols-outlined">remove</span></button>
+                  <span>{{ j.stats[campo.key] }}</span>
+                  <button type="button" class="button-add" (click)="cambiarStat(j,campo.key,1)"><span
+                      class="material-symbols-outlined">add</span></button>
                 </div>
               </td>
               <td class="text-center">
                 <button type="button" class="btn-clear" (click)="limpiarEstadisticas(j)">Limpiar</button>
+              </td>
+            </tr>
+            <tr *ngIf="jugadoresFiltradosPorPosicion.length === 0">
+              <td class="empty-position-row" [attr.colspan]="camposEstadisticasActivos.length + 2">
+                No hay jugadores registrados como {{ posicionEstadisticasActiva }} en este partido.
               </td>
             </tr>
           </tbody>
@@ -249,50 +234,250 @@
       </div>
 
       <div class="analytics-section" *ngIf="mostrarAnalytics && playerAnalysis">
-        <h3>📊 Análisis Final de Rendimiento — scikit-learn</h3>
-        <p style="color:#64748b; margin-bottom:1rem;">
-          Basado en KMeans clustering + IsolationForest + PCA sobre los jugadores en cancha
-        </p>
-        <div class="analytics-results">
-          <div *ngFor="let player of playerAnalysis.analysis" class="player-card cluster-{{player.color}}">
-            <div class="player-card-header">
-              <span class="player-name">{{ player.name }}</span>
-              <span class="cluster-badge">{{ player.label }}</span>
+
+        <div class="analytics-header-section">
+          <h3>Análisis Final de Rendimiento</h3>
+          <p class="analytics-subtitle">Motor híbrido: eficiencias deportivas por posición + KMeans</p>
+
+          <!-- Resumen del equipo -->
+          <div class="team-summary" *ngIf="playerAnalysis.summary">
+            <div class="summary-stat">
+              <span class="summary-label">Promedio equipo</span>
+              <span class="summary-value">{{ playerAnalysis.summary.team_average_score | number:'1.0-0' }}</span>
             </div>
-            <div class="player-card-stats">
-              <div>🏐 Ataques: {{ player.stats.attacks }}</div>
-              <div>🤲 Recepciones: {{ player.stats.receptions }}</div>
-              <div>🛡️ Bloqueos: {{ player.stats.blocks }}</div>
-              <div>❌ Errores: {{ player.stats.errors }}</div>
+            <div class="summary-stat" *ngIf="playerAnalysis.summary.top_player">
+              <span class="summary-label">Mejor jugador</span>
+              <span class="summary-value">{{ playerAnalysis.summary.top_player.name.split(' ')[0] }}</span>
             </div>
-            <div class="player-score">Score: {{ player.score }}</div>
-            <div *ngIf="player.is_outlier" class="outlier-badge">
-              ⭐ Destaca del grupo ({{ player.outlier_score | number:'1.2-2' }})
-            </div>
-            <div *ngIf="!player.is_outlier && player.pca" class="normal-badge">
-              PCA: [{{ player.pca.pca_components[0] | number:'1.2-2' }}, {{ player.pca.pca_components[1] |
-              number:'1.2-2' }}]
+            <div class="summary-cat" *ngFor="let cat of ['Excelente','Bueno','Regular','Malo']">
+              <span class="cat-dot cat-{{ cat.toLowerCase() }}"></span>
+              <span class="summary-label">{{ cat }}</span>
+              <span class="summary-value">{{ $any(playerAnalysis).summary.categories[cat] }}</span>
             </div>
           </div>
         </div>
-        <div style="text-align:center; margin-top:1rem; font-size:0.85rem; color:#64748b;">
-          Powered by scikit-learn — KMeans + IsolationForest + PCA
+
+        <!-- GRID DE CARDS ESTILO PANINI/FIFA -->
+        <div class="player-cards-grid">
+          <div *ngFor="let player of playerAnalysis.analysis"
+            class="player-card-fifa category-{{ player.category.toLowerCase() }}" (click)="abrirModalDetalle(player)">
+
+            <!-- Fondo decorativo con número dorsal -->
+            <div class="card-dorsal-bg">{{ getNumeroJugador(player.player_id) }}</div>
+
+            <!-- Avatar -->
+            <div class="card-avatar-wrapper">
+              <img *ngIf="getFotoJugador(player.player_id)" [src]="getFotoJugador(player.player_id)" [alt]="player.name"
+                class="card-avatar-img" (error)="onImgError($event)" />
+              <div *ngIf="!getFotoJugador(player.player_id)" class="card-avatar-placeholder">
+                {{ player.name.charAt(0) }}
+              </div>
+            </div>
+
+            <!-- Score badge -->
+            <div class="card-score-badge">{{ player.score | number:'1.0-0' }}</div>
+
+            <!-- Info -->
+            <div class="card-info">
+              <div class="card-number">#{{ getNumeroJugador(player.player_id) }}</div>
+              <div class="card-name">{{ shortName(player.name) }}</div>
+              <div class="card-position">{{ player.position }}</div>
+              <div class="card-category-label cat-label-{{ player.color }}">{{ player.category }}</div>
+            </div>
+
+            <!-- Mini stats -->
+            <div class="card-mini-stats">
+              <div class="mini-stat" *ngIf="player.position !== 'Libero'">
+                <span class="mini-val">{{ player.stats.attacks }}</span>
+                <span class="mini-key">ATK</span>
+              </div>
+              <div class="mini-stat" *ngIf="player.position === 'Libero' || player.position === 'Punta'">
+                <span class="mini-val">{{ player.stats.receptions }}</span>
+                <span class="mini-key">REC</span>
+              </div>
+              <div class="mini-stat" *ngIf="player.position !== 'Libero'">
+                <span class="mini-val">{{ player.stats.blocks }}</span>
+                <span class="mini-key">BLK</span>
+              </div>
+              <div class="mini-stat">
+                <span class="mini-val err">{{ player.stats.errors }}</span>
+                <span class="mini-key">ERR</span>
+              </div>
+            </div>
+
+            <!-- Botón ver detalle -->
+            <button class="card-detail-btn" type="button" (click)="$event.stopPropagation(); abrirModalDetalle(player)">
+              Ver análisis
+            </button>
+
+          </div>
+        </div>
+
+        <div class="analytics-footer">
+          Powered by scikit-learn — eficiencias deportivas + KMeans clustering
         </div>
       </div>
-
     </div>
 
     <div class="actions">
       <button type="button" *ngIf="partido.estado === 'pendiente'" (click)="iniciarPartido()" class="btn-start-full"
-        [disabled]="!isFormacionCompleta">INICIAR PARTIDO</button>
+        [disabled]="!isFormacionCompleta || actualizandoEstadoPartido">
+        {{ actualizandoEstadoPartido ? 'INICIANDO...' : 'INICIAR PARTIDO' }}
+      </button>
       <div *ngIf="partido.estado === 'pendiente' && !isFormacionCompleta" class="warning-message">
         ⚠️ Completa la formación (7 jugadores: 6 + líbero) para iniciar el partido
       </div>
     </div>
 
-    <button type="button" *ngIf="partido.estado === 'en_curso'" (click)="finalizarPartido()"
-      class="btn-danger-outline">FINALIZAR
+    <button type="button" *ngIf="partido.estado === 'en_curso'" (click)="finalizarPartido()" class="btn-danger-outline"
+      [disabled]="actualizandoEstadoPartido">FINALIZAR
       PARTIDO</button>
+  </div>
+
+  <!-- ===== MODAL DETALLE ===== -->
+  <div class="modal-analytics-overlay" *ngIf="modalDetalleAbierto && jugadorSeleccionado"
+    (click)="cerrarModalDetalle()">
+    <div class="modal-analytics-card" (click)="$event.stopPropagation()">
+
+      <button class="modal-close-btn" type="button" (click)="cerrarModalDetalle()">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+
+      <!-- Header -->
+      <div class="modal-header-analytics">
+        <div class="modal-avatar-wrapper">
+          <img *ngIf="getFotoJugador(jugadorSeleccionado.player_id)"
+            [src]="getFotoJugador(jugadorSeleccionado.player_id)" [alt]="jugadorSeleccionado.name"
+            class="modal-avatar-img" (error)="onImgError($event)" />
+          <div *ngIf="!getFotoJugador(jugadorSeleccionado.player_id)" class="modal-avatar-placeholder">
+            {{ jugadorSeleccionado.name.charAt(0) }}
+          </div>
+        </div>
+
+        <div class="modal-player-info">
+          <div class="modal-player-number">#{{ getNumeroJugador(jugadorSeleccionado.player_id) }}</div>
+          <h2 class="modal-player-name">{{ jugadorSeleccionado.name }}</h2>
+          <div class="modal-player-meta">
+            <span class="modal-position-badge">{{ jugadorSeleccionado.position }}</span>
+            <span class="modal-profile-badge" *ngIf="jugadorSeleccionado.profile">{{ jugadorSeleccionado.profile
+              }}</span>
+          </div>
+        </div>
+
+        <div class="modal-score-circle category-circle-{{ jugadorSeleccionado.color }}">
+          <span class="modal-score-num">{{ jugadorSeleccionado.score | number:'1.0-0' }}</span>
+          <span class="modal-score-label">{{ jugadorSeleccionado.category }}</span>
+        </div>
+      </div>
+
+      <!-- Eficiencias por área -->
+      <div class="modal-section" *ngIf="jugadorSeleccionado.metric_scores">
+        <h4 class="modal-section-title">Eficiencias por área</h4>
+        <div class="efficiency-bars">
+          <ng-container *ngFor="let metric of getMetricasRelevantes(jugadorSeleccionado)">
+            <div class="eff-bar-row">
+              <span class="eff-label">{{ metric.label }}</span>
+              <div class="eff-bar-track">
+                <div class="eff-bar-fill {{ getBarColor(metric.value) }}" [style.width.%]="metric.value"></div>
+              </div>
+              <span class="eff-value">{{ metric.value | number:'1.0-0' }}</span>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+
+      <!-- Fortalezas y debilidades -->
+      <div class="modal-section strengths-weaknesses">
+        <div class="sw-col" *ngIf="jugadorSeleccionado.strengths?.length">
+          <h4 class="modal-section-title">Fortalezas</h4>
+          <div class="sw-tags">
+            <span class="sw-tag strong" *ngFor="let s of jugadorSeleccionado.strengths">
+              <span class="material-symbols-outlined">check_circle</span>{{ s }}
+            </span>
+          </div>
+        </div>
+        <div class="sw-col" *ngIf="jugadorSeleccionado.weaknesses?.length">
+          <h4 class="modal-section-title">Por mejorar</h4>
+          <div class="sw-tags">
+            <span class="sw-tag weak" *ngFor="let w of jugadorSeleccionado.weaknesses">
+              <span class="material-symbols-outlined">warning</span>{{ w }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Interpretaciones -->
+      <div class="modal-section" *ngIf="jugadorSeleccionado.interpretations?.length">
+        <h4 class="modal-section-title">Análisis del partido</h4>
+        <ul class="modal-insights">
+          <li *ngFor="let insight of jugadorSeleccionado.interpretations">
+            <span class="material-symbols-outlined">insights</span>{{ insight }}
+          </li>
+        </ul>
+      </div>
+
+      <!-- Recomendaciones -->
+      <div class="modal-section" *ngIf="jugadorSeleccionado.recommendations?.length">
+        <h4 class="modal-section-title">Recomendaciones</h4>
+        <ul class="modal-recs">
+          <li *ngFor="let rec of jugadorSeleccionado.recommendations">
+            <span class="material-symbols-outlined">fitness_center</span>{{ rec }}
+          </li>
+        </ul>
+      </div>
+
+      <!-- Comparación con equipo -->
+      <div class="modal-section" *ngIf="jugadorSeleccionado.comparisons">
+        <h4 class="modal-section-title">Comparación</h4>
+        <div class="comparison-grid">
+          <div class="cmp-item">
+            <span class="cmp-label">Vs promedio equipo</span>
+            <span class="cmp-badge cmp-{{ jugadorSeleccionado.comparisons.vs_team_average }}">
+              {{ jugadorSeleccionado.comparisons.vs_team_average.replace('_', ' ') }}
+            </span>
+          </div>
+          <div class="cmp-item">
+            <span class="cmp-label">Promedio del equipo</span>
+            <span class="cmp-value">{{ jugadorSeleccionado.comparisons.team_average_score | number:'1.0-0' }}</span>
+          </div>
+          <div class="cmp-item">
+            <span class="cmp-label">Vs mejor de su posición</span>
+            <span class="cmp-badge cmp-{{ jugadorSeleccionado.comparisons.vs_best_same_position }}">
+              {{ jugadorSeleccionado.comparisons.vs_best_same_position.replace('_', ' ') }}
+            </span>
+          </div>
+          <div class="cmp-item">
+            <span class="cmp-label">Mejor nota posición</span>
+            <span class="cmp-value">{{ jugadorSeleccionado.comparisons.best_position_score | number:'1.0-0'
+              }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats raw -->
+      <div class="modal-section">
+        <h4 class="modal-section-title">Estadísticas del partido</h4>
+        <div class="raw-stats-grid">
+          <div class="raw-stat">
+            <span class="raw-val">{{ jugadorSeleccionado.stats.attacks }}</span>
+            <span class="raw-key">Ataques</span>
+          </div>
+          <div class="raw-stat">
+            <span class="raw-val">{{ jugadorSeleccionado.stats.receptions }}</span>
+            <span class="raw-key">Recepciones</span>
+          </div>
+          <div class="raw-stat">
+            <span class="raw-val">{{ jugadorSeleccionado.stats.blocks }}</span>
+            <span class="raw-key">Bloqueos</span>
+          </div>
+          <div class="raw-stat err">
+            <span class="raw-val">{{ jugadorSeleccionado.stats.errors }}</span>
+            <span class="raw-key">Errores</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
   </div>
 
 </div>

@@ -35,17 +35,20 @@ router.get('/:id/analytics', async (req, res) => {
   if (isNaN(jugadorId)) {
     return res.status(400).json({ error: 'ID de jugador inválido' });
   }
-
+ 
   try {
+    // ── 1. Obtener datos del jugador ─────────────────────────────────────
     const [jugadorRows] = await db.query(
       'SELECT id, nombre, posicion FROM jugadores WHERE id = ?',
       [jugadorId]
     );
+    // Si usas PostgreSQL con pg: const { rows: jugadorRows } = await db.query(...)
     if (!jugadorRows || jugadorRows.length === 0) {
       return res.status(404).json({ error: 'Jugador no encontrado' });
     }
     const jugador = jugadorRows[0];
-
+ 
+    // ── 2. Obtener estadísticas históricas por partido ───────────────────
     const [statsRows] = await db.query(
       `SELECT 
          ej.ataques,
@@ -59,37 +62,39 @@ router.get('/:id/analytics', async (req, res) => {
        ORDER BY ej.created_at ASC`,
       [jugadorId]
     );
-
+ 
     if (!statsRows || statsRows.length === 0) {
       return res.json({
-        jugador_id: jugadorId,
-        nombre: jugador.nombre,
-        posicion: jugador.posicion,
-        analysis: null,
-        mensaje: 'Sin estadísticas registradas aún'
+        jugador_id:  jugadorId,
+        nombre:      jugador.nombre,
+        posicion:    jugador.posicion,
+        analysis:    null,
+        mensaje:     'Sin estadísticas registradas aún'
       });
     }
-
+ 
+    // ── 3. Llamar al script Python (scikit-learn) ────────────────────────
     const partidos = statsRows.map(r => ({
-      ataques: Number(r.ataques) || 0,
-      bloqueos: Number(r.bloqueos) || 0,
+      ataques:     Number(r.ataques)     || 0,
+      bloqueos:    Number(r.bloqueos)    || 0,
       recepciones: Number(r.recepciones) || 0,
-      errores: Number(r.errores) || 0
+      errores:     Number(r.errores)     || 0
     }));
-
+ 
     const analysis = await analyzePlayer(jugadorId, jugador.posicion || '', partidos);
-
+ 
+    // ── 4. Responder ─────────────────────────────────────────────────────
     res.json({
       jugador_id: jugadorId,
-      nombre: jugador.nombre,
-      posicion: jugador.posicion,
+      nombre:     jugador.nombre,
+      posicion:   jugador.posicion,
       analysis
     });
-
+ 
   } catch (err) {
     console.error('Error en analytics jugador:', err.message);
     res.status(500).json({ error: 'Error al generar análisis', details: err.message });
   }
 });
-
+ 
 module.exports = router; 

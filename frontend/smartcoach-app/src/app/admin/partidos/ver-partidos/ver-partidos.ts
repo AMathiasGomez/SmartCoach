@@ -47,6 +47,12 @@ export class VerPartidos {
     this.router.navigate(['/detalle-partido', id]);
   }
 
+  editar(id: number): void {
+    console.log("navegando");
+    
+    this.router.navigate(['/editar-partido', id]);
+  }
+
   getEstado(estado: string) {
     switch (estado) {
       case 'pendiente': return 'badge pendiente';

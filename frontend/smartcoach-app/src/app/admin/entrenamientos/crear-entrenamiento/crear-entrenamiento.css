@@ -27,9 +27,9 @@
 /* BASE */
 .app-container {
   min-height: 100vh;
-  background: var(--bg);
-  font-family: 'Lexend', sans-serif;
-  color: var(--text-primary);
+  background: #f8fafc;
+  font-family: "Outfit", sans-serif;
+  color: #0f172a;
 }
 
 /* SIDEBAR */
@@ -54,7 +54,7 @@
 }
 
 .logo-icon {
-  background: var(--primary);
+  background: #2563eb;
   width: 40px;
   height: 40px;
   border-radius: 10px;
@@ -93,7 +93,7 @@
   border-radius: 12px;
   color: #94a3b8;
   text-decoration: none;
-  transition: var(--transition);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .sidebar nav a:hover {
@@ -102,7 +102,7 @@
 }
 
 .sidebar nav a.active {
-  background: var(--primary);
+  background: #2563eb;
   color: white;
   box-shadow: 0 10px 15px -3px rgba(37,99,235,0.3);
 }
@@ -116,11 +116,11 @@
   padding: 12px;
   border-radius: 12px;
   cursor: pointer;
-  transition: var(--transition);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .logout:hover {
-  background: var(--error);
+  background: #ef4444;
   color: white;
 }
 
@@ -142,7 +142,7 @@
 }
 
 .header-section p {
-  color: var(--text-secondary);
+  color: #64748b;
 }
 
 /* BREADCRUMB */
@@ -151,18 +151,18 @@
   align-items: center;
   gap: 8px;
   font-size: 14px;
-  color: var(--text-secondary);
+  color: #64748b;
   margin-bottom: 1rem;
 }
 
 .breadcrumb a {
-  color: var(--primary);
+  color: #2563eb;
   text-decoration: none;
-  transition: var(--transition);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .breadcrumb a:hover {
-  color: var(--primary-hover);
+  color: #1d4ed8;
   text-decoration: underline;
 }
 
@@ -171,17 +171,17 @@
 }
 
 .breadcrumb .current {
-  color: var(--text-primary);
+  color: #0f172a;
   font-weight: 500;
 }
 
 /* CARD */
 .card {
-  background: var(--white);
+  background: #ffffff;
   padding: 2rem;
-  border-radius: var(--radius);
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow);
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
   animation: fadeIn 0.4s ease;
 }
 
@@ -202,7 +202,7 @@
   align-items: center;
   gap: 12px;
   margin-bottom: 1.5rem;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid #e2e8f0;
   padding-bottom: 1rem;
 }
 
@@ -250,7 +250,7 @@ label {
   top: 50%;
   transform: translateY(-50%);
   color: #94a3b8;
-  transition: var(--transition);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* INPUTS */
@@ -259,22 +259,22 @@ select {
   width: 100%;
   padding: 12px 14px;
   padding-left: 44px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
   font-size: 14px;
-  transition: var(--transition);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   background: white;
 }
 
 input:focus,
 select:focus {
-  border-color: var(--primary);
+  border-color: #2563eb;
   box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
   outline: none;
 }
 
 .input-container:focus-within .icon {
-  color: var(--primary);
+  color: #2563eb;
 }
 
 /* SELECT */
@@ -289,12 +289,12 @@ select {
 
 /* ERROR */
 .input-error {
-  border-color: var(--error);
-  background: var(--error-light);
+  border-color: #ef4444;
+  background: #fef2f2;
 }
 
 .error-message {
-  color: var(--error);
+  color: #ef4444;
   font-size: 12px;
 }
 
@@ -305,17 +305,17 @@ select {
   gap: 1rem;
   margin-top: 1rem;
   padding-top: 1.5rem;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid #e2e8f0;
 }
 
 /* BUTTONS */
 .btn-outline {
-  border: 1px solid var(--border);
+  border: 1px solid #e2e8f0;
   background: white;
   padding: 12px 24px;
-  border-radius: var(--radius-sm);
+  border-radius: 8px;
   cursor: pointer;
-  transition: var(--transition);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   font-weight: 600;
 }
 
@@ -324,20 +324,20 @@ select {
 }
 
 .btn-primary {
-  background: var(--primary);
+  background: #2563eb;
   color: white;
   border: none;
   padding: 12px 24px;
-  border-radius: var(--radius-sm);
+  border-radius: 8px;
   cursor: pointer;
-  transition: var(--transition);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   font-weight: 600;
 }
 
 .btn-primary:hover {
-  background: var(--primary-hover);
+  background: #1d4ed8;
   transform: translateY(-1px);
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 10px 15px rgba(0,0,0,0.1);
 }
 
 /* RESPONSIVE */

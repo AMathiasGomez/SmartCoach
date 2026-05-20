@@ -12,6 +12,54 @@ interface EstadoPuntos {
   puntosRival: number;
 }
 
+interface StatField {
+  key: string;
+  label: string;
+  negative?: boolean;
+}
+
+const POSITION_STAT_FIELDS: Record<string, StatField[]> = {
+  Punta: [
+    { key: 'ataques_positivos', label: 'Ataques +' },
+    { key: 'errores_ataque', label: 'Errores ataque', negative: true },
+    { key: 'aces', label: 'Aces' },
+    { key: 'errores_saque', label: 'Errores saque', negative: true },
+    { key: 'bloqueos_positivos', label: 'Bloqueos +' },
+    { key: 'recepciones_positivas', label: 'Recepciones +' },
+    { key: 'recepciones_negativas', label: 'Recepciones -', negative: true },
+    { key: 'defensas_positivas', label: 'Defensas +' },
+    { key: 'defensas_negativas', label: 'Defensas -', negative: true },
+  ],
+  Opuesto: [
+    { key: 'ataques_positivos', label: 'Ataques +' },
+    { key: 'errores_ataque', label: 'Errores ataque', negative: true },
+    { key: 'aces', label: 'Aces' },
+    { key: 'errores_saque', label: 'Errores saque', negative: true },
+    { key: 'bloqueos_positivos', label: 'Bloqueos +' },
+    { key: 'errores_bloqueo', label: 'Errores bloqueo', negative: true },
+  ],
+  Central: [
+    { key: 'ataques_positivos', label: 'Ataques +' },
+    { key: 'errores_ataque', label: 'Errores ataque', negative: true },
+    { key: 'bloqueos_positivos', label: 'Bloqueos +' },
+    { key: 'errores_bloqueo', label: 'Errores bloqueo', negative: true },
+  ],
+  Armador: [
+    { key: 'asistencias', label: 'Asistencias' },
+    { key: 'errores_armado', label: 'Errores armado', negative: true },
+    { key: 'aces', label: 'Aces' },
+    { key: 'errores_saque', label: 'Errores saque', negative: true },
+    { key: 'bloqueos_positivos', label: 'Bloqueos +' },
+    { key: 'defensas_positivas', label: 'Defensas +' },
+  ],
+  Libero: [
+    { key: 'recepciones_positivas', label: 'Recepciones +' },
+    { key: 'recepciones_negativas', label: 'Recepciones -', negative: true },
+    { key: 'defensas_positivas', label: 'Defensas +' },
+    { key: 'defensas_negativas', label: 'Defensas -', negative: true },
+  ],
+};
+
 @Component({
   selector: 'app-detalle-partido',
   imports: [RouterLink, NgClass, FormsModule, CommonModule],
@@ -36,6 +84,9 @@ export class DetallePartido implements OnInit {
 
   tablaJugadores: any[] = [];
   formacion: (any | null)[] = [null, null, null, null, null, null, null];
+  posicionesEstadisticas: string[] = ['Punta', 'Opuesto', 'Central', 'Armador', 'Libero'];
+  posicionEstadisticasActiva: string = 'Punta';
+  estadisticasDetalladasAcumuladas: Record<string, any> = {};
 
   puntosEquipo: number = 0;
   puntosRival: number = 0;
@@ -47,8 +98,12 @@ export class DetallePartido implements OnInit {
   loadingAnalytics: boolean = false;
   analyticsError: boolean = false;
   mostrarAnalytics: boolean = false;
+  actualizandoEstadoPartido: boolean = false;
   notificationMsg: string = '';
   showNotification: boolean = false;
+
+  modalDetalleAbierto: boolean = false;
+  jugadorSeleccionado: any = null;
 
   private historialPuntos: EstadoPuntos[] = [];
 
@@ -97,9 +152,25 @@ export class DetallePartido implements OnInit {
     return Math.abs(this.puntosEquipo - this.puntosRival);
   }
 
+  get puedeEquipoSumar(): boolean {
+    return this.puedeSumarPunto(this.puntosEquipo, this.puntosRival);
+  }
+
+  get puedeRivalSumar(): boolean {
+    return this.puedeSumarPunto(this.puntosRival, this.puntosEquipo);
+  }
+
   get jugadoresEnBanquillo(): any[] {
     const enCancha = this.formacion.filter(j => j !== null).map(j => j.id);
     return this.jugadoresConvocados.filter(j => !enCancha.includes(j.id));
+  }
+
+  get camposEstadisticasActivos(): StatField[] {
+    return POSITION_STAT_FIELDS[this.posicionEstadisticasActiva] || POSITION_STAT_FIELDS['Punta'];
+  }
+
+  get jugadoresFiltradosPorPosicion(): any[] {
+    return this.tablaJugadores.filter(j => this.normalizarPosicion(j.posicion) === this.posicionEstadisticasActiva);
   }
 
   abrirSeleccion(indicePosicion: number): void {
@@ -145,6 +216,14 @@ export class DetallePartido implements OnInit {
     return true;
   }
 
+  puedeSumarPunto(puntosPropios: number, puntosRival: number): boolean {
+    if (this.puedeFinalizarSet()) return false;
+
+    if (puntosPropios < this.puntosObjetivo) return true;
+
+    return puntosRival >= puntosPropios - 1;
+  }
+
   cargarPartido() {
     this.partidoService.getPartidoById(this.partidoId).subscribe({
       next: (data) => {
@@ -187,32 +266,54 @@ export class DetallePartido implements OnInit {
       const stats = this.estadisticas.find(e => e.jugador_id === jugador.id);
       return {
         ...jugador,
-        stats: {
-          ataques: stats?.ataques || 0,
-          recepciones: stats?.recepciones || 0,
-          errores: stats?.errores || 0,
-          bloqueos: stats?.bloqueos || 0
-        }
+        posicion: this.normalizarPosicion(jugador.posicion),
+        stats: this.crearStatsDetalladas(stats)
       };
     });
   }
 
   iniciarPartido() {
-    this.partidoService.updateEstado(this.partidoId, 'en_curso').subscribe(() => {
-      this.partido.estado = 'en_curso';
+    if (this.actualizandoEstadoPartido || !this.isFormacionCompleta) return;
+
+    const estadoAnterior = this.partido.estado;
+    this.actualizandoEstadoPartido = true;
+    this.partido = { ...this.partido, estado: 'en_curso' };
+    this.cd.detectChanges();
+
+    this.partidoService.updateEstado(this.partidoId, 'en_curso').subscribe({
+      next: () => {
+        this.actualizandoEstadoPartido = false;
+        this.partido = { ...this.partido, estado: 'en_curso' };
+        this.showNotif('Partido iniciado correctamente.');
+        this.cd.detectChanges();
+      },
+      error: (err) => {
+        console.error(err);
+        this.actualizandoEstadoPartido = false;
+        this.partido = { ...this.partido, estado: estadoAnterior };
+        this.cd.detectChanges();
+      }
     });
   }
 
   finalizarPartido() {
+    if (this.actualizandoEstadoPartido) return;
     if (!confirm('¿Realmente deseas FINALIZAR el partido?')) return;
 
+    this.actualizandoEstadoPartido = true;
     this.partidoService.updateEstado(this.partidoId, 'finalizado').subscribe({
       next: () => {
-        this.partido.estado = 'finalizado';
+        this.actualizandoEstadoPartido = false;
+        this.partido = { ...this.partido, estado: 'finalizado' };
         this.cargarEstadisticasPorSets();
         this.analizarRendimiento();
+        this.cd.detectChanges();
       },
-      error: (err) => console.error(err)
+      error: (err) => {
+        console.error(err);
+        this.actualizandoEstadoPartido = false;
+        this.cd.detectChanges();
+      }
     });
   }
 
@@ -227,21 +328,100 @@ export class DetallePartido implements OnInit {
     });
   }
 
-  cambiarStat(jugador: any, tipo: 'ataques' | 'recepciones' | 'errores' | 'bloqueos', valor: number) {
+  normalizarPosicion(posicion: string): string {
+    const valor = (posicion || 'Punta').toLowerCase().trim();
+    const mapa: Record<string, string> = {
+      punta: 'Punta',
+      opuesto: 'Opuesto',
+      central: 'Central',
+      armador: 'Armador',
+      libero: 'Libero',
+      líbero: 'Libero',
+    };
+    return mapa[valor] || 'Punta';
+  }
+
+  crearStatsDetalladas(stats?: any): any {
+    return {
+      ataques_positivos: Number(stats?.ataques_positivos ?? stats?.ataques ?? 0),
+      errores_ataque: Number(stats?.errores_ataque ?? stats?.errores ?? 0),
+      aces: Number(stats?.aces ?? 0),
+      errores_saque: Number(stats?.errores_saque ?? 0),
+      bloqueos_positivos: Number(stats?.bloqueos_positivos ?? stats?.bloqueos ?? 0),
+      errores_bloqueo: Number(stats?.errores_bloqueo ?? 0),
+      recepciones_positivas: Number(stats?.recepciones_positivas ?? stats?.recepciones ?? 0),
+      recepciones_negativas: Number(stats?.recepciones_negativas ?? 0),
+      defensas_positivas: Number(stats?.defensas_positivas ?? 0),
+      defensas_negativas: Number(stats?.defensas_negativas ?? 0),
+      asistencias: Number(stats?.asistencias ?? 0),
+      errores_armado: Number(stats?.errores_armado ?? 0),
+    };
+  }
+
+  cambiarPosicionEstadisticas(posicion: string): void {
+    this.posicionEstadisticasActiva = posicion;
+  }
+
+  cambiarStat(jugador: any, tipo: string, valor: number) {
     jugador.stats[tipo] = Math.max(0, jugador.stats[tipo] + valor);
   }
 
   limpiarEstadisticas(jugador: any) {
-    jugador.stats = { ataques: 0, recepciones: 0, errores: 0, bloqueos: 0 };
+    jugador.stats = this.crearStatsDetalladas();
+  }
+
+  resumenLegacyStats(jugador: any): any {
+    const stats = jugador.stats || {};
+    return {
+      ataques: Number(stats.ataques_positivos || 0),
+      recepciones: Number(stats.recepciones_positivas || 0),
+      bloqueos: Number(stats.bloqueos_positivos || 0),
+      errores:
+        Number(stats.errores_ataque || 0) +
+        Number(stats.errores_saque || 0) +
+        Number(stats.errores_bloqueo || 0) +
+        Number(stats.recepciones_negativas || 0) +
+        Number(stats.defensas_negativas || 0) +
+        Number(stats.errores_armado || 0),
+    };
+  }
+
+  construirPayloadAnalisis(jugadores: any[]): any[] {
+    return jugadores.map(j => ({
+      player_id: j.id?.toString() || j.player_id?.toString(),
+      name: j.nombre || j.name || 'Jugador',
+      position: this.normalizarPosicion(j.posicion || j.position),
+      ...this.resumenLegacyStats(j),
+      ...j.stats,
+    }));
+  }
+
+  acumularEstadisticasDetalladas(): void {
+    this.tablaJugadores.forEach(jugador => {
+      const id = jugador.id.toString();
+      const actual = this.estadisticasDetalladasAcumuladas[id] || {
+        ...jugador,
+        stats: this.crearStatsDetalladas(),
+      };
+
+      Object.keys(this.crearStatsDetalladas()).forEach(key => {
+        actual.stats[key] = Number(actual.stats[key] || 0) + Number(jugador.stats[key] || 0);
+      });
+
+      this.estadisticasDetalladasAcumuladas[id] = actual;
+    });
+  }
+
+  jugadoresAcumuladosParaAnalisis(): any[] {
+    const acumulados = Object.values(this.estadisticasDetalladasAcumuladas);
+    return acumulados.length ? acumulados : this.tablaJugadores;
   }
 
   guardarTodos() {
     const updates = this.tablaJugadores.map(j => ({
       jugador_id: j.id,
-      ataques: j.stats.ataques,
-      recepciones: j.stats.recepciones,
-      errores: j.stats.errores,
-      bloqueos: j.stats.bloqueos
+      ...this.resumenLegacyStats(j),
+      ...j.stats
     }));
 
     this.partidoService.addEstadisticas(this.partidoId, updates).subscribe({
@@ -266,16 +446,9 @@ export class DetallePartido implements OnInit {
       .filter(j => j !== null)
       .map(j => j.id);
 
-    const playersData = this.tablaJugadores
-      .filter(j => jugadoresEnCancha.includes(j.id))
-      .map(j => ({
-        player_id: j.id.toString(),
-        name: j.nombre,
-        blocks: j.stats.bloqueos,
-        attacks: j.stats.ataques,
-        receptions: j.stats.recepciones,
-        errors: j.stats.errores
-      }));
+    const playersData = this.construirPayloadAnalisis(
+      this.tablaJugadores.filter(j => jugadoresEnCancha.includes(j.id))
+    );
 
     console.log('>>> jugadoresEnCancha:', jugadoresEnCancha);
     console.log('>>> playersData:', playersData);
@@ -305,14 +478,17 @@ export class DetallePartido implements OnInit {
   }
 
   sumarPuntoEquipo() {
+    if (!this.puedeEquipoSumar) return;
     this.historialPuntos.push({ puntosEquipo: this.puntosEquipo, puntosRival: this.puntosRival });
     this.puntosEquipo++;
   }
 
   sumarPuntoRival() {
+    if (!this.puedeRivalSumar) return;
     this.historialPuntos.push({ puntosEquipo: this.puntosEquipo, puntosRival: this.puntosRival });
     this.puntosRival++;
   }
+
 
   deshacerUltimoPunto() {
     if (!this.historialPuntos.length) return;
@@ -347,14 +523,13 @@ export class DetallePartido implements OnInit {
       next: (response) => {
         const setId = response.set_id;
         const partidoFinalizado = !!response.ganador_partido;
+        this.acumularEstadisticasDetalladas();
 
         const saveRequests = this.tablaJugadores.map(j =>
           this.partidoService.addEstadisticasPorSet(this.partidoId, setId, {
             jugador_id: j.id,
-            ataques: j.stats.ataques,
-            recepciones: j.stats.recepciones,
-            errores: j.stats.errores,
-            bloqueos: j.stats.bloqueos,
+            ...this.resumenLegacyStats(j),
+            ...j.stats
           })
         );
 
@@ -362,7 +537,7 @@ export class DetallePartido implements OnInit {
           next: () => {
             // Reset stats y puntos
             this.tablaJugadores.forEach(j => {
-              j.stats = { ataques: 0, recepciones: 0, errores: 0, bloqueos: 0 };
+              j.stats = this.crearStatsDetalladas();
             });
             this.puntosEquipo = 0;
             this.puntosRival = 0;
@@ -375,7 +550,7 @@ export class DetallePartido implements OnInit {
               // El partido terminó — correr análisis con totales del partido
               this.showNotif('🏆 Partido finalizado. Generando análisis final...');
               this.cargarEstadisticasPorSets();
-              this.analizarRendimientoFinalConDatos(response.totales_jugadores);
+              this.analizarRendimientoFinalDetallado();
             } else {
               this.showNotif('✅ Set guardado correctamente.');
             }
@@ -422,14 +597,18 @@ export class DetallePartido implements OnInit {
     this.partidoService.getEstadisticas(this.partidoId).subscribe({
       next: (estadisticas: any[]) => {
         // Sin filtro — todos los jugadores con estadísticas
-        const playersData = estadisticas.map((e: any) => ({
-          player_id: e.jugador_id.toString(),
-          name: e.jugador_nombre,
-          blocks: e.bloqueos,
-          attacks: e.ataques,
-          receptions: e.recepciones,
-          errors: e.errores
-        }));
+        const playersData = estadisticas.map((e: any) => {
+          const jugador = this.jugadoresConvocados.find(j => j.id === e.jugador_id);
+          return {
+            player_id: e.jugador_id.toString(),
+            name: e.jugador_nombre,
+            position: this.normalizarPosicion(jugador?.posicion),
+            attacks: e.ataques,
+            receptions: e.recepciones,
+            blocks: e.bloqueos,
+            errors: e.errores
+          };
+        });
 
         if (playersData.length === 0) {
           this.loadingAnalytics = false;
@@ -502,6 +681,140 @@ export class DetallePartido implements OnInit {
       }
     });
   }
+
+  analizarRendimientoFinalDetallado() {
+    this.loadingAnalytics = true;
+    this.analyticsError = false;
+    this.mostrarAnalytics = false;
+
+    this.partidoService.getEstadisticas(this.partidoId).subscribe({
+      next: (estadisticas: any[]) => {
+        const playersData = estadisticas.map((e: any) => {
+          const jugador = this.jugadoresConvocados.find(j => j.id === e.jugador_id);
+          return {
+            player_id: e.jugador_id.toString(),
+            name: e.jugador_nombre,
+            position: this.normalizarPosicion(jugador?.posicion),
+            // campos detallados
+            ataques_positivos: Number(e.ataques_positivos || 0),
+            errores_ataque: Number(e.errores_ataque || 0),
+            aces: Number(e.aces || 0),
+            errores_saque: Number(e.errores_saque || 0),
+            bloqueos_positivos: Number(e.bloqueos_positivos || 0),
+            errores_bloqueo: Number(e.errores_bloqueo || 0),
+            recepciones_positivas: Number(e.recepciones_positivas || 0),
+            recepciones_negativas: Number(e.recepciones_negativas || 0),
+            defensas_positivas: Number(e.defensas_positivas || 0),
+            defensas_negativas: Number(e.defensas_negativas || 0),
+            asistencias: Number(e.asistencias || 0),
+            errores_armado: Number(e.errores_armado || 0),
+            // legacy para compatibilidad
+            attacks: Number(e.ataques || 0),
+            receptions: Number(e.recepciones || 0),
+            blocks: Number(e.bloqueos || 0),
+            errors: Number(e.errores || 0),
+          };
+        });
+
+        if (playersData.length === 0) {
+          this.loadingAnalytics = false;
+          return;
+        }
+
+        this.analyticsService.analyzeMatch(this.partidoId, playersData).subscribe({
+          next: (response) => {
+            this.playerAnalysis = response;
+            this.mostrarAnalytics = true;
+            this.loadingAnalytics = false;
+            this.partidoService.saveAnalytics(this.partidoId, response).subscribe();
+            this.showNotif('Análisis por posición completado');
+            this.cd.detectChanges();
+          },
+          error: (err) => {
+            console.error('Analytics error:', err);
+            this.analyticsError = true;
+            this.loadingAnalytics = false;
+          }
+        });
+      },
+      error: (err) => {
+        console.error('Error cargando estadísticas:', err);
+        this.loadingAnalytics = false;
+      }
+    });
+  }
+
+
+  abrirModalDetalle(player: any): void {
+    this.jugadorSeleccionado = player;
+    this.modalDetalleAbierto = true;
+    this.cd.detectChanges();
+  }
+
+  cerrarModalDetalle(): void {
+    this.modalDetalleAbierto = false;
+    this.jugadorSeleccionado = null;
+  }
+
+  getFotoJugador(playerId: string): string | null {
+    const jugador = this.jugadoresConvocados.find(j => j.id.toString() === playerId);
+    if (!jugador?.foto) return null;
+    // La foto viene como nombre de archivo, necesitamos la URL completa
+    return `http://localhost:3006/uploads/jugadores/${jugador.foto}`;
+  }
+
+  getNumeroJugador(playerId: string): string {
+    const jugador = this.jugadoresConvocados.find(j => j.id.toString() === playerId);
+    return jugador?.numero?.toString() || '';
+  }
+
+  onImgError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    img.style.display = 'none';
+    // Mostrar placeholder si la imagen falla
+    const placeholder = img.nextElementSibling as HTMLElement;
+    if (placeholder) placeholder.style.display = 'flex';
+  }
+
+  getMetricasRelevantes(player: any): { label: string; value: number }[] {
+    if (!player.metric_scores) return [];
+
+    const LABEL_MAP: Record<string, string> = {
+      ofensiva: 'Ataque',
+      recepcion: 'Recepción',
+      defensa: 'Defensa',
+      bloqueo: 'Bloqueo',
+      saque: 'Saque',
+      armado: 'Armado',
+      disciplina: 'Disciplina',
+    };
+
+    // Métricas relevantes por posición
+    const POSITION_METRICS: Record<string, string[]> = {
+      Punta: ['ofensiva', 'recepcion', 'defensa', 'saque', 'bloqueo'],
+      Opuesto: ['ofensiva', 'bloqueo', 'saque', 'disciplina'],
+      Central: ['bloqueo', 'ofensiva', 'disciplina'],
+      Armador: ['armado', 'defensa', 'saque', 'bloqueo'],
+      Libero: ['recepcion', 'defensa', 'disciplina'],
+    };
+
+    const metricas = POSITION_METRICS[player.position] || Object.keys(LABEL_MAP);
+
+    return metricas
+      .filter(key => player.metric_scores[key] !== undefined)
+      .map(key => ({
+        label: LABEL_MAP[key] || key,
+        value: Math.round(player.metric_scores[key])
+      }));
+  }
+
+  getBarColor(value: number): string {
+    if (value >= 75) return 'bar-green';
+    if (value >= 55) return 'bar-blue';
+    if (value >= 35) return 'bar-yellow';
+    return 'bar-red';
+  }
+
 }
 
 

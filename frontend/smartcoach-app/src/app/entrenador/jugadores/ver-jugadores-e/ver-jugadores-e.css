@@ -12,7 +12,7 @@
 .app-container {
   min-height: 100vh;
   background: #f8fafc;
-  font-family: 'Lexend', sans-serif;
+  font-family: "Outfit", sans-serif;
   color: #0f172a;
 }
 
@@ -150,7 +150,7 @@
 .main-content {
   padding: 2rem;
   max-width: 100%;
-  font-family: 'Lexend', sans-serif;
+  font-family: "Outfit", sans-serif;
 }
 
 .btn-edit {
@@ -510,4 +510,27 @@ h1 {
   font-size: 13px;
   color: #64748b;
   margin-bottom: 12px;
+}
+
+.btn-clasificacion {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 18px;
+  background: #2563EB;
+  color: #fff;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background .18s;
+  white-space: nowrap;
+}
+
+.btn-clasificacion:hover {
+  background: #1D4ED8;
+}
+
+.btn-clasificacion .material-symbols-outlined {
+  font-size: 18px;
 }

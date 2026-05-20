@@ -8,7 +8,7 @@ import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-login',
-  imports: [RouterLink, FormsModule, CommonModule ],
+  imports: [RouterLink, FormsModule, CommonModule],
   templateUrl: './login.html',
   styleUrl: './login.css',
 })
@@ -62,6 +62,7 @@ export class Login {
         this.loading = false;
 
         localStorage.setItem('token', res.token);
+        this.authService.setUser(res.user);
 
         const rol = this.authService.getRol();
 

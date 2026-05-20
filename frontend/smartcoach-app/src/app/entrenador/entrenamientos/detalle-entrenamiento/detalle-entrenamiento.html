@@ -52,7 +52,7 @@
             </div>
         </header>
 
-        <div>
+        <div *ngIf="entrenamiento; else cargando">
 
             <section class="hero-section">
                 <div class="training-icon-large">
@@ -78,32 +78,123 @@
                 </div>
             </div>
 
-            <section class="asistencia-section">
-                <h2 class="stats-title">Lista de Asistencia ({{ getEstadisticas().presentes }} / {{ getEstadisticas().total }})</h2>
-                <div class="table-responsive">
-                    <table class="jugadores-table">
-                        <thead>
-                            <tr>
-                                <th style="width: 50px;"></th>
-                                <th style="width: 60px;">#</th>
-                                <th>Nombre</th>
-                                <th>Posición</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr *ngFor="let jugador of jugadores">
-                                <td>
-                                    <input type="checkbox" class="jugador-checkbox" 
-                                        [checked]="jugador.presente" (change)="togglePresente(jugador)">
-                                </td>
-                                <td>{{ jugador.numero }}</td>
-                                <td>{{ jugador.nombre }}</td>
-                                <td>{{ jugador.posicion }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </section>
+            <div class="asistencia-comentarios-grid">
+
+                <section class="asistencia-section">
+                    <h2 class="stats-title">Lista de Asistencia ({{ getEstadisticas().presentes }} / {{ getEstadisticas().total }})</h2>
+                    <div class="table-responsive">
+                        <table class="jugadores-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 50px;"></th>
+                                    <th style="width: 60px;">#</th>
+                                    <th>Nombre</th>
+                                    <th>Posición</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let jugador of jugadores">
+                                    <td>
+                                        <input type="checkbox" class="jugador-checkbox"
+                                            [checked]="jugador.presente" (change)="togglePresente(jugador)">
+                                    </td>
+                                    <td>{{ jugador.numero }}</td>
+                                    <td>{{ jugador.nombre }}</td>
+                                    <td>{{ jugador.posicion }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section class="comentarios-section">
+
+                    <div class="comentarios-header">
+                        <span class="material-symbols-outlined comentarios-icon">chat</span>
+                        <h2 class="comentarios-title">Comentarios del entrenamiento</h2>
+                        <span class="comentarios-badge">{{ comentarios.length }}</span>
+                    </div>
+
+                    <div class="comentario-form-card">
+                        <div class="comentario-form-inner">
+                            <div class="avatar-circle">
+                                {{ obtenerIniciales(usuarioActual?.nombre || '') }}
+                            </div>
+                            <div class="comentario-form-right">
+                                <textarea
+                                    class="comentario-textarea"
+                                    rows="3"
+                                    placeholder="Escribe un comentario sobre este entrenamiento..."
+                                    [(ngModel)]="nuevoComentario"
+                                    [disabled]="enviandoComentario"
+                                    maxlength="1000">
+                                </textarea>
+                                <div class="comentario-form-footer">
+                                    <span class="char-counter">{{ nuevoComentario.length }}/1000</span>
+                                    <button
+                                        class="btn-publicar"
+                                        (click)="agregarComentario()"
+                                        [disabled]="!nuevoComentario.trim() || enviandoComentario">
+                                        <span *ngIf="!enviandoComentario" class="material-symbols-outlined">send</span>
+                                        <span *ngIf="enviandoComentario" class="material-symbols-outlined btn-spin">progress_activity</span>
+                                        {{ enviandoComentario ? 'Enviando...' : 'Publicar' }}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div *ngIf="cargandoComentarios" class="comentarios-loading">
+                        <span class="material-symbols-outlined loading-spin">progress_activity</span>
+                        <span>Cargando comentarios...</span>
+                    </div>
+
+                    <div *ngIf="!cargandoComentarios && comentarios.length === 0" class="comentarios-empty">
+                        <span class="material-symbols-outlined comentarios-empty-icon">chat_bubble_outline</span>
+                        <p>Aún no hay comentarios en este entrenamiento.</p>
+                    </div>
+
+                    <div *ngIf="!cargandoComentarios && comentarios.length > 0" class="lista-comentarios">
+                        <div
+                            class="comentario-card"
+                            *ngFor="let c of comentarios"
+                            [class.comentario-propio]="c.usuarios_id === usuarioActual?.id">
+
+                            <div class="comentario-card-inner">
+                                <div
+                                    class="avatar-circle"
+                                    [class.avatar-propio]="c.usuarios_id === usuarioActual?.id">
+                                    {{ obtenerIniciales(c.nombreUsuario || '') }}
+                                </div>
+                                <div class="comentario-body">
+                                    <div class="comentario-meta">
+                                        <div class="comentario-autor-wrap">
+                                            <span class="comentario-autor">{{ c.nombreUsuario }}</span>
+                                            <span
+                                                *ngIf="c.usuarios_id === usuarioActual?.id"
+                                                class="badge-yo">Tú</span>
+                                            <span class="comentario-fecha">
+                                                {{ c.fecha | date:'dd MMM yyyy' : '' : 'es' }}
+                                            </span>
+                                        </div>
+                                        <button
+                                            *ngIf="puedeEliminarComentario(c)"
+                                            class="btn-eliminar"
+                                            (click)="eliminarComentario(c)"
+                                            title="Eliminar comentario">
+                                            <span class="material-symbols-outlined">delete</span>
+                                        </button>
+                                    </div>
+                                    <p class="comentario-contenido">{{ c.contenido }}</p>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </section>
+
+            </div>
 
             <div class="action-section">
                 <button class="save-btn" (click)="saveAsistencia()" [disabled]="saving">
@@ -114,6 +205,13 @@
             </div>
 
         </div>
+
+        <ng-template #cargando>
+            <div style="display:flex; align-items:center; justify-content:center; gap:10px; padding:3rem; color: rgba(0,0,0,0.4);">
+                <span class="material-symbols-outlined loading-spin">progress_activity</span>
+                <span>Cargando entrenamiento...</span>
+            </div>
+        </ng-template>
 
     </main>
 </div>

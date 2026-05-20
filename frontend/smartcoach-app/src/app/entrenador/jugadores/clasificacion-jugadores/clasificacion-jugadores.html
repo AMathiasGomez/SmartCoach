@@ -1,0 +1,195 @@
+<!-- clasificacion-general.component.html -->
+<div class="cg-page">
+
+    <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-icon">SC</div>
+      <div class="logo-text-wrapper">
+        <h3 class="logo-text">SmartCoach</h3>
+        <p class="logo-subtext">GESTIÓN DEPORTIVA</p>
+      </div>
+    </div>
+
+    <nav>
+      <a routerLink="/dashboard-entrenador">
+        <span class="material-symbols-outlined">space_dashboard</span>
+        <span>Panel de Control</span>
+      </a>
+      <a routerLink="/ver-equipos-e">
+        <span class="material-symbols-outlined">group</span>
+        <span>Equipos</span>
+      </a>
+      <a class="active" routerLink="/ver-jugadores-e">
+        <span class="material-symbols-outlined">person</span>
+        <span>Jugadores</span>
+      </a>
+      <a routerLink="/ver-entrenamientos-e">
+        <span class="material-symbols-outlined">fitness_center</span>
+        <span>Entrenamientos</span>
+      </a>
+      <a routerLink="/ver-partidos-e">
+        <span class="material-symbols-outlined">sports_soccer</span>
+        <span>Partidos</span>
+      </a>
+    </nav>
+
+    <button class="logout" (click)="logout()">
+      <span class="material-symbols-outlined">logout</span>
+      Cerrar sesión
+    </button>
+  </aside>
+
+  <header class="cg-header">
+    <div class="cg-header__inner">
+      <div class="cg-header__tag">Análisis General · Historial Completo</div>
+      <h1 class="cg-header__title">Clasificación de Rendimiento</h1>
+      <p class="cg-header__sub">Score histórico + promedios de estadísticas · K-Means</p>
+
+      <!-- Selector de equipo -->
+      <div class="cg-team-selector">
+        <label class="cg-team-selector__label" for="teamSelect">Equipo</label>
+        <div class="cg-team-selector__wrap">
+          <select
+            id="teamSelect"
+            class="cg-select"
+            [(ngModel)]="selectedTeamId"
+            (change)="onTeamChange()"
+            >
+            <option value="" disabled>Selecciona un equipo…</option>
+            <option *ngFor="let team of teams" [value]="team.id">{{ team.nombre }}</option>
+          </select>
+          <span class="cg-select__arrow">▾</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Resumen: solo visible con resultado -->
+    <div class="cg-summary" *ngIf="result">
+      <div class="cg-summary__team">{{ result.team_name }}</div>
+      <div class="cg-summary__pills">
+        <span class="cg-pill cg-pill--alto">▲ {{ result.summary.alto }} Alto</span>
+        <span class="cg-pill cg-pill--medio">◆ {{ result.summary.medio }} Medio</span>
+        <span class="cg-pill cg-pill--bajo">▼ {{ result.summary.bajo }} Bajo</span>
+        <span class="cg-pill cg-pill--total">{{ result.total_players }} jugadores</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── Estado vacío ── -->
+  <div class="cg-empty" *ngIf="!selectedTeamId && !loading">
+    <div class="cg-empty__icon">⬡</div>
+    <p class="cg-empty__text">Selecciona un equipo para ver la clasificación de rendimiento</p>
+  </div>
+
+  <!-- ── Loading ── -->
+  <div class="cg-loading" *ngIf="loading">
+    <div class="cg-loading__spinner"></div>
+    <p>Clasificando jugadores…</p>
+  </div>
+
+  <!-- ── Error ── -->
+  <div class="cg-error" *ngIf="error && !loading">
+    <span class="cg-error__icon">!</span>
+    <p>{{ error }}</p>
+    <button class="cg-btn cg-btn--outline" (click)="loadClassification()">Reintentar</button>
+  </div>
+
+  <!-- ── Contenido ── -->
+  <main class="cg-main" *ngIf="result && !loading">
+
+    <!-- Filtros -->
+    <div class="cg-filters">
+      <button class="cg-filter" [class.cg-filter--active]="filterNivel === 'Todos'"  (click)="setFilter('Todos')">
+        Todos <span class="cg-filter__n">{{ result.total_players }}</span>
+      </button>
+      <button class="cg-filter cg-filter--alto"  [class.cg-filter--active]="filterNivel === 'Alto'"  (click)="setFilter('Alto')">
+        ▲ Alto <span class="cg-filter__n">{{ result.summary.alto }}</span>
+      </button>
+      <button class="cg-filter cg-filter--medio" [class.cg-filter--active]="filterNivel === 'Medio'" (click)="setFilter('Medio')">
+        ◆ Medio <span class="cg-filter__n">{{ result.summary.medio }}</span>
+      </button>
+      <button class="cg-filter cg-filter--bajo"  [class.cg-filter--active]="filterNivel === 'Bajo'"  (click)="setFilter('Bajo')">
+        ▼ Bajo <span class="cg-filter__n">{{ result.summary.bajo }}</span>
+      </button>
+    </div>
+
+    <!-- Lista de jugadores -->
+    <div class="cg-list">
+      <div
+        *ngFor="let player of filteredPlayers; let i = index"
+        class="cg-row"
+        [class.cg-row--alto]="player.nivel === 'Alto'"
+        [class.cg-row--medio]="player.nivel === 'Medio'"
+        [class.cg-row--bajo]="player.nivel === 'Bajo'"
+        [class.cg-row--expanded]="selectedPlayer?.player_id === player.player_id"
+        [style.animation-delay]="(i * 50) + 'ms'"
+        (click)="selectPlayer(player)">
+
+        <!-- Rank -->
+        <div class="cg-row__rank">#{{ i + 1 }}</div>
+
+        <!-- Avatar -->
+        <div class="cg-row__avatar">{{ getPositionAbbr(player.posicion) }}</div>
+
+        <!-- Info -->
+        <div class="cg-row__info">
+          <div class="cg-row__name">{{ player.name }}</div>
+          <div class="cg-row__pos">{{ player.posicion }}</div>
+        </div>
+
+        <!-- Score bar -->
+        <div class="cg-row__bar-wrap">
+          <div class="cg-row__bar-track">
+            <div class="cg-row__bar-fill" [style.width]="getScoreWidth(player.combined_score)"></div>
+          </div>
+          <span class="cg-row__score">{{ player.combined_score | number:'1.2-2' }}</span>
+        </div>
+
+        <!-- Nivel badge -->
+        <div class="cg-row__nivel">
+          <span class="cg-nivel-badge">{{ getNivelIcon(player.nivel) }} {{ player.nivel }}</span>
+        </div>
+
+        <!-- Desglose expandido -->
+        <div class="cg-row__breakdown" *ngIf="selectedPlayer?.player_id === player.player_id">
+          <div class="cg-breakdown">
+            <div class="cg-breakdown__item cg-breakdown__item--hs">
+              <span class="cg-breakdown__val">{{ player.breakdown.score_historico | number:'1.2-2' }}</span>
+              <span class="cg-breakdown__key">Score histórico</span>
+            </div>
+            <div class="cg-breakdown__item">
+              <span class="cg-breakdown__val">{{ player.breakdown.ataques_prom | number:'1.1-1' }}</span>
+              <span class="cg-breakdown__key">Ataques/partido</span>
+            </div>
+            <div class="cg-breakdown__item">
+              <span class="cg-breakdown__val">{{ player.breakdown.bloqueos_prom | number:'1.1-1' }}</span>
+              <span class="cg-breakdown__key">Bloqueos/partido</span>
+            </div>
+            <div class="cg-breakdown__item">
+              <span class="cg-breakdown__val">{{ player.breakdown.recepciones_prom | number:'1.1-1' }}</span>
+              <span class="cg-breakdown__key">Recepciones/partido</span>
+            </div>
+            <div class="cg-breakdown__item cg-breakdown__item--err">
+              <span class="cg-breakdown__val">{{ player.breakdown.errores_prom | number:'1.1-1' }}</span>
+              <span class="cg-breakdown__key">Errores/partido</span>
+            </div>
+            <div class="cg-breakdown__item cg-breakdown__item--pts">
+              <span class="cg-breakdown__val">{{ player.breakdown.partidos }}</span>
+              <span class="cg-breakdown__key">Partidos</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Top player -->
+    <div class="cg-top" *ngIf="result.summary.top_player">
+      <span class="cg-top__icon">★</span>
+      <span class="cg-top__label">Mejor rendimiento del equipo</span>
+      <span class="cg-top__name">{{ result.summary.top_player.name }}</span>
+      <span class="cg-top__score">{{ result.summary.top_player.combined_score | number:'1.2-2' }}</span>
+    </div>
+
+  </main>
+</div>

@@ -89,7 +89,7 @@
 
                         <td class="text-right">
                             <div class="action-buttons">
-                                <button class="btn-icon btn-edit" [title]="partido.estado === 'finalizado' ? 'No se puede editar un partido finalizado' : ''" [routerLink]="['/editar-partido', partido.id]" [disabled]="partido.estado === 'finalizado'">
+                                <button class="btn-icon btn-edit" [title]="partido.estado === 'finalizado' ? 'No se puede editar un partido finalizado' : ''" (click)="editar(partido.id!)" [disabled]="partido.estado === 'finalizado'">
                                     <span class="material-symbols-outlined">edit</span>
                                 </button>
                                 <button class="btn-icon btn-delete" title="Eliminar" (click)="eliminar(partido.id!)">

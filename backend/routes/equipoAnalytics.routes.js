@@ -1,139 +1,86 @@
 const express = require('express');
-const router = express.Router();
-const axios = require('axios');
-const db = require('../config/db');
+const router  = express.Router();
+const path    = require('path');
+const { spawn } = require('child_process');
+const db      = require('../config/db');
 
-const PYTHON_API = process.env.PYTHON_API_URL;
+const PYTHON_SCRIPT = path.join(__dirname, '..', 'analytics', 'models', 'teamAnalytics.py');
+
+function runPython(input) {
+  return new Promise((resolve, reject) => {
+    const py = spawn('python', [PYTHON_SCRIPT]);
+    let out = '', err = '';
+    py.stdout.on('data', c => out += c);
+    py.stderr.on('data', c => err += c);
+    py.on('close', code => {
+      if (code !== 0) return reject(new Error(`Python exited ${code}: ${err}`));
+      try { resolve(JSON.parse(out.trim())); }
+      catch(e) { reject(new Error(`JSON inválido: ${out}`)); }
+    });
+    py.stdin.write(input);
+    py.stdin.end();
+  });
+}
 
 router.get('/:id/analytics', async (req, res) => {
-
   const equipoId = parseInt(req.params.id, 10);
-
-  if (isNaN(equipoId)) {
-    return res.status(400).json({
-      error: 'ID inválido'
-    });
-  }
+  if (isNaN(equipoId)) return res.status(400).json({ error: 'ID inválido' });
 
   try {
-
-    // Obtener equipo
     const [equipoRows] = await db.query(
-      'SELECT id, nombre FROM equipos WHERE id = ?',
-      [equipoId]
+      'SELECT id, nombre FROM equipos WHERE id = ?', [equipoId]
     );
-
-    if (!equipoRows.length) {
-      return res.status(404).json({
-        error: 'Equipo no encontrado'
-      });
-    }
-
+    if (!equipoRows?.length) return res.status(404).json({ error: 'Equipo no encontrado' });
     const equipo = equipoRows[0];
 
-    // Obtener jugadores
     const [jugadoresRows] = await db.query(
-      `SELECT id, nombre, posicion
-       FROM jugadores
-       WHERE equipo_id = ?`,
-      [equipoId]
+      'SELECT id, nombre, posicion FROM jugadores WHERE equipo_id = ?', [equipoId]
     );
 
-    if (!jugadoresRows.length) {
-      return res.json({
-        equipo_id: equipoId,
-        nombre: equipo.nombre,
-        analysis: null,
-        mensaje: 'El equipo no tiene jugadores registrados'
-      });
+    if (!jugadoresRows?.length) {
+      return res.json({ equipo_id: equipoId, nombre: equipo.nombre,
+        analysis: null, mensaje: 'El equipo no tiene jugadores registrados' });
     }
 
-    // Obtener estadísticas de cada jugador
     const jugadoresConStats = await Promise.all(
-
-      jugadoresRows.map(async (jugador) => {
-
+      jugadoresRows.map(async (j) => {
         const [stats] = await db.query(
           `SELECT ataques, bloqueos, recepciones, errores
-           FROM estadisticas_jugador
-           WHERE jugador_id = ?
-           ORDER BY created_at ASC`,
-          [jugador.id]
+           FROM estadisticas_jugador WHERE jugador_id = ? ORDER BY created_at ASC`,
+          [j.id]
         );
-
         return {
-          player_id: jugador.id,
-          name: jugador.nombre,
-          position: jugador.posicion || '',
-          stats: stats.map((s) => ({
-            ataques: Number(s.ataques) || 0,
-            bloqueos: Number(s.bloqueos) || 0,
+          jugador_id: j.id,
+          nombre:     j.nombre,
+          posicion:   j.posicion || '',
+          partidos:   (stats || []).map(s => ({
+            ataques:     Number(s.ataques)     || 0,
+            bloqueos:    Number(s.bloqueos)    || 0,
             recepciones: Number(s.recepciones) || 0,
-            errores: Number(s.errores) || 0
+            errores:     Number(s.errores)     || 0,
           }))
         };
-
       })
-
     );
 
-    // Filtrar jugadores con estadísticas
-    const playersWithData = jugadoresConStats.filter(
-      (p) => p.stats.length > 0
-    );
+    const conDatos = jugadoresConStats.filter(j => j.partidos.length > 0);
 
-    if (!playersWithData.length) {
-      return res.json({
-        equipo_id: equipoId,
-        nombre: equipo.nombre,
-        analysis: null,
-        mensaje: 'Ningún jugador tiene estadísticas aún'
-      });
+    if (!conDatos.length) {
+      return res.json({ equipo_id: equipoId, nombre: equipo.nombre,
+        analysis: null, mensaje: 'Ningún jugador tiene estadísticas aún' });
     }
 
-    // Payload para FastAPI
-    const payload = {
-      match_id: equipoId,
-      players: playersWithData
-    };
+    const payload  = JSON.stringify({ equipo_id: equipoId, jugadores: conDatos });
+    const analysis = await runPython(payload);
 
-    console.log('Enviando a Python:', payload);
+    console.log('>>> ANÁLISIS EQUIPO:', JSON.stringify(analysis, null, 2));
 
-    // Request al microservicio Python
-    const response = await axios.post(
-      `${PYTHON_API}/analyze/players`,
-      payload,
-      {
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        timeout: 30000
-      }
-    );
-
-    console.log('Respuesta Python:', response.data);
-
-    // Respuesta final
-    return res.json({
-      equipo_id: equipoId,
-      nombre: equipo.nombre,
-      analytics_result: response.data
-    });
+    res.json({ equipo_id: equipoId, nombre: equipo.nombre, analysis });
 
   } catch (err) {
-
-    console.error('Error analytics equipo:', err);
-
-    return res.status(500).json({
-      error: 'Error al generar análisis',
-      details:
-        err.response?.data ||
-        err.message ||
-        'Error desconocido'
-    });
-
+    console.error('Error analytics equipo:', err.message);
+    res.status(500).json({ error: 'Error al generar análisis', details: err.message });
   }
-
 });
 
 module.exports = router;

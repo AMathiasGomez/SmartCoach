@@ -7,18 +7,35 @@ import { environment } from '../../../environments/environment';
 export interface PlayerAnalysis {
   player_id: string;
   name: string;
+  position: string;
   score: number;
+  category: 'Excelente' | 'Bueno' | 'Regular' | 'Malo';
   label: string;
   color: 'green' | 'yellow' | 'red';
   cluster_id: number;
-  is_outlier: boolean;
-  outlier_score: number;
-  pca: {
+  profile?: string;
+  is_outlier?: boolean;
+  outlier_score?: number;
+  pca?: {
     pca_components: [number, number];
     explained_variance: {
       pc1: number;
       pc2: number;
     };
+  };
+  metrics?: Record<string, number>;
+  metric_scores?: Record<string, number>;
+  score_breakdown?: Record<string, number>;
+  strengths?: string[];
+  weaknesses?: string[];
+  interpretations?: string[];
+  recommendations?: string[];
+  comparisons?: {
+    team_average_score: number;
+    vs_team_average: 'por_encima' | 'similar' | 'por_debajo';
+    best_match_score: number;
+    best_position_score: number;
+    vs_best_same_position: 'por_encima' | 'similar' | 'por_debajo';
   };
   stats: {
     blocks: number;
@@ -28,10 +45,17 @@ export interface PlayerAnalysis {
   };
 }
 
+export interface MatchAnalyticsSummary {
+  team_average_score: number;
+  top_player: PlayerAnalysis | null;
+  categories: Record<string, number>;
+}
+
 export interface MatchAnalyticsResponse {
   match_id: string;
   total_players: number;
   analysis: PlayerAnalysis[];
+  summary?: MatchAnalyticsSummary;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -42,7 +66,7 @@ export class AnalyticsService {
 
   analyzeMatch(matchId: number, players: any[]): Observable<MatchAnalyticsResponse> {
     return this.http.post<MatchAnalyticsResponse>(
-      `${this.API}/partidos/${matchId}/analytics`,  // era /matches/
+      `${this.API}/partidos/${matchId}/analytics`,
       { players }
     );
   } 
