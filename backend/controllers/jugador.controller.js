@@ -9,6 +9,7 @@ exports.getJugadores = async (req, res) => {
         jugador.nombre,
         jugador.posicion,
         jugador.numero,
+        jugador.equipo_id,
         jugador.foto_url,
         e.nombre AS equipo_nombre
       FROM jugadores jugador

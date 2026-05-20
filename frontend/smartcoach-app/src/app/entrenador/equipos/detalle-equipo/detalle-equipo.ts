@@ -20,7 +20,7 @@ interface TeamAxis {
   standalone: true,
   imports: [CommonModule, RouterLink],
   templateUrl: './detalle-equipo.html',
-  styleUrl: './detalle-equipo.css'
+  styleUrls: ['./detalle-equipo.css']
 })
 export class DetalleEquipo implements OnInit, AfterViewInit {
   @ViewChild('radarCanvasEquipo') radarCanvasRef!: ElementRef<HTMLCanvasElement>;

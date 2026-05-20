@@ -8,7 +8,7 @@ import { environment } from '../../../environments/environment';
 })
 export class JugadorClassification {
    
-  private readonly endpoint = `${environment.apiUrl}/api/analysis/classify-performance`;
+  private readonly endpoint = `${environment.apiUrl}/analysis/classify-performance`;
  
   constructor(private http: HttpClient) {}
  

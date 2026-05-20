@@ -4,6 +4,7 @@ import { environment } from '../../../../environments/environment';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { AuthService } from '../../../services/auth/auth-service';
 
 interface PlayerGeneral {
   player_id: string;
@@ -43,26 +44,27 @@ interface Team {
 
 @Component({
   selector: 'app-clasificacion-jugadores',
+  standalone: true,
   imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './clasificacion-jugadores.html',
   styleUrls: ['./clasificacion-jugadores.css'],
 })
-export class ClasificacionJugadores implements OnInit{
+export class ClasificacionJugadores implements OnInit {
   teams: Team[] = [];
-  selectedTeamId: string = '';
+  selectedTeamId = '';
   loading = false;
   loadingTeams = false;
   error: string | null = null;
   result: GeneralResult | null = null;
   selectedPlayer: PlayerGeneral | null = null;
   filterNivel: 'Todos' | 'Alto' | 'Medio' | 'Bajo' = 'Todos';
-  authService: any;
 
   constructor(
-    private http: HttpClient, 
+    private http: HttpClient,
     public router: Router,
-    private cd: ChangeDetectorRef
-  ) { }
+    private cd: ChangeDetectorRef,
+    private authService: AuthService
+  ) {}
 
   ngOnInit(): void {
     this.loadTeams();
@@ -70,17 +72,19 @@ export class ClasificacionJugadores implements OnInit{
 
   loadTeams(): void {
     this.loadingTeams = true;
+    this.error = null;
+
     this.http.get<any[]>(`${environment.apiUrl}/equipos`).subscribe({
       next: (res) => {
-        console.log("equipos recibidos", res);
-        
-        this.teams = res.map(e => ({ id: String(e.id), nombre: e.nombre }));
+        this.teams = (res || []).map(e => ({ id: String(e.id), nombre: e.nombre }));
         this.loadingTeams = false;
-        this.cd.detectChanges
+        this.cd.detectChanges();
       },
       error: (err) => {
         console.error('Error equipos:', err);
+        this.error = 'Error al cargar los equipos.';
         this.loadingTeams = false;
+        this.cd.detectChanges();
       }
     });
   }
@@ -89,33 +93,40 @@ export class ClasificacionJugadores implements OnInit{
     this.result = null;
     this.error = null;
     this.selectedPlayer = null;
+    this.filterNivel = 'Todos';
+
     if (this.selectedTeamId) {
       this.loadClassification();
     }
   }
 
   loadClassification(): void {
+    if (!this.selectedTeamId) return;
+
     this.loading = true;
     this.error = null;
 
-    this.http.get<any>(
+    this.http.get<{ success?: boolean; data?: GeneralResult; error?: string } | GeneralResult>(
       `${environment.apiUrl}/analysis/classify-general?team_id=${this.selectedTeamId}`
     ).subscribe({
       next: (res) => {
-        this.result = res?.data || res;
+        this.result = ('data' in res && res.data ? res.data : res) as GeneralResult;
         this.loading = false;
+        this.cd.detectChanges();
       },
       error: (err) => {
-        this.error = err?.error?.error || 'Error al cargar la clasificación.';
+        console.error('Error clasificacion:', err);
+        this.error = err?.error?.error || 'Error al cargar la clasificacion.';
         this.loading = false;
+        this.cd.detectChanges();
       }
     });
   }
 
   get filteredPlayers(): PlayerGeneral[] {
-    if (!this.result) return [];
-    if (this.filterNivel === 'Todos') return this.result.classification;
-    return this.result.classification.filter(p => p.nivel === this.filterNivel);
+    const players = this.result?.classification || [];
+    if (this.filterNivel === 'Todos') return players;
+    return players.filter(p => p.nivel === this.filterNivel);
   }
 
   selectPlayer(player: PlayerGeneral): void {
@@ -128,12 +139,17 @@ export class ClasificacionJugadores implements OnInit{
   }
 
   getNivelIcon(nivel: string): string {
-    return { 'Alto': '▲', 'Medio': '◆', 'Bajo': '▼' }[nivel] || '◆';
+    return { Alto: 'trending_up', Medio: 'remove', Bajo: 'trending_down' }[nivel] || 'remove';
   }
 
   getPositionAbbr(posicion: string): string {
-    return { 'Opuesto': 'OP', 'Central': 'CE', 'Armador': 'AR', 'Punta': 'PT', 'Libero': 'LB' }[posicion]
-      || posicion.slice(0, 2).toUpperCase();
+    return {
+      Opuesto: 'OP',
+      Central: 'CE',
+      Armador: 'AR',
+      Punta: 'PT',
+      Libero: 'LB'
+    }[posicion] || (posicion || 'NA').slice(0, 2).toUpperCase();
   }
 
   getScoreWidth(score: number): string {
@@ -142,15 +158,15 @@ export class ClasificacionJugadores implements OnInit{
   }
 
   get maxCombinedScore(): number {
-    if (!this.result) return 1;
-    return Math.max(...this.result.classification.map(p => p.combined_score), 1);
+    const players = this.result?.classification || [];
+    return Math.max(...players.map(p => p.combined_score), 1);
   }
 
   get selectedTeamName(): string {
     return this.teams.find(t => t.id === this.selectedTeamId)?.nombre || '';
   }
 
-    logout() {
+  logout(): void {
     this.authService.logOut();
     this.router.navigate(['/login']);
   }

@@ -113,6 +113,11 @@
   background: #F4F5F7;
 }
 
+.cg-content {
+  margin-left: 280px;
+  min-height: 100vh;
+}
+
 /* ── Header ── */
 .cg-header {
   background: #fff;
@@ -573,6 +578,14 @@
   padding: 4px 10px;
   border-radius: 100px;
   white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.cg-nivel-badge .material-symbols-outlined {
+  font-size: 14px;
+  line-height: 1;
 }
 
 .cg-row--alto .cg-nivel-badge {
@@ -709,6 +722,14 @@
 
 /* ── Responsive ── */
 @media (max-width: 600px) {
+  .sidebar {
+    display: none;
+  }
+
+  .cg-content {
+    margin-left: 0;
+  }
+
   .cg-header__inner {
     padding: 20px 16px 16px;
   }
