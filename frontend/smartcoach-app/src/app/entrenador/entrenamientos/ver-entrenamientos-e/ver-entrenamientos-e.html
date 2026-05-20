@@ -1,96 +1,175 @@
 <div class="app-container">
 
-    <aside class="sidebar">
-        <div class="logo">
-            <div class="logo-icon">SC</div>
-            <div class="logo-text-wrapper">
-                <h3 class="logo-text">SmartCoach</h3>
-                <p class="logo-subtext">GESTIÓN DEPORTIVA</p>
-            </div>
-        </div>
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-icon">SC</div>
+      <div class="logo-text-wrapper">
+        <h3 class="logo-text">SmartCoach</h3>
+        <p class="logo-subtext">GESTIÓN DEPORTIVA</p>
+      </div>
+    </div>
 
-        <nav>
-            <a routerLink="/dashboard-entrenador">
-                <span class="material-symbols-outlined">space_dashboard</span>
-                <span>Panel de Control</span>
-            </a>
-            <a routerLink="/ver-equipos-e">
-                <span class="material-symbols-outlined">group</span>
-                <span>Equipos</span>
-            </a>
-            <a routerLink="/ver-jugadores-e">
-                <span class="material-symbols-outlined">person</span>
-                <span>Jugadores</span>
-            </a>
-            <a class="active" routerLink="/ver-entrenamientos-e">
-                <span class="material-symbols-outlined">fitness_center</span>
-                <span>Entrenamientos</span>
-            </a>
-            <a routerLink="/ver-partidos-e">
-                <span class="material-symbols-outlined">sports_soccer</span>
-                <span>Partidos</span>
-            </a>
-        </nav>
+    <nav>
+      <a routerLink="/dashboard-entrenador">
+        <span class="material-symbols-outlined">space_dashboard</span>
+        <span>Panel de Control</span>
+      </a>
+      <a routerLink="/ver-equipos-e">
+        <span class="material-symbols-outlined">group</span>
+        <span>Equipos</span>
+      </a>
+      <a routerLink="/ver-jugadores-e">
+        <span class="material-symbols-outlined">person</span>
+        <span>Jugadores</span>
+      </a>
+      <a class="active" routerLink="/ver-entrenamientos-e">
+        <span class="material-symbols-outlined">fitness_center</span>
+        <span>Entrenamientos</span>
+      </a>
+      <a routerLink="/ver-partidos-e">
+        <span class="material-symbols-outlined">sports_soccer</span>
+        <span>Partidos</span>
+      </a>
+    </nav>
 
-        <button class="logout" (click)="logout()">
-            <span class="material-symbols-outlined">logout</span>
-            Cerrar sesión
-        </button>
-    </aside>
+    <button class="logout" (click)="logout()">
+      <span class="material-symbols-outlined">logout</span>
+      Cerrar sesión
+    </button>
+  </aside>
 
-    <main class="main-content">
-        <header class="page-header">
-            <div>
-                <h1>Lista de entrenamientos</h1>
-                <p class="sub">Gestiona y visualiza la información de tus entrenamientos registrados.</p>
-            </div>
-        </header>
+  <main class="main-content">
 
-        <section class="card table-container">
+    <header class="page-header">
+      <div>
+        <h1>Lista de entrenamientos</h1>
+        <p class="sub">Gestiona y visualiza la información de tus entrenamientos registrados.</p>
+      </div>
+    </header>
 
-            <table>
-                <thead>
-                    <tr>
-                        <th>Equipo</th>
-                        <th>Fecha</th>
-                        <th>Hora</th>
-                        <th>Duración</th>
-                        <th>Tipo</th>
-                        <th>Estado</th>
-                        <th class="text-right">Acciones</th>
-                    </tr>
-                </thead>
+    <!-- FILTROS -->
+    <section class="filters-bar">
 
-                <tbody>
-                    <tr *ngFor="let entrenamiento of entrenamientos">
-                        <td>{{ entrenamiento.equipo_nombre }}</td>
-                        <td>{{ entrenamiento.fecha | date:'shortDate' }}</td>
-                        <td>{{ entrenamiento.hora }}</td>
-                        <td>{{ entrenamiento.tipo }}</td>
-                        <td>{{ entrenamiento.duracion }} min</td>
+      <!-- Equipo -->
+      <div class="filter-group">
+        <span class="material-symbols-outlined">group</span>
+        <input
+          type="text"
+          placeholder="Buscar equipo..."
+          [(ngModel)]="filtroEquipo"
+          (input)="aplicarFiltros()"
+        />
+      </div>
 
-                        <td>
-                            <span [ngClass]="{
-                                'estado-completado': entrenamiento.estado === 'completado',
-                                'estado-pendiente': entrenamiento.estado === 'programado'
-                            }" class="badge">
-                                {{ entrenamiento.estado }}
-                            </span>
-                        </td>
+      <!-- Fecha -->
+      <div class="filter-group">
+        <span class="material-symbols-outlined">calendar_month</span>
+        <input
+          type="date"
+          [(ngModel)]="filtroFecha"
+          (change)="aplicarFiltros()"
+        />
+      </div>
 
-                        <td class="text-right">
-                            <div class="action-buttons">
-                                <a class="btn-icon" title="Detalle" (click)="verDetalle(entrenamiento.id)"
-                                    style="color: #2563eb; display: inline-flex; align-items: center; justify-content: center;">
-                                    <span class="material-symbols-outlined">visibility</span>
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </section>
+      <!-- Tipo -->
+      <div class="filter-group">
+        <span class="material-symbols-outlined">fitness_center</span>
+        <select [(ngModel)]="filtroTipo" (change)="aplicarFiltros()">
+          <option value="">Todos los tipos</option>
+          <option *ngFor="let tipo of tiposEntrenamiento" [value]="tipo">
+            {{ tipo }}
+          </option>
+        </select>
+      </div>
 
-    </main>
+      <!-- Estado -->
+      <div class="filter-group">
+        <span class="material-symbols-outlined">flag</span>
+        <select [(ngModel)]="filtroEstado" (change)="aplicarFiltros()">
+          <option value="">Todos los estados</option>
+          <option value="programado">Programado</option>
+          <option value="en_curso">En curso</option>
+          <option value="completado">Completado</option>
+        </select>
+      </div>
+
+      <button
+        class="btn-reset"
+        (click)="limpiarFiltros()"
+        *ngIf="hayFiltrosActivos()"
+      >
+        <span class="material-symbols-outlined">close</span>
+        Limpiar
+      </button>
+
+    </section>
+
+    <!-- CONTADOR -->
+    <p
+      class="results-count"
+      *ngIf="entrenamientosFiltrados.length !== entrenamientos.length"
+    >
+      Mostrando {{ entrenamientosFiltrados.length }} de {{ entrenamientos.length }} entrenamientos
+    </p>
+
+    <!-- TABLA -->
+    <section class="card table-container">
+
+      <table>
+
+        <thead>
+          <tr>
+            <th>Equipo</th>
+            <th>Fecha</th>
+            <th>Hora</th>
+            <th>Duración</th>
+            <th>Tipo</th>
+            <th>Estado</th>
+            <th class="text-right">Acciones</th>
+          </tr>
+        </thead>
+
+        <tbody>
+
+          <tr *ngFor="let entrenamiento of entrenamientosFiltrados">
+
+            <td>{{ entrenamiento.equipo_nombre }}</td>
+
+            <td>{{ entrenamiento.fecha | date:'shortDate' }}</td>
+
+            <td>{{ entrenamiento.hora }}</td>
+
+            <td>{{ entrenamiento.duracion }} min</td>
+
+            <td>{{ entrenamiento.tipo }}</td>
+
+            <td>
+              <span [ngClass]="{
+                'estado-completado': entrenamiento.estado === 'completado',
+                'estado-pendiente': entrenamiento.estado === 'programado'
+              }" class="badge">
+                {{ entrenamiento.estado }}
+              </span>
+            </td>
+
+            <td class="text-right">
+              <div class="action-buttons">
+                <a class="btn-icon"
+                   (click)="verDetalle(entrenamiento.id)"
+                   style="color:#2563eb; display:flex; align-items:center; justify-content:center;">
+                  <span class="material-symbols-outlined">visibility</span>
+                </a>
+              </div>
+            </td>
+
+          </tr>
+
+        </tbody>
+
+      </table>
+
+    </section>
+
+  </main>
 
 </div>

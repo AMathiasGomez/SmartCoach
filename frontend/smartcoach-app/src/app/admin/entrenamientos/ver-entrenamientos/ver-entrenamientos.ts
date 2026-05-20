@@ -3,34 +3,41 @@ import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../services/auth/auth-service';
 import { CommonModule, NgClass } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+
 import { Equipo } from '../../../models/equipo.model';
+
 import { EntrenamientoService } from '../../../services/entrenamiento/entrenamiento-service';
 import { EquipoService } from '../../../services/equipo/equipo-service';
 
 @Component({
   selector: 'app-ver-entrenamientos',
-  imports: [RouterLink, NgClass, ReactiveFormsModule, CommonModule, FormsModule],
+  standalone: true,
+  imports: [
+    RouterLink,
+    NgClass,
+    ReactiveFormsModule,
+    CommonModule,
+    FormsModule
+  ],
   templateUrl: './ver-entrenamientos.html',
-  styleUrl: './ver-entrenamientos.css',
+  styleUrls: ['./ver-entrenamientos.css'],
 })
 export class VerEntrenamientos implements OnInit {
 
   loading = false;
 
-  // 📊 DATA
   entrenamientos: any[] = [];
-  entrenamientosOriginal: any[] = [];
+  entrenamientosFiltrados: any[] = [];
 
-  equipos: Equipo[] = [];
+  equipos: string[] = [];
+  tiposEntrenamiento: string[] = [];
 
-  // 🔍 FILTROS
-  filtroEquipo: string = '';
-  filtroFecha: string = '';
-  filtroEstado: string = '';
+  filtroEquipo = '';
+  filtroFecha = '';
+  filtroTipo = '';
 
-  // 📈 STATS
-  totalEntrenamientos: number = 0;
-  entrenamientosSemana: number = 0;
+  totalEntrenamientos = 0;
+  entrenamientosSemana = 0;
 
   constructor(
     private entrenamientoService: EntrenamientoService,
@@ -42,69 +49,149 @@ export class VerEntrenamientos implements OnInit {
 
   ngOnInit(): void {
     this.cargarEntrenamientos();
-    this.cargarEquipos();
   }
 
   cargarEntrenamientos() {
+
+    console.log("cargando entrenamientos...");
+
+    this.loading = true;
+
     this.entrenamientoService.getEntrenamientos().subscribe({
+
       next: (data) => {
+
         this.entrenamientos = data;
-        this.entrenamientosOriginal = data;
-        this.loading = false;
+
+        // Equipos únicos
+        this.equipos = [
+          ...new Set(
+            data
+              .map(e => e.equipo_nombre)
+              .filter((e): e is string => !!e)
+          )
+        ].sort();
+
+        // Tipos únicos
+        this.tiposEntrenamiento = [
+          ...new Set(
+            data
+              .map(e => e.tipo)
+              .filter((t): t is string => !!t)
+          )
+        ].sort();
+
+        this.entrenamientosFiltrados = data;
 
         this.totalEntrenamientos = data.length;
+
         this.calcularSemana();
-        this.cd.detectChanges()
+
+        this.loading = false;
+
+        this.cd.detectChanges();
       },
+
       error: (err) => {
-        console.error(err);
+
+        console.error('Error al cargar entrenamientos', err);
+
+        alert('Error al cargar entrenamientos');
+
         this.loading = false;
       }
     });
   }
 
-  cargarEquipos() {
-    this.equipoService.getEquipos().subscribe({
-      next: (data) => {
-        this.equipos = data;
-      },
-      error: () => {
-        console.error('Error al cargar equipos');
-      }
-    });
+  aplicarFiltros() {
+
+  const equipo = this.filtroEquipo.toLowerCase().trim();
+  const fecha = this.filtroFecha;
+  const tipo = this.filtroTipo;
+
+  this.entrenamientosFiltrados = this.entrenamientos.filter(e => {
+
+    // FILTRO EQUIPO
+    const matchEquipo =
+      !equipo ||
+      e.equipo_nombre?.toLowerCase().includes(equipo);
+
+    // FILTRO FECHA (FIX REAL)
+    const fechaFormateada = e.fecha
+      ? e.fecha.split('T')[0]
+      : '';
+
+    const matchFecha =
+      !fecha ||
+      fechaFormateada === fecha;
+
+    // FILTRO TIPO
+    const matchTipo =
+      !tipo ||
+      e.tipo === tipo;
+
+    return matchEquipo && matchFecha && matchTipo;
+  });
+}
+
+  limpiarFiltros() {
+
+    this.filtroEquipo = '';
+    this.filtroFecha = '';
+    this.filtroTipo = '';
+
+    this.entrenamientosFiltrados = [...this.entrenamientos];
   }
 
-  filtrar() {
-    this.entrenamientos = this.entrenamientosOriginal.filter(e => {
+  hayFiltrosActivos(): boolean {
 
-      const matchEquipo = this.filtroEquipo ? e.equipo_id == this.filtroEquipo : true;
-      const matchFecha = this.filtroFecha ? e.fecha === this.filtroFecha : true;
-      const matchEstado = this.filtroEstado ? e.estado === this.filtroEstado : true;
-
-      return matchEquipo && matchFecha && matchEstado;
-    });
+    return !!(
+      this.filtroEquipo ||
+      this.filtroFecha ||
+      this.filtroTipo
+    );
   }
 
   calcularSemana() {
+
     const hoy = new Date();
-    const inicioSemana = new Date(hoy.setDate(hoy.getDate() - hoy.getDay()));
+
+    const inicioSemana = new Date(hoy);
+    inicioSemana.setDate(hoy.getDate() - hoy.getDay());
+
     const finSemana = new Date(inicioSemana);
     finSemana.setDate(finSemana.getDate() + 6);
 
-    this.entrenamientosSemana = this.entrenamientosOriginal.filter(e => {
-      const fecha = new Date(e.fecha);
-      return fecha >= inicioSemana && fecha <= finSemana;
-    }).length;
+    this.entrenamientosSemana =
+      this.entrenamientos.filter(e => {
+
+        const fecha = new Date(e.fecha);
+
+        return fecha >= inicioSemana &&
+               fecha <= finSemana;
+
+      }).length;
+  }
+
+  editar(id: number) {
+    this.router.navigate(['/editar-entrenamiento', id]);
   }
 
   eliminar(id: number) {
+
     if (confirm('¿Deseas eliminar este entrenamiento?')) {
+
       this.entrenamientoService.deleteEntrenamiento(id).subscribe({
+
         next: () => {
+
           alert('Entrenamiento eliminado');
+
           this.cargarEntrenamientos();
         },
+
         error: () => {
+
           alert('Error al eliminar');
         }
       });
@@ -112,8 +199,9 @@ export class VerEntrenamientos implements OnInit {
   }
 
   logout() {
+
     this.authService.logOut();
+
     this.router.navigate(['/login']);
   }
-
 }

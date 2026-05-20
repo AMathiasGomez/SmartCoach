@@ -1,112 +1,194 @@
 <div class="app-container">
 
-    <aside class="sidebar">
-        <div class="logo">
-            <div class="logo-icon">SC</div>
-            <div class="logo-text-wrapper">
-                <h3 class="logo-text">SmartCoach</h3>
-                <p class="logo-subtext">GESTIÓN DEPORTIVA</p>
-            </div>
-        </div>
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-icon">SC</div>
+      <div class="logo-text-wrapper">
+        <h3 class="logo-text">SmartCoach</h3>
+        <p class="logo-subtext">GESTIÓN DEPORTIVA</p>
+      </div>
+    </div>
 
-        <nav>
-            <a routerLink="/dashboard-admin">
-                <span class="material-symbols-outlined">space_dashboard</span>
-                <span>Panel de Control</span>
-            </a>
-            <a routerLink="/ver-equipos">
-                <span class="material-symbols-outlined">group</span>
-                <span>Equipos</span>
-            </a>
-            <a routerLink="/ver-jugadores">
-                <span class="material-symbols-outlined">person</span>
-                <span>Jugadores</span>
-            </a>
-            <a class="active" routerLink="/ver-entrenamientos">
-                <span class="material-symbols-outlined">fitness_center</span>
-                <span>Entrenamientos</span>
-            </a>
-            <a routerLink="/ver-partidos">
-                <span class="material-symbols-outlined">sports_soccer</span>
-                <span>Partidos</span>
-            </a>
-            <a routerLink="/ver-usuarios">
-                <span class="material-symbols-outlined">emoji_people</span>
-                <span>Usuarios</span>
-            </a>
-        </nav>
+    <nav>
+      <a routerLink="/dashboard-admin">
+        <span class="material-symbols-outlined">space_dashboard</span>
+        <span>Panel de Control</span>
+      </a>
+      <a routerLink="/ver-equipos">
+        <span class="material-symbols-outlined">group</span>
+        <span>Equipos</span>
+      </a>
+      <a routerLink="/ver-jugadores">
+        <span class="material-symbols-outlined">person</span>
+        <span>Jugadores</span>
+      </a>
+      <a class="active" routerLink="/ver-entrenamientos">
+        <span class="material-symbols-outlined">fitness_center</span>
+        <span>Entrenamientos</span>
+      </a>
+      <a routerLink="/ver-partidos">
+        <span class="material-symbols-outlined">sports_soccer</span>
+        <span>Partidos</span>
+      </a>
+      <a routerLink="/ver-usuarios">
+        <span class="material-symbols-outlined">emoji_people</span>
+        <span>Usuarios</span>
+      </a>
+    </nav>
 
-        <button class="logout" (click)="logout()">
-            <span class="material-symbols-outlined">logout</span>
-            Cerrar sesión
-        </button>
-    </aside>
-    <main class="main-content">
-        <header class="page-header">
-            <div>
-                <h1>Lista de entrenamientos</h1>
-                <p class="sub">Gestiona y visualiza la información de tus entrenamientos registrados.</p>
-            </div>
-            <button class="btn-primary" (click)="router.navigate(['/crear-entrenamiento'])">
-                <span class="material-symbols-outlined">add_circle</span>
-                Crear nuevo entrnenamiento
-            </button>
-        </header>
+    <button class="logout" (click)="logout()">
+      <span class="material-symbols-outlined">logout</span>
+      Cerrar sesión
+    </button>
+  </aside>
 
-        <div *ngIf="loading">Cargando entrenamientos...</div>
+  <main class="main-content">
 
-        <div *ngIf="!loading && entrenamientos.length === 0">
-            No hay entrenamientos registrados
-        </div>
+    <header class="page-header">
+      <div>
+        <h1>Lista de entrenamientos</h1>
+        <p class="sub">Gestiona y visualiza la información de tus entrenamientos registrados.</p>
+      </div>
 
-<section class="card table-container" *ngIf="!loading && entrenamientos.length > 0">
-            <div class="table-scroll">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Equipo</th>
-                            <th>Fecha</th>
-                            <th>Hora</th>
-                            <th>Duración</th>
-                            <th>Tipo</th>
-                            <th>Estado</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr *ngFor="let entrenamiento of entrenamientos">
-                            <td>{{ entrenamiento.equipo_nombre }}</td>
-                            <td>{{ entrenamiento.fecha | date:'shortDate' }}</td>
-                            <td>{{ entrenamiento.hora }}</td>
-                            <td>{{ entrenamiento.tipo }}</td>
-                            <td>{{ entrenamiento.duracion }} min</td>
-                            <td>
-                                <span [ngClass]="{
-                                    'estado-completado': entrenamiento.estado === 'completado',
-                                    'estado-pendiente': entrenamiento.estado === 'programado'
-                                }" class="badge">
-                                    {{ entrenamiento.estado }}
-                                </span>
-                            </td>
-                            <td class="text-right">
-                                <div class="action-buttons">
-                                    <button class="btn-icon btn-edit"
-                                        [title]="entrenamiento.estado === 'completado' ? 'No se puede editar un partido completado' : ''"
-                                        [routerLink]="['/editar-entrenamiento', entrenamiento.id]"
-                                        [disabled]="entrenamiento.estado === 'completado'">
-                                        <span class="material-symbols-outlined">edit</span>
-                                    </button>
-                                    <button class="btn-icon btn-delete" title="Eliminar" (click)="eliminar(entrenamiento.id!)">
-                                        <span class="material-symbols-outlined">delete</span>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
+      <button class="btn-primary" (click)="router.navigate(['/crear-entrenamiento'])">
+        <span class="material-symbols-outlined">add_circle</span>
+        Crear nuevo entrenamiento
+      </button>
+    </header>
 
-    </main>
+    <!-- FILTROS -->
+    <section class="filters-bar">
+
+      <div class="filter-group">
+        <span class="material-symbols-outlined">search</span>
+        <input
+          type="text"
+          placeholder="Buscar por equipo..."
+          [(ngModel)]="filtroEquipo"
+          (input)="aplicarFiltros()"
+        />
+      </div>
+
+      <div class="filter-group">
+        <span class="material-symbols-outlined">calendar_month</span>
+        <input
+          type="date"
+          [(ngModel)]="filtroFecha"
+          (change)="aplicarFiltros()"
+        />
+      </div>
+
+      <div class="filter-group">
+        <span class="material-symbols-outlined">fitness_center</span>
+        <select [(ngModel)]="filtroTipo" (change)="aplicarFiltros()">
+          <option value="">Todos los tipos</option>
+          <option *ngFor="let tipo of tiposEntrenamiento" [value]="tipo">
+            {{ tipo }}
+          </option>
+        </select>
+      </div>
+
+      <button
+        class="btn-reset"
+        (click)="limpiarFiltros()"
+        *ngIf="hayFiltrosActivos()"
+      >
+        <span class="material-symbols-outlined">close</span>
+        Limpiar
+      </button>
+
+    </section>
+
+    <!-- CONTADOR -->
+    <p
+      class="results-count"
+      *ngIf="entrenamientosFiltrados.length !== entrenamientos.length"
+    >
+      Mostrando {{ entrenamientosFiltrados.length }}
+      de {{ entrenamientos.length }} entrenamientos
+    </p>
+
+    <div *ngIf="loading">Cargando entrenamientos...</div>
+
+    <div *ngIf="!loading && entrenamientos.length === 0">
+      No hay entrenamientos registrados
+    </div>
+
+    <!-- TABLA -->
+    <section class="card table-container" *ngIf="!loading && entrenamientos.length > 0">
+
+      <div class="table-scroll">
+        <table>
+
+          <thead>
+            <tr>
+              <th>Equipo</th>
+              <th>Fecha</th>
+              <th>Hora</th>
+              <th>Duración</th>
+              <th>Tipo</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+
+          <tbody>
+
+            <tr *ngFor="let entrenamiento of entrenamientosFiltrados">
+
+              <td>{{ entrenamiento.equipo_nombre }}</td>
+
+              <!-- FIX IMPORTANTE: formato consistente con filtro -->
+              <td>{{ entrenamiento.fecha | date:'yyyy-MM-dd' }}</td>
+
+              <td>{{ entrenamiento.hora }}</td>
+              <td>{{ entrenamiento.duracion }} min</td>
+              <td>{{ entrenamiento.tipo }}</td>
+
+              <td>
+                <span
+                  class="badge"
+                  [ngClass]="{
+                    'estado-completado': entrenamiento.estado === 'completado',
+                    'estado-pendiente': entrenamiento.estado === 'programado'
+                  }"
+                >
+                  {{ entrenamiento.estado }}
+                </span>
+              </td>
+
+              <td class="text-right">
+                <div class="action-buttons">
+
+                  <button
+                    class="btn-icon btn-edit"
+                    [routerLink]="['/editar-entrenamiento', entrenamiento.id]"
+                    [disabled]="entrenamiento.estado === 'completado'"
+                    [title]="entrenamiento.estado === 'completado' ? 'No se puede editar un entrenamiento completado' : ''"
+                  >
+                    <span class="material-symbols-outlined">edit</span>
+                  </button>
+
+                  <button
+                    class="btn-icon btn-delete"
+                    (click)="eliminar(entrenamiento.id!)"
+                    title="Eliminar"
+                  >
+                    <span class="material-symbols-outlined">delete</span>
+                  </button>
+
+                </div>
+              </td>
+
+            </tr>
+
+          </tbody>
+
+        </table>
+      </div>
+
+    </section>
+
+  </main>
 
 </div>

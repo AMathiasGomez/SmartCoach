@@ -14,18 +14,22 @@
                 <span class="material-symbols-outlined">space_dashboard</span>
                 <span>Panel de Control</span>
             </a>
+
             <a routerLink="/ver-equipos-e">
                 <span class="material-symbols-outlined">group</span>
                 <span>Equipos</span>
             </a>
+
             <a routerLink="/ver-jugadores-e">
                 <span class="material-symbols-outlined">person</span>
                 <span>Jugadores</span>
             </a>
+
             <a routerLink="/ver-entrenamientos-e">
                 <span class="material-symbols-outlined">fitness_center</span>
                 <span>Entrenamientos</span>
             </a>
+
             <a class="active" routerLink="/ver-partidos-e">
                 <span class="material-symbols-outlined">sports_soccer</span>
                 <span>Partidos</span>
@@ -37,23 +41,107 @@
             Cerrar sesión
         </button>
     </aside>
+
     <main class="main-content">
+
         <header class="page-header">
             <div>
                 <h1>Lista de partidos</h1>
-                <p class="sub">Gestiona y visualiza la información de tus partidos registrados.</p>
+                <p class="sub">
+                    Gestiona y visualiza la información de tus partidos registrados.
+                </p>
             </div>
         </header>
 
-        <div *ngIf="loading">Cargando partidos...</div>
+        <!-- FILTROS (MISMO ESTILO ENTRENAMIENTOS) -->
+        <section class="filters-bar">
 
-        <div *ngIf="!loading && partidos.length === 0">
+            <!-- Nombre -->
+            <div class="filter-group">
+                <span class="material-symbols-outlined">search</span>
+                <input
+                    type="text"
+                    placeholder="Buscar partido..."
+                    [(ngModel)]="filtroNombre"
+                    (input)="filtrarPartidos()"
+                />
+            </div>
+
+            <!-- Equipo -->
+            <div class="filter-group">
+                <span class="material-symbols-outlined">group</span>
+                <input
+                    type="text"
+                    placeholder="Buscar equipo..."
+                    [(ngModel)]="filtroEquipo"
+                    (input)="filtrarPartidos()"
+                />
+            </div>
+
+            <!-- Estado -->
+            <div class="filter-group">
+                <span class="material-symbols-outlined">flag</span>
+                <select
+                    [(ngModel)]="filtroEstado"
+                    (change)="filtrarPartidos()"
+                >
+                    <option value="">Todos los estados</option>
+                    <option value="pendiente">Pendiente</option>
+                    <option value="en_curso">En curso</option>
+                    <option value="finalizado">Finalizado</option>
+                </select>
+            </div>
+
+            <!-- Resultado -->
+            <div class="filter-group">
+                <span class="material-symbols-outlined">emoji_events</span>
+                <select
+                    [(ngModel)]="filtroResultado"
+                    (change)="filtrarPartidos()"
+                >
+                    <option value="">Todos los resultados</option>
+                    <option value="Victoria">Victoria</option>
+                    <option value="Derrota">Derrota</option>
+                </select>
+            </div>
+
+            <!-- RESET -->
+            <button
+                class="btn-reset"
+                (click)="limpiarFiltros()"
+                *ngIf="hayFiltrosActivos()"
+            >
+                <span class="material-symbols-outlined">close</span>
+                Limpiar
+            </button>
+
+        </section>
+
+        <!-- CONTADOR -->
+        <p
+            class="results-count"
+            *ngIf="partidosFiltrados.length !== partidos.length"
+        >
+            Mostrando {{ partidosFiltrados.length }} de {{ partidos.length }} partidos
+        </p>
+
+        <!-- LOADING / EMPTY -->
+        <div *ngIf="loading">
+            Cargando partidos...
+        </div>
+
+        <div *ngIf="!loading && partidosFiltrados.length === 0">
             No hay partidos registrados
         </div>
 
-        <section class="card table-container" *ngIf="!loading && partidos.length > 0">
+        <!-- TABLA -->
+        <section
+            class="card table-container"
+            *ngIf="!loading && partidosFiltrados.length > 0"
+        >
 
             <table>
+
                 <thead>
                     <tr>
                         <th>Nombre</th>
@@ -62,43 +150,62 @@
                         <th>Fecha</th>
                         <th>Estado</th>
                         <th>Resultado</th>
-                        <th>Acción</th>
+                        <th class="text-right">Acción</th>
                     </tr>
                 </thead>
 
                 <tbody>
-                    <tr *ngFor="let partido of partidos">
 
-                        <td class="font-bold text-blue">{{ partido.nombre }}</td>
+                    <tr *ngFor="let partido of partidosFiltrados">
+
+                        <td class="font-bold text-blue">
+                            {{ partido.nombre }}
+                        </td>
+
                         <td>{{ partido.equipo_nombre }}</td>
+
                         <td>{{ partido.rival }}</td>
+
                         <td>{{ partido.fecha | date:'shortDate' }}</td>
 
                         <td>
-                            <span [class]="getEstado(partido.estado)" class="badge">
+                            <span class="badge" [ngClass]="{
+                                'pendiente': partido.estado === 'pendiente',
+                                'curso': partido.estado === 'en_curso',
+                                'finalizado': partido.estado === 'finalizado'
+                            }">
                                 {{ partido.estado }}
                             </span>
                         </td>
 
                         <td>
                             <span *ngIf="partido.estado === 'finalizado'">
-                                {{ partido.ganador === 'equipo' ? 'Victoria' : 'Derrota' }}
+                                {{
+                                    partido.ganador === 'equipo'
+                                    ? 'Victoria'
+                                    : 'Derrota'
+                                }}
                             </span>
                             <span *ngIf="partido.estado !== 'finalizado'">—</span>
                         </td>
 
                         <td class="text-right">
                             <div class="action-buttons">
-                                <button class="btn-icon btn-primary" title="Detalles" (click)="irDetalle(partido.id)">
+                                <button
+                                    class="btn-icon btn-primary"
+                                    (click)="irDetalle(partido.id)"
+                                >
                                     <span class="material-symbols-outlined">
-                                        scoreboard
+                                        visibility
                                     </span>
                                 </button>
                             </div>
                         </td>
 
                     </tr>
+
                 </tbody>
+
             </table>
 
         </section>

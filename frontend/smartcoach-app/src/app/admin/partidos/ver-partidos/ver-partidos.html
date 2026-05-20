@@ -1,109 +1,177 @@
 <div class="app-container">
 
-    <aside class="sidebar">
-        <div class="logo">
-            <div class="logo-icon">SC</div>
-            <div class="logo-text-wrapper">
-                <h3 class="logo-text">SmartCoach</h3>
-                <p class="logo-subtext">GESTIÓN DEPORTIVA</p>
-            </div>
-        </div>
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-icon">SC</div>
+      <div class="logo-text-wrapper">
+        <h3 class="logo-text">SmartCoach</h3>
+        <p class="logo-subtext">GESTIÓN DEPORTIVA</p>
+      </div>
+    </div>
 
-        <nav>
-            <a routerLink="/dashboard-admin">
-                <span class="material-symbols-outlined">space_dashboard</span>
-                <span>Panel de Control</span>
-            </a>
-            <a routerLink="/ver-equipos">
-                <span class="material-symbols-outlined">group</span>
-                <span>Equipos</span>
-            </a>
-            <a routerLink="/ver-jugadores">
-                <span class="material-symbols-outlined">person</span>
-                <span>Jugadores</span>
-            </a>
-            <a routerLink="/ver-entrenamientos">
-                <span class="material-symbols-outlined">fitness_center</span>
-                <span>Entrenamientos</span>
-            </a>
-            <a class="active" routerLink="/ver-partidos">
-                <span class="material-symbols-outlined">sports_soccer</span>
-                <span>Partidos</span>
-            </a>
-            <a routerLink="/ver-usuarios">
-                <span class="material-symbols-outlined">emoji_people</span>
-                <span>Usuarios</span>
-            </a>
-        </nav>
+    <nav>
+      <a routerLink="/dashboard-admin">
+        <span class="material-symbols-outlined">space_dashboard</span>
+        <span>Panel de Control</span>
+      </a>
+      <a routerLink="/ver-equipos">
+        <span class="material-symbols-outlined">group</span>
+        <span>Equipos</span>
+      </a>
+      <a routerLink="/ver-jugadores">
+        <span class="material-symbols-outlined">person</span>
+        <span>Jugadores</span>
+      </a>
+      <a routerLink="/ver-entrenamientos">
+        <span class="material-symbols-outlined">fitness_center</span>
+        <span>Entrenamientos</span>
+      </a>
+      <a class="active" routerLink="/ver-partidos">
+        <span class="material-symbols-outlined">sports_soccer</span>
+        <span>Partidos</span>
+      </a>
+      <a routerLink="/ver-usuarios">
+        <span class="material-symbols-outlined">emoji_people</span>
+        <span>Usuarios</span>
+      </a>
+    </nav>
 
-        <button class="logout" (click)="logout()">
-            <span class="material-symbols-outlined">logout</span>
-            Cerrar sesión
-        </button>
-    </aside>
-    <main class="main-content">
-        <header class="page-header">
-            <div>
-                <h1>Lista de partidos</h1>
-                <p class="sub">Gestiona y visualiza la información de tus partidos registrados.</p>
-            </div>
-            <button class="btn-primary" (click)="router.navigate(['/crear-partido'])">
-                <span class="material-symbols-outlined">add_circle</span>
-                Crear nuevo partido
-            </button>
-        </header>
+    <button class="logout" (click)="logout()">
+      <span class="material-symbols-outlined">logout</span>
+      Cerrar sesión
+    </button>
+  </aside>
 
-        <div *ngIf="loading">Cargando partidos...</div>
+  <main class="main-content">
 
-        <div *ngIf="!loading && partidos.length === 0">
-            No hay partidos registrados
-        </div>
+    <header class="page-header">
+      <div>
+        <h1>Lista de partidos</h1>
+        <p class="sub">Gestiona y visualiza la información de tus partidos registrados.</p>
+      </div>
 
-        <section class="card table-container" *ngIf="!loading && partidos.length > 0">
+      <button class="btn-primary" (click)="router.navigate(['/crear-partido'])">
+        <span class="material-symbols-outlined">add_circle</span>
+        Crear nuevo partido
+      </button>
+    </header>
 
-            <table>
-                <thead>
-                    <tr>
-                        <th>Nombre</th>
-                        <th>Equipo</th>
-                        <th>Rival</th>
-                        <th>Fecha</th>
-                        <th>Estado</th>
-                        <th>Acción</th>
-                    </tr>
-                </thead>
+    <!-- FILTROS -->
+    <section class="filters-bar">
 
-                <tbody>
-                    <tr *ngFor="let partido of partidos">
+      <div class="filter-group">
+        <span class="material-symbols-outlined">search</span>
+        <input
+          type="text"
+          placeholder="Buscar por nombre..."
+          [(ngModel)]="filtroNombre"
+          (input)="aplicarFiltros()"
+        />
+      </div>
 
-                        <td class="font-bold text-blue">{{ partido.nombre }}</td>
-                        <td>{{ partido.equipo_nombre }}</td>
-                        <td>{{ partido.rival }}</td>
-                        <td>{{ partido.fecha | date:'shortDate' }}</td>
+      <div class="filter-group">
+        <span class="material-symbols-outlined">groups</span>
+        <select [(ngModel)]="filtroEquipo" (change)="aplicarFiltros()">
+          <option value="">Todos los equipos</option>
+          <option *ngFor="let eq of equipos" [value]="eq">
+            {{ eq }}
+          </option>
+        </select>
+      </div>
 
-                        <td>
-                            <span [class]="getEstado(partido.estado)" class="badge">
-                                {{ partido.estado }}
-                            </span>
-                        </td>
+      <div class="filter-group">
+        <span class="material-symbols-outlined">flag</span>
+        <select [(ngModel)]="filtroEstado" (change)="aplicarFiltros()">
+          <option value="">Todos los estados</option>
+          <option value="pendiente">Pendiente</option>
+          <option value="en_curso">En curso</option>
+          <option value="finalizado">Finalizado</option>
+        </select>
+      </div>
 
-                        <td class="text-right">
-                            <div class="action-buttons">
-                                <button class="btn-icon btn-edit" [title]="partido.estado === 'finalizado' ? 'No se puede editar un partido finalizado' : ''" (click)="editar(partido.id!)" [disabled]="partido.estado === 'finalizado'">
-                                    <span class="material-symbols-outlined">edit</span>
-                                </button>
-                                <button class="btn-icon btn-delete" title="Eliminar" (click)="eliminar(partido.id!)">
-                                    <span class="material-symbols-outlined">delete</span>
-                                </button>
-                            </div>
-                        </td>
+      <button
+        class="btn-reset"
+        (click)="limpiarFiltros()"
+        *ngIf="hayFiltrosActivos()"
+      >
+        <span class="material-symbols-outlined">close</span>
+        Limpiar
+      </button>
 
-                    </tr>
-                </tbody>
-            </table>
+    </section>
 
-        </section>
+    <!-- CONTADOR -->
+    <p
+      class="results-count"
+      *ngIf="partidosFiltrados.length !== partidos.length"
+    >
+      Mostrando {{ partidosFiltrados.length }} de {{ partidos.length }} partidos
+    </p>
 
-    </main>
+    <div *ngIf="loading">Cargando partidos...</div>
+
+    <div *ngIf="!loading && partidos.length === 0">
+      No hay partidos registrados
+    </div>
+
+    <!-- TABLA -->
+    <section class="card table-container" *ngIf="!loading && partidos.length > 0">
+
+      <table>
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Equipo</th>
+            <th>Rival</th>
+            <th>Fecha</th>
+            <th>Estado</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let partido of partidosFiltrados">
+
+            <td class="font-bold text-blue">{{ partido.nombre }}</td>
+            <td>{{ partido.equipo_nombre }}</td>
+            <td>{{ partido.rival }}</td>
+            <td>{{ partido.fecha | date:'shortDate' }}</td>
+
+            <td>
+              <span [class]="getEstado(partido.estado)" class="badge">
+                {{ partido.estado }}
+              </span>
+            </td>
+
+            <td class="text-right">
+              <div class="action-buttons">
+
+                <button
+                  class="btn-icon btn-edit"
+                  (click)="editar(partido.id!)"
+                  [disabled]="partido.estado === 'finalizado'"
+                  [title]="partido.estado === 'finalizado' ? 'No se puede editar un partido finalizado' : ''"
+                >
+                  <span class="material-symbols-outlined">edit</span>
+                </button>
+
+                <button
+                  class="btn-icon btn-delete"
+                  (click)="eliminar(partido.id!)"
+                >
+                  <span class="material-symbols-outlined">delete</span>
+                </button>
+
+              </div>
+            </td>
+
+          </tr>
+        </tbody>
+
+      </table>
+
+    </section>
+
+  </main>
 
 </div>

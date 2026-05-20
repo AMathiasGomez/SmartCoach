@@ -6,7 +6,8 @@
   --text-main: #1e293b;
   --text-muted: #64748b;
   --white: #ffffff;
-  --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1),
+    0 2px 4px -2px rgb(0 0 0 / 0.1);
 }
 
 .app-container {
@@ -19,7 +20,7 @@
 /* --- SIDEBAR --- */
 .sidebar {
   width: 280px;
-  background:#0f172a;
+  background: #0f172a;
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
@@ -85,7 +86,7 @@
 }
 
 .sidebar nav a.active {
-  background:#1d4ed8;
+  background: #1d4ed8;
   color: white;
   box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3);
 }
@@ -114,13 +115,14 @@
 .main-content {
   padding: 2rem;
   width: 100%;
+  margin-left: 280px;
 }
 
 .page-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 }
 
 h1 {
@@ -135,7 +137,76 @@ h1 {
   margin-top: 4px;
 }
 
-/* --- BUTTONS --- */
+/* =========================
+   FILTROS (MISMO ESTILO ENTRENAMIENTOS)
+========================= */
+
+.filters-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 8px 12px;
+  flex: 1;
+  min-width: 180px;
+}
+
+.filter-group .material-symbols-outlined {
+  font-size: 18px;
+  color: #94a3b8;
+}
+
+.filter-group input,
+.filter-group select {
+  border: none;
+  outline: none;
+  width: 100%;
+  font-size: 14px;
+  color: #1e293b;
+  background: transparent;
+}
+
+.filter-group select {
+  cursor: pointer;
+}
+
+.btn-reset {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: #fee2e2;
+  color: #dc2626;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s;
+}
+
+.btn-reset:hover {
+  background: #fecaca;
+}
+
+.results-count {
+  font-size: 13px;
+  color: #64748b;
+  margin-bottom: 12px;
+}
+
+/* --- BUTTON PRIMARY (OPCIONAL) --- */
 .btn-primary {
   background: #2563eb;
   color: white;
@@ -154,57 +225,24 @@ h1 {
 .btn-primary:hover {
   background: #1d4ed8;
   transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(37, 99, 235, 0.3);
-}
-
-.btn-primary span {
-  font-size: 20px;
 }
 
 /* --- TABLE CARD --- */
-.card-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-bottom: 20px;
-  border-bottom: 1px solid #f1f5f9;
-  margin-bottom: 10px;
-}
-
-.card-title {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: #1e293b;
-}
-
-.card-title h5 {
-  margin: 0;
-  font-size: 1.1rem;
-  font-weight: 600;
-}
-
-.card-title span {
-  color: #2563eb;
-}
-
-/* Responsive para la tabla */
-.table-responsive {
-  overflow-x: auto;
-}
-
 .card {
-  background:white;
+  background: white;
   border-radius: 16px;
   border: 1px solid #e2e8f0;
   box-shadow: var(--shadow);
-  overflow: hidden; /* Para que los bordes de la tabla no sobresalgan */
+  overflow: hidden;
+}
+
+.table-container {
+  overflow-x: auto;
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
-  text-align: left;
 }
 
 th {
@@ -213,7 +251,6 @@ th {
   color: var(--text-muted);
   font-size: 0.75rem;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
   border-bottom: 1px solid #e2e8f0;
 }
 
@@ -221,27 +258,36 @@ td {
   padding: 16px 24px;
   border-bottom: 1px solid #f1f5f9;
   color: var(--text-main);
-  font-size: 0.95rem;
 }
 
 tr:hover td {
-  background-color: #f8fafc;
+  background: #f8fafc;
 }
 
-.text-right { text-align: right; }
-.text-muted { color: var(--text-muted); font-size: 0.85rem; }
-.font-bold { font-weight: 600; }
-.text-blue { color: var(--primary); }
-
+/* --- BADGES --- */
 .badge {
-  background: #eff6ff;
-  color: #2563eb;
   padding: 4px 12px;
   border-radius: 20px;
   font-size: 0.8rem;
   font-weight: 600;
 }
 
+.pendiente {
+  background: #facc15;
+  color: #854d0e;
+}
+
+.curso {
+  background: #38bdf8;
+  color: white;
+}
+
+.finalizado {
+  background: #4ade80;
+  color: #14532d;
+}
+
+/* --- ACTION BUTTONS --- */
 .action-buttons {
   display: flex;
   gap: 8px;
@@ -257,79 +303,36 @@ tr:hover td {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: 0.2s;
 }
 
-.btn-edit { background: #fef3c7; color: #d97706; }
-.btn-edit:hover { background: #fcd34d; }
-
-.btn-delete { background: #fee2e2; color: #dc2626; }
-.btn-delete:hover { background: #fecaca; }
-
-/* --- AVATAR DE EQUIPOS --- */
-.user-info {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+.btn-edit {
+  background: #fef3c7;
+  color: #d97706;
 }
 
-.user-avatar-img {
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid #e2e8f0;
-  background-color: #f8fafc;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+.btn-delete {
+  background: #fee2e2;
+  color: #dc2626;
 }
 
-.user-avatar-img:hover {
-  transform: scale(1.05);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.user-avatar {
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #2563eb, #1d4ed8);
-  color: #ffffff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 0.95rem;
-  border: 2px solid #e2e8f0;
-  text-transform: uppercase;
-}
-
-/* Ajuste para alinear correctamente la celda del equipo */
-td .user-info span {
-  white-space: nowrap;
-}
-
-/* Centrado del mensaje cuando no hay registros */
-.text-center {
-  text-align: center;
-  padding: 20px;
-  color: var(--text-muted);
-}
-
-/* Mejora visual en pantallas pequeñas */
+/* --- MOBILE --- */
 @media (max-width: 768px) {
-  .user-avatar-img,
-  .user-avatar {
-    width: 36px;
-    height: 36px;
-    font-size: 0.85rem;
+  .sidebar {
+    display: none;
   }
 
   .main-content {
-    padding: 1.5rem;
+    margin-left: 0;
+    padding: 1rem;
+    padding-top: 4rem;
   }
 
-  th, td {
-    padding: 12px 16px;
+  .filters-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  table {
+    min-width: 700px;
   }
 }
