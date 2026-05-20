@@ -8,3 +8,5 @@ node_modules/
 *.log
 
 TODO.md
+
+__pycache__/
