@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { EquipoService } from '../../../services/equipo/equipo-service';
@@ -24,7 +24,8 @@ export class CrearEquipo {
     private fb: FormBuilder,
     private equipoService: EquipoService,
     public router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private cd: ChangeDetectorRef
   ) {
     this.form = this.fb.group({
       nombre: ['', [
@@ -75,6 +76,7 @@ export class CrearEquipo {
     const reader = new FileReader();
     reader.onload = () => {
       this.fotoPreview = reader.result as string;
+      this.cd.detectChanges();
     };
     reader.readAsDataURL(archivo);
   }
@@ -85,6 +87,7 @@ export class CrearEquipo {
     this.fotoArchivo = null;
     this.fotoPreview = null;
     this.fotoError = '';
+    this.cd.detectChanges();
     const input = document.getElementById('foto-input') as HTMLInputElement;
     if (input) {
       input.value = '';

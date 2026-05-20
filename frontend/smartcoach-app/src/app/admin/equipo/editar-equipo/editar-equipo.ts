@@ -1,20 +1,21 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { EquipoService } from '../../../services/equipo/equipo-service';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../services/auth/auth-service';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-editar-equipo',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule],
+  imports: [ReactiveFormsModule, CommonModule, RouterLink],
   templateUrl: './editar-equipo.html',
   styleUrls: ['./editar-equipo.css']
 })
 export class EditarEquipo implements OnInit {
 
-  private apiBaseUrl = 'https://smartcoach-production.up.railway.app';
+  private apiBaseUrl = environment.apiUrl.replace(/\/api\/?$/, '');
   
   form!: FormGroup;
   id!: number;
@@ -73,7 +74,7 @@ export class EditarEquipo implements OnInit {
         });
 
         // Store current photo and team name
-        this.fotoActual = res.foto || '';
+        this.fotoActual = res.foto_url || '';
         this.equipoNombre = res.nombre || '';
 
         this.cargando = false;
@@ -114,16 +115,18 @@ export class EditarEquipo implements OnInit {
     const reader = new FileReader();
     reader.onload = () => {
       this.fotoPreview = reader.result as string;
+      this.cd.detectChanges();
     };
     reader.readAsDataURL(archivo);
   }
 
-eliminarFoto(event: Event) {
+  eliminarFoto(event: Event) {
     event.preventDefault();
     event.stopPropagation();
     this.fotoArchivo = null;
     this.fotoPreview = null;
     this.fotoError = '';
+    this.cd.detectChanges();
     const input = document.getElementById('foto-input-edit') as HTMLInputElement;
     if (input) {
       input.value = '';
@@ -153,7 +156,7 @@ eliminarFoto(event: Event) {
       formData.append('descripcion', valores.descripcion);
       formData.append('foto', this.fotoArchivo, this.fotoArchivo.name);
 
-      this.equipoService.actualizarEquipo(this.id, formData as any).subscribe({
+      this.equipoService.actualizarEquipo(this.id, formData).subscribe({
         next: () => {
           alert('Equipo actualizado correctamente');
           this.router.navigate(['/ver-equipos']);

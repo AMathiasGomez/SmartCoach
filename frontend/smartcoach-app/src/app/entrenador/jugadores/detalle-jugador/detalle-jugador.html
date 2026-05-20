@@ -5,7 +5,7 @@
             <div class="logo-icon">SC</div>
             <div class="logo-text-wrapper">
                 <h3 class="logo-text">SmartCoach</h3>
-                <p class="logo-subtext">GESTIÓN DEPORTIVA</p>
+                <p class="logo-subtext">GESTION DEPORTIVA</p>
             </div>
         </div>
         <nav>
@@ -26,21 +26,17 @@
             </a>
         </nav>
         <button class="logout" (click)="logout()">
-            <span class="material-symbols-outlined">logout</span>Cerrar sesión
+            <span class="material-symbols-outlined">logout</span>Cerrar sesion
         </button>
     </aside>
 
     <main class="main-content">
 
         <header class="page-header-detail">
-            <div>
-                <button class="btn-back" (click)="back()">
-                    <span class="material-symbols-outlined">arrow_back</span>Volver a lista
-                </button>
-            </div>
-            <div>
-                <h1 class="detail-title">Detalle del Jugador</h1>
-            </div>
+            <button class="btn-back" (click)="back()">
+                <span class="material-symbols-outlined">arrow_back</span>Volver a lista
+            </button>
+            <h1 class="detail-title">Detalle del Jugador</h1>
         </header>
 
         <div *ngIf="loading" class="loading">
@@ -52,7 +48,6 @@
 
         <div *ngIf="jugador">
 
-            <!-- Hero -->
             <section class="hero-section">
                 <img *ngIf="jugador.foto_url; else avatarHero"
                     [src]="'https://smartcoach-production.up.railway.app' + jugador.foto_url" [alt]="jugador.nombre"
@@ -65,14 +60,13 @@
                 <div class="position-badge-large">{{ jugador.posicion }}</div>
             </section>
 
-            <!-- Info grid -->
             <div class="info-grid">
                 <div class="info-card">
                     <h3>Edad</h3>
-                    <div class="value">{{ calculateAge() }} años</div>
+                    <div class="value">{{ calculateAge() }} anos</div>
                 </div>
                 <div class="info-card">
-                    <h3>Posición</h3>
+                    <h3>Posicion</h3>
                     <div class="value">{{ jugador.posicion }}</div>
                 </div>
                 <div class="info-card">
@@ -85,43 +79,36 @@
                 </div>
             </div>
 
-            <!-- ══════════ SECCIÓN ANÁLISIS ML ══════════ -->
             <section class="analytics-section">
                 <div class="analytics-header">
                     <span class="material-symbols-outlined analytics-icon">psychology</span>
-                    <h2 class="analytics-title">Análisis de Rendimiento</h2>
-                    <span class="analytics-badge">IA • scikit-learn</span>
+                    <h2 class="analytics-title">Analisis Individual de Rendimiento</h2>
+                    <span class="analytics-badge">IA - scikit-learn</span>
                 </div>
 
-                <!-- Loading -->
                 <div *ngIf="analyticsLoading" class="analytics-loading">
                     <div class="spinner"></div>
-                    <span>Procesando análisis con IA...</span>
+                    <span>Procesando analisis con IA...</span>
                 </div>
 
-                <!-- Sin datos -->
                 <div *ngIf="!analyticsLoading && (!analytics || !analytics.analysis)" class="analytics-empty">
                     <span class="material-symbols-outlined">bar_chart</span>
-                    <p>El análisis de rendimiento aparecerá aquí cuando el jugador tenga estadísticas registradas en
-                        partidos.</p>
+                    <p>El analisis de rendimiento aparecera aqui cuando el jugador tenga estadisticas registradas en partidos.</p>
                 </div>
 
-                <!-- Datos disponibles -->
                 <div *ngIf="!analyticsLoading && analytics?.analysis" class="analytics-content">
 
-                    <!-- Score global + nivel + tendencia -->
                     <div class="analytics-kpi-row">
-
                         <div class="kpi-card kpi-main">
-                            <div class="kpi-label">Score Global</div>
+                            <div class="kpi-label">Score posicional</div>
                             <div class="kpi-score-ring">
                                 <svg viewBox="0 0 100 100" class="ring-svg">
                                     <circle cx="50" cy="50" r="42" class="ring-bg" />
                                     <circle cx="50" cy="50" r="42" class="ring-fill" [style.strokeDasharray]="'263.9'"
                                         [style.strokeDashoffset]="263.9 - (263.9 * getOverallPercent() / 100)" />
                                 </svg>
-                                <div class="ring-value">{{ analytics.analysis.overall_score | number:'1.1-1' }}</div>
-                                <div class="ring-max">/10</div>
+                                <div class="ring-value">{{ getOverallDisplay() | number:'1.0-0' }}</div>
+                                <div class="ring-max">/100</div>
                             </div>
                         </div>
 
@@ -130,6 +117,11 @@
                             <div class="kpi-nivel" [ngClass]="getNivelClass()">
                                 {{ analytics.analysis.nivel }}
                             </div>
+                        </div>
+
+                        <div class="kpi-card">
+                            <div class="kpi-label">Perfil</div>
+                            <div class="kpi-profile">{{ analytics.analysis.profile || 'Perfil en desarrollo' }}</div>
                         </div>
 
                         <div class="kpi-card">
@@ -145,94 +137,85 @@
                             <div class="kpi-partidos">{{ analytics.analysis.partidos_analizados }}</div>
                         </div>
 
+                        <div class="kpi-card">
+                            <div class="kpi-label">Confianza</div>
+                            <div class="kpi-partidos">{{ analytics.analysis.confidence | number:'1.0-0' }}%</div>
+                        </div>
                     </div>
 
-                    <!-- Radar chart + barras de scores -->
-                    <div class="analytics-charts-row">
+                    <div class="analysis-insights-grid">
+                        <div class="insight-panel" *ngIf="analytics.analysis.insights?.length">
+                            <h3 class="chart-subtitle">Lectura deportiva</h3>
+                            <ul class="insight-list">
+                                <li *ngFor="let insight of analytics.analysis.insights">
+                                    <span class="material-symbols-outlined">insights</span>
+                                    <span>{{ insight }}</span>
+                                </li>
+                            </ul>
+                        </div>
 
-                        <!-- Radar -->
+                        <div class="insight-panel">
+                            <h3 class="chart-subtitle">Fortalezas y alertas</h3>
+                            <div class="tag-group" *ngIf="analytics.analysis.strengths?.length">
+                                <span class="analysis-tag strong" *ngFor="let item of analytics.analysis.strengths">{{ item }}</span>
+                            </div>
+                            <div class="tag-group" *ngIf="analytics.analysis.weaknesses?.length">
+                                <span class="analysis-tag weak" *ngFor="let item of analytics.analysis.weaknesses">{{ item }}</span>
+                            </div>
+                            <p class="muted-note" *ngIf="!analytics.analysis.strengths?.length && !analytics.analysis.weaknesses?.length">
+                                Perfil equilibrado, sin extremos marcados.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="analytics-charts-row">
                         <div class="radar-wrapper">
-                            <h3 class="chart-subtitle">Perfil de Habilidades</h3>
+                            <h3 class="chart-subtitle">Radar por rol</h3>
                             <canvas #radarCanvas width="300" height="300" class="radar-canvas"></canvas>
                         </div>
 
-                        <!-- Barras de puntuación -->
                         <div class="scores-bars-wrapper">
-                            <h3 class="chart-subtitle">Puntuación por Categoría</h3>
+                            <h3 class="chart-subtitle">Scores derivados por fundamento</h3>
 
-                            <div class="score-bar-item">
+                            <div class="score-bar-item" *ngFor="let axis of getRadarAxes()">
                                 <div class="score-bar-header">
-                                    <span class="material-symbols-outlined">trending_up</span>
-                                    <span>Ataques</span>
-                                    <span class="score-num">{{ analytics.analysis.scores.ataques | number:'1.1-1'
-                                        }}/10</span>
+                                    <span class="material-symbols-outlined">{{ getAxisIcon(axis.key) }}</span>
+                                    <span>{{ axis.label }}</span>
+                                    <span class="score-num">{{ axis.value | number:'1.0-0' }}/100</span>
                                 </div>
                                 <div class="score-bar-track">
-                                    <div class="score-bar-fill fill-ataques"
-                                        [style.width.%]="analytics.analysis.scores.ataques * 10"></div>
+                                    <div class="score-bar-fill" [ngClass]="getAxisFillClass(axis.key)"
+                                        [style.width.%]="axis.value"></div>
                                 </div>
                             </div>
 
-                            <div class="score-bar-item">
-                                <div class="score-bar-header">
-                                    <span class="material-symbols-outlined">shield</span>
-                                    <span>Bloqueos</span>
-                                    <span class="score-num">{{ analytics.analysis.scores.bloqueos | number:'1.1-1'
-                                        }}/10</span>
-                                </div>
-                                <div class="score-bar-track">
-                                    <div class="score-bar-fill fill-bloqueos"
-                                        [style.width.%]="analytics.analysis.scores.bloqueos * 10"></div>
-                                </div>
-                            </div>
-
-                            <div class="score-bar-item">
-                                <div class="score-bar-header">
-                                    <span class="material-symbols-outlined">swap_vert</span>
-                                    <span>Recepciones</span>
-                                    <span class="score-num">{{ analytics.analysis.scores.recepciones | number:'1.1-1'
-                                        }}/10</span>
-                                </div>
-                                <div class="score-bar-track">
-                                    <div class="score-bar-fill fill-recepciones"
-                                        [style.width.%]="analytics.analysis.scores.recepciones * 10"></div>
-                                </div>
-                            </div>
-
-                            <div class="score-bar-item">
-                                <div class="score-bar-header">
-                                    <span class="material-symbols-outlined">verified</span>
-                                    <span>Eficiencia</span>
-                                    <span class="score-num">{{ analytics.analysis.scores.eficiencia | number:'1.1-1'
-                                        }}/10</span>
-                                </div>
-                                <div class="score-bar-track">
-                                    <div class="score-bar-fill fill-eficiencia"
-                                        [style.width.%]="analytics.analysis.scores.eficiencia * 10"></div>
-                                </div>
-                            </div>
-
-                            <!-- Nota scikit-learn -->
                             <p class="analytics-note">
                                 <span class="material-symbols-outlined">info</span>
-                                Análisis generado con scikit-learn. Los puntajes se normalizan con MinMaxScaler
-                                y se ponderan según la posición del jugador ({{ jugador.posicion }}).
+                                Los ejes usan balances, eficiencias y control de errores normalizados por posicion; no son conteos crudos.
                             </p>
                         </div>
-
                     </div>
 
-                    <!-- Historial de score por partido -->
                     <div *ngIf="analytics.analysis.historial_scores?.length > 1" class="historial-wrapper">
-                        <h3 class="chart-subtitle">Evolución del Score por Partido</h3>
+                        <h3 class="chart-subtitle">Evolucion del score por partido</h3>
                         <div class="historial-bars">
                             <div *ngFor="let score of analytics.analysis.historial_scores; let i = index"
                                 class="hist-bar-col">
                                 <div class="hist-bar-fill" [style.height.%]="score * 10"
-                                    [title]="'Partido ' + (i+1) + ': ' + score"></div>
+                                    [title]="'Partido ' + (i + 1) + ': ' + score"></div>
                                 <div class="hist-bar-label">P{{ i + 1 }}</div>
                             </div>
                         </div>
+                    </div>
+
+                    <div *ngIf="analytics.analysis.recommendations?.length" class="recommendations-panel">
+                        <h3 class="chart-subtitle">Recomendaciones de entrenamiento</h3>
+                        <ul class="insight-list">
+                            <li *ngFor="let recommendation of analytics.analysis.recommendations">
+                                <span class="material-symbols-outlined">fitness_center</span>
+                                <span>{{ recommendation }}</span>
+                            </li>
+                        </ul>
                     </div>
 
                 </div>
@@ -242,7 +225,7 @@
                 <h2 class="stats-title">Historial por Partido</h2>
 
                 <div *ngIf="statsLoading" class="loading">
-                    <span class="material-symbols-outlined">hourglass_empty</span> Cargando estadísticas...
+                    <span class="material-symbols-outlined">hourglass_empty</span> Cargando estadisticas...
                 </div>
 
                 <div *ngIf="!statsLoading && stats?.partidos?.length > 0" class="match-history">
@@ -252,10 +235,10 @@
                                 <th>Partido</th>
                                 <th>Fecha</th>
                                 <th>Rival</th>
-                                <th>Ataques</th>
-                                <th>Recepciones</th>
+                                <th>Ataques +</th>
+                                <th>Recepciones +</th>
                                 <th>Errores</th>
-                                <th>Bloqueos</th>
+                                <th>Bloqueos +</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -273,8 +256,8 @@
                 </div>
 
                 <div *ngIf="!statsLoading && !stats?.partidos?.length" class="no-stats">
-                    <p>No hay estadísticas disponibles para este jugador.</p>
-                    <p class="no-stats-hint">Las estadísticas se registrarán en los partidos.</p>
+                    <p>No hay estadisticas disponibles para este jugador.</p>
+                    <p class="no-stats-hint">Las estadisticas se registraran en los partidos.</p>
                 </div>
             </section>
 

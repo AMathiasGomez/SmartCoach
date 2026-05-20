@@ -133,6 +133,7 @@ export class EditarJugador implements OnInit {
     const reader = new FileReader();
     reader.onload = () => {
       this.fotoPreview = reader.result as string;
+      this.cd.detectChanges();
     };
     reader.readAsDataURL(archivo);
   }
@@ -143,6 +144,7 @@ export class EditarJugador implements OnInit {
     this.fotoArchivo = null;
     this.fotoPreview = null;
     this.fotoError = '';
+    this.cd.detectChanges();
     const input = document.getElementById('foto-input-edit') as HTMLInputElement;
     if (input) {
       input.value = '';

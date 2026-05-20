@@ -677,7 +677,7 @@ exports.getJugadoresByPartido = async (req, res) => {
     const { partido_id } = req.params;
 
     const [jugadores] = await db.query(`
-      SELECT j.id, j.nombre, j.numero, j.posicion, j.foto
+      SELECT j.id, j.nombre, j.numero, j.posicion, j.foto_url, j.foto_url AS foto
       FROM partido_jugador pj
       JOIN jugadores j ON pj.jugador_id = j.id
       WHERE pj.partido_id = ?

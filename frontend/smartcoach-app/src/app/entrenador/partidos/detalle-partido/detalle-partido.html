@@ -267,9 +267,12 @@
 
             <!-- Avatar -->
             <div class="card-avatar-wrapper">
-              <img *ngIf="getFotoJugador(player.player_id)" [src]="getFotoJugador(player.player_id)" [alt]="player.name"
+              <img *ngIf="getFotoJugador(player.player_id, player.name)" [src]="getFotoJugador(player.player_id, player.name)" [alt]="player.name"
                 class="card-avatar-img" (error)="onImgError($event)" />
-              <div *ngIf="!getFotoJugador(player.player_id)" class="card-avatar-placeholder">
+              <div *ngIf="getFotoJugador(player.player_id, player.name)" class="card-avatar-placeholder card-avatar-fallback">
+                {{ player.name.charAt(0) }}
+              </div>
+              <div *ngIf="!getFotoJugador(player.player_id, player.name)" class="card-avatar-placeholder">
                 {{ player.name.charAt(0) }}
               </div>
             </div>
@@ -346,10 +349,13 @@
       <!-- Header -->
       <div class="modal-header-analytics">
         <div class="modal-avatar-wrapper">
-          <img *ngIf="getFotoJugador(jugadorSeleccionado.player_id)"
-            [src]="getFotoJugador(jugadorSeleccionado.player_id)" [alt]="jugadorSeleccionado.name"
+          <img *ngIf="getFotoJugador(jugadorSeleccionado.player_id, jugadorSeleccionado.name)"
+            [src]="getFotoJugador(jugadorSeleccionado.player_id, jugadorSeleccionado.name)" [alt]="jugadorSeleccionado.name"
             class="modal-avatar-img" (error)="onImgError($event)" />
-          <div *ngIf="!getFotoJugador(jugadorSeleccionado.player_id)" class="modal-avatar-placeholder">
+          <div *ngIf="getFotoJugador(jugadorSeleccionado.player_id, jugadorSeleccionado.name)" class="modal-avatar-placeholder card-avatar-fallback">
+            {{ jugadorSeleccionado.name.charAt(0) }}
+          </div>
+          <div *ngIf="!getFotoJugador(jugadorSeleccionado.player_id, jugadorSeleccionado.name)" class="modal-avatar-placeholder">
             {{ jugadorSeleccionado.name.charAt(0) }}
           </div>
         </div>

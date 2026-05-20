@@ -194,7 +194,7 @@ exports.getJugadoresByEquipo = async (req, res) => {
   try {
     const { equipo_id } = req.params;
     const [jugadores] = await db.query(
-      'SELECT id, nombre, numero, posicion FROM jugadores WHERE equipo_id = ?',
+      'SELECT id, nombre, numero, posicion, foto_url FROM jugadores WHERE equipo_id = ?',
       [equipo_id]
     );
     res.json(jugadores);

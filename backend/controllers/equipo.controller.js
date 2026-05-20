@@ -63,12 +63,42 @@ exports.getEquipos = async (req, res) => {
 exports.updateEquipo = async (req, res) => {
   const { id } = req.params;
   try {
-    console.log('BODY EN BACKEND:', req.body);
-    const result = await Equipo.update(id, req.body);
-    if (result.affectedRows === 0) {
+    let { nombre, categoria, ano_fundacion, descripcion } = req.body;
+
+    nombre = nombre?.trim();
+    categoria = categoria?.trim();
+
+    if (!nombre || !categoria) {
+      return res.status(400).json({
+        message: 'El nombre y la categoria son campos obligatorios.'
+      });
+    }
+
+    const [equipoActual] = await db.query('SELECT id FROM equipos WHERE id = ?', [id]);
+    if (equipoActual.length === 0) {
       return res.status(404).json({ message: 'Equipo no encontrado' });
     }
-    res.json({ message: 'Equipo actualizado correctamente' });
+
+    const foto_url = req.file ? `/uploads/equipos/${req.file.filename}` : undefined;
+    const campos = ['nombre = ?', 'categoria = ?', 'ano_fundacion = ?', 'descripcion = ?'];
+    const valores = [nombre, categoria, ano_fundacion, descripcion];
+
+    if (foto_url) {
+      campos.push('foto_url = ?');
+      valores.push(foto_url);
+    }
+
+    valores.push(id);
+
+    await db.query(
+      `UPDATE equipos SET ${campos.join(', ')} WHERE id = ?`,
+      valores
+    );
+
+    res.json({
+      message: 'Equipo actualizado correctamente',
+      foto_url
+    });
   } catch (error) {
     if (error.code === 'ER_DUP_ENTRY') {
       return res.status(400).json({ message: 'Ya existe otro equipo con ese nombre en esta categoría' });

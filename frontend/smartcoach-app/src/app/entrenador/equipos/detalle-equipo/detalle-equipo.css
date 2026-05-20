@@ -328,11 +328,9 @@
  
 /* KPI row */
 .analytics-kpi-row {
-  display: grid; grid-template-columns: 1fr 1fr 1fr 1fr;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
   gap: 16px; margin-bottom: 28px;
 }
-@media (max-width: 900px) { .analytics-kpi-row { grid-template-columns: 1fr 1fr; } }
-@media (max-width: 500px)  { .analytics-kpi-row { grid-template-columns: 1fr; } }
  
 .kpi-card {
   background: #F7FAFC; border-radius: 12px;
@@ -363,6 +361,94 @@
 .tendencia-down { color: #C53030; }
 .tendencia-flat { color: #718096; }
 .kpi-tendencia .material-symbols-outlined { font-size: 32px; }
+
+.kpi-profile {
+  color: #1A365D;
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1.25;
+  margin-top: 12px;
+}
+
+.kpi-partidos {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #2B6CB0;
+  margin-top: 4px;
+}
+
+.analysis-insights-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(260px, 0.75fr);
+  gap: 18px;
+  margin-bottom: 28px;
+}
+
+.insight-panel,
+.recommendations-panel,
+.set-section {
+  background: #F7FAFC;
+  border: 1px solid #E2EBF7;
+  border-radius: 12px;
+  padding: 18px;
+}
+
+.insight-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.insight-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  color: #334155;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.insight-list .material-symbols-outlined {
+  color: #3182CE;
+  flex-shrink: 0;
+  font-size: 1.1rem;
+  margin-top: 1px;
+}
+
+.tag-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.analysis-tag {
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  padding: 0.35rem 0.7rem;
+}
+
+.analysis-tag.strong {
+  background: #DCFCE7;
+  color: #166534;
+  border: 1px solid #BBF7D0;
+}
+
+.analysis-tag.weak {
+  background: #FEF3C7;
+  color: #92400E;
+  border: 1px solid #FDE68A;
+}
+
+.muted-note {
+  color: #718096;
+  font-size: 0.85rem;
+  margin: 0;
+}
  
 /* Jugador destacado */
 .kpi-destacado { border-color: #FAF089; background: #FFFFF0; }
@@ -395,6 +481,9 @@
 .fill-bloqueos    { background: linear-gradient(90deg,#68D391,#38A169); }
 .fill-recepciones { background: linear-gradient(90deg,#F6AD55,#DD6B20); }
 .fill-eficiencia  { background: linear-gradient(90deg,#B794F4,#805AD5); }
+.fill-defensa     { background: linear-gradient(90deg,#38BDF8,#0369A1); }
+.fill-saque       { background: linear-gradient(90deg,#FBBF24,#D97706); }
+.fill-armado      { background: linear-gradient(90deg,#A78BFA,#6D28D9); }
  
 /* Totales chips */
 .totales-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
@@ -416,6 +505,40 @@
   padding: 10px 12px; line-height: 1.5;
 }
 .analytics-note .material-symbols-outlined { font-size: 16px; color: #4299E1; flex-shrink: 0; }
+
+.set-section,
+.recommendations-panel {
+  margin-bottom: 24px;
+}
+
+.set-score-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.set-score-item {
+  display: grid;
+  grid-template-columns: 70px 1fr 42px;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.85rem;
+  color: #334155;
+  font-weight: 700;
+}
+
+.set-score-track {
+  height: 10px;
+  border-radius: 999px;
+  background: #EDF2F7;
+  overflow: hidden;
+}
+
+.set-score-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg,#63B3ED,#3182CE);
+}
  
 /* Ranking */
 .ranking-section { border-top: 1px solid #EBF4FF; padding-top: 24px; }
@@ -438,4 +561,10 @@
 .ranking-bar-fill { height: 100%; background: linear-gradient(90deg,#63B3ED,#3182CE); border-radius: 99px; transition: width 0.8s ease; }
 .ranking-score { font-size: 0.9rem; font-weight: 800; color: #2B6CB0; width: 36px; text-align: right; }
 .ranking-star  { color: #D69E2E; font-size: 18px; }
+
+@media (max-width: 800px) {
+  .analysis-insights-grid {
+    grid-template-columns: 1fr;
+  }
+}
  

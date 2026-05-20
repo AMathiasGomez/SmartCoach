@@ -17,11 +17,26 @@ const storage = multer.diskStorage({
   }
 });
 
-const upload = multer({ storage });
+const fileFilter = (req, file, cb) => {
+  const tiposPermitidos = ['image/jpeg', 'image/png', 'image/webp'];
+
+  if (tiposPermitidos.includes(file.mimetype)) {
+    cb(null, true);
+    return;
+  }
+
+  cb(new Error('Solo se permiten imagenes JPG, PNG o WEBP.'));
+};
+
+const upload = multer({
+  storage,
+  fileFilter,
+  limits: { fileSize: 5 * 1024 * 1024 }
+});
 
 router.get('/', controller.getEquipos);
 router.post('/', upload.single('foto'), controller.createEquipo); 
-router.put('/:id', controller.updateEquipo);
+router.put('/:id', upload.single('foto'), controller.updateEquipo);
 router.delete('/:id', controller.deleteEquipo);
 router.get('/:id', controller.getEquipoById);
 

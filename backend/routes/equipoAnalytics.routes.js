@@ -5,6 +5,26 @@ const { spawn } = require('child_process');
 const db      = require('../config/db');
 
 const PYTHON_SCRIPT = path.join(__dirname, '..', 'analytics', 'models', 'teamAnalytics.py');
+const DETAILED_COLUMNS = [
+  'ataques_positivos',
+  'errores_ataque',
+  'aces',
+  'errores_saque',
+  'bloqueos_positivos',
+  'errores_bloqueo',
+  'recepciones_positivas',
+  'recepciones_negativas',
+  'defensas_positivas',
+  'defensas_negativas',
+  'asistencias',
+  'errores_armado',
+];
+
+function detailedSumSelect(alias) {
+  return DETAILED_COLUMNS
+    .map(column => `COALESCE(SUM(${alias}.${column}), 0) AS ${column}`)
+    .join(',\n             ');
+}
 
 function runPython(input) {
   return new Promise((resolve, reject) => {
@@ -45,8 +65,27 @@ router.get('/:id/analytics', async (req, res) => {
     const jugadoresConStats = await Promise.all(
       jugadoresRows.map(async (j) => {
         const [stats] = await db.query(
-          `SELECT ataques, bloqueos, recepciones, errores
-           FROM estadisticas_jugador WHERE jugador_id = ? ORDER BY created_at ASC`,
+          `SELECT
+             sp.partido_id,
+             p.fecha,
+             ${detailedSumSelect('ejs')},
+             COALESCE(SUM(ejs.ataques_positivos), 0) AS ataques,
+             COALESCE(SUM(ejs.recepciones_positivas), 0) AS recepciones,
+             COALESCE(SUM(ejs.bloqueos_positivos), 0) AS bloqueos,
+             COALESCE(SUM(
+               ejs.errores_ataque +
+               ejs.errores_saque +
+               ejs.errores_bloqueo +
+               ejs.recepciones_negativas +
+               ejs.defensas_negativas +
+               ejs.errores_armado
+             ), 0) AS errores
+           FROM estadisticas_jugador_set ejs
+           JOIN sets_partido sp ON ejs.set_id = sp.id
+           JOIN partidos p ON sp.partido_id = p.id
+           WHERE ejs.jugador_id = ?
+           GROUP BY sp.partido_id, p.fecha
+           ORDER BY p.fecha ASC`,
           [j.id]
         );
         return {
@@ -54,10 +93,15 @@ router.get('/:id/analytics', async (req, res) => {
           nombre:     j.nombre,
           posicion:   j.posicion || '',
           partidos:   (stats || []).map(s => ({
-            ataques:     Number(s.ataques)     || 0,
-            bloqueos:    Number(s.bloqueos)    || 0,
+            partido_id: s.partido_id,
+            ...DETAILED_COLUMNS.reduce((acc, column) => {
+              acc[column] = Number(s[column]) || 0;
+              return acc;
+            }, {}),
+            ataques: Number(s.ataques) || 0,
+            bloqueos: Number(s.bloqueos) || 0,
             recepciones: Number(s.recepciones) || 0,
-            errores:     Number(s.errores)     || 0,
+            errores: Number(s.errores) || 0,
           }))
         };
       })
@@ -70,7 +114,45 @@ router.get('/:id/analytics', async (req, res) => {
         analysis: null, mensaje: 'Ningún jugador tiene estadísticas aún' });
     }
 
-    const payload  = JSON.stringify({ equipo_id: equipoId, jugadores: conDatos });
+    const [setsRows] = await db.query(
+      `SELECT
+         sp.partido_id,
+         sp.numero_set,
+         ${detailedSumSelect('ejs')},
+         COALESCE(SUM(ejs.ataques_positivos), 0) AS ataques,
+         COALESCE(SUM(ejs.recepciones_positivas), 0) AS recepciones,
+         COALESCE(SUM(ejs.bloqueos_positivos), 0) AS bloqueos,
+         COALESCE(SUM(
+           ejs.errores_ataque +
+           ejs.errores_saque +
+           ejs.errores_bloqueo +
+           ejs.recepciones_negativas +
+           ejs.defensas_negativas +
+           ejs.errores_armado
+         ), 0) AS errores
+       FROM estadisticas_jugador_set ejs
+       JOIN sets_partido sp ON ejs.set_id = sp.id
+       JOIN jugadores j ON ejs.jugador_id = j.id
+       WHERE j.equipo_id = ?
+       GROUP BY sp.partido_id, sp.numero_set
+       ORDER BY sp.partido_id ASC, sp.numero_set ASC`,
+      [equipoId]
+    );
+
+    const sets = (setsRows || []).map(s => ({
+      partido_id: s.partido_id,
+      numero_set: s.numero_set,
+      ...DETAILED_COLUMNS.reduce((acc, column) => {
+        acc[column] = Number(s[column]) || 0;
+        return acc;
+      }, {}),
+      ataques: Number(s.ataques) || 0,
+      bloqueos: Number(s.bloqueos) || 0,
+      recepciones: Number(s.recepciones) || 0,
+      errores: Number(s.errores) || 0,
+    }));
+
+    const payload  = JSON.stringify({ equipo_id: equipoId, jugadores: conDatos, sets });
     const analysis = await runPython(payload);
 
     console.log('>>> ANÁLISIS EQUIPO:', JSON.stringify(analysis, null, 2));

@@ -1,11 +1,10 @@
 <div class="app-container">
-
   <aside class="sidebar">
     <div class="logo">
       <div class="logo-icon">SC</div>
       <div class="logo-text-wrapper">
         <h3 class="logo-text">SmartCoach</h3>
-        <p class="logo-subtext">GESTIÓN DEPORTIVA</p>
+        <p class="logo-subtext">GESTION DEPORTIVA</p>
       </div>
     </div>
 
@@ -34,178 +33,228 @@
 
     <button class="logout" (click)="logout()">
       <span class="material-symbols-outlined">logout</span>
-      Cerrar sesión
+      Cerrar sesion
     </button>
   </aside>
 
   <main class="main-content">
+    <div *ngIf="loading" class="loading-state">
+      <div class="spinner"></div>
+      <span>Cargando dashboard...</span>
+    </div>
 
-    <!-- Page Content -->
-    <section class="content">
+    <div *ngIf="!loading" class="dashboard-shell">
+      <section class="hero-panel">
+        <div>
+          <span class="eyebrow">{{ todayLabel }}</span>
+          <h1>Panel del entrenador</h1>
+          <p>Seguimiento rapido de equipos, jugadores, entrenamientos y partidos.</p>
+        </div>
 
-      <!-- Welcome -->
-      <div class="welcome">
-        <h1>Welcome back, Coach</h1>
-        <p>Monitor and enhance your team's performance with real-time analytics.</p>
+        <div class="today-card">
+          <span class="material-symbols-outlined">event_available</span>
+          <div>
+            <small>Proximo entrenamiento</small>
+            <strong>{{ getNextTrainingLabel() }}</strong>
+          </div>
+        </div>
+      </section>
+
+      <div *ngIf="error" class="error-banner">
+        <span class="material-symbols-outlined">error</span>
+        {{ error }}
       </div>
 
-<!-- KPI Cards -->
-      <div class="kpi-grid">
-        <div class="kpi-card">
-          <div class="kpi-icon players">
-            <span class="material-symbols-outlined">person</span>
+      <section class="kpi-grid">
+        <article class="kpi-card">
+          <span class="material-symbols-outlined kpi-icon players">person</span>
+          <div>
+            <p>Jugadores</p>
+            <strong>{{ totalJugadores }}</strong>
           </div>
-          <h4>Total Jugadores</h4>
-          <p class="stat">{{ totalJugadores }}</p>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-icon teams">
-            <span class="material-symbols-outlined">group</span>
-          </div>
-          <h4>Equipos Activos</h4>
-          <p class="stat">{{ totalEquipos }}</p>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-icon matches">
-            <span class="material-symbols-outlined">sports_soccer</span>
-          </div>
-          <h4>Partidos Jugados</h4>
-          <p class="stat">{{ totalPartidos }}</p>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-icon training">
-            <span class="material-symbols-outlined">fitness_center</span>
-          </div>
-          <h4>Entrenamientos</h4>
-          <p class="stat">{{ totalEntrenamientos }}</p>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-icon performance">
-            <span class="material-symbols-outlined">trending_up</span>
-          </div>
-          <h4>Rendimiento Promedio</h4>
-          <p class="stat success">{{ promedioRendimiento }}</p>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-icon injured">
-            <span class="material-symbols-outlined">health_and_safety</span>
-          </div>
-          <h4>Lesionados</h4>
-          <p class="stat danger">{{ jugadoresLesionados }}</p>
-        </div>
-      </div>
+        </article>
 
-      <!-- Action Buttons -->
-      <div class="actions">
-        <button class="btn primary">Register Training Session</button>
-        <button class="btn success">Record Match</button>
-        <button class="btn light">Add Player Stats</button>
-        <button class="btn light">Evaluate Player</button>
-        <button class="btn light">Generate Report</button>
-      </div>
+        <article class="kpi-card">
+          <span class="material-symbols-outlined kpi-icon teams">groups</span>
+          <div>
+            <p>Equipos</p>
+            <strong>{{ totalEquipos }}</strong>
+          </div>
+        </article>
 
-      <!-- Main Grid -->
-      <div class="grid">
+        <article class="kpi-card">
+          <span class="material-symbols-outlined kpi-icon training">fitness_center</span>
+          <div>
+            <p>Entrenos esta semana</p>
+            <strong>{{ entrenamientosSemana }}</strong>
+          </div>
+        </article>
 
-        <!-- Left Column -->
-        <div class="left-column">
+        <article class="kpi-card">
+          <span class="material-symbols-outlined kpi-icon matches">sports_soccer</span>
+          <div>
+            <p>Partidos este mes</p>
+            <strong>{{ partidosMes }}</strong>
+          </div>
+        </article>
+      </section>
 
-          <!-- Performance Chart -->
-          <div class="card">
-            <div class="card-header">
-              <h3>Player Performance Trends</h3>
-              <span class="badge">Last 30 Days</span>
+      <section class="quick-actions" aria-label="Accesos rapidos">
+        <a *ngFor="let action of quickActions" [routerLink]="action.route" class="quick-action" [ngClass]="action.tone">
+          <span class="material-symbols-outlined">{{ action.icon }}</span>
+          <span>{{ action.label }}</span>
+        </a>
+      </section>
+
+      <section class="dashboard-grid">
+        <div class="main-column">
+          <article class="panel featured-team" *ngIf="equipoDestacado; else noTeam">
+            <div class="panel-header">
+              <div>
+                <span class="section-label">Equipo destacado</span>
+                <h2>{{ equipoDestacado.nombre }}</h2>
+              </div>
+              <a *ngIf="equipoDestacado.id" [routerLink]="['/detalle-equipo', equipoDestacado.id]" class="link-button">
+                Ver detalle
+                <span class="material-symbols-outlined">arrow_forward</span>
+              </a>
             </div>
-            <div class="chart-placeholder"></div>
-          </div>
 
-          <!-- Match Results -->
-          <div class="card">
-            <h3>Recent Match Results</h3>
-            <table>
-              <thead>
-                <tr>
-                  <th>Date</th>
-                  <th>Opponent</th>
-                  <th>Score</th>
-                  <th>Result</th>
-                  <th>Performance</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Oct 12, 2024</td>
-                  <td>Thunder Cats VC</td>
-                  <td>3 - 1</td>
-                  <td><span class="badge win">Win</span></td>
-                  <td>8.5</td>
-                </tr>
-                <tr>
-                  <td>Oct 08, 2024</td>
-                  <td>Blue Knights</td>
-                  <td>3 - 2</td>
-                  <td><span class="badge win">Win</span></td>
-                  <td>7.8</td>
-                </tr>
-                <tr>
-                  <td>Oct 01, 2024</td>
-                  <td>Spike Vipers</td>
-                  <td>1 - 3</td>
-                  <td><span class="badge loss">Loss</span></td>
-                  <td>6.2</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+            <div class="team-row">
+              <img *ngIf="equipoDestacado.foto_url; else teamAvatar"
+                [src]="getFotoEquipo(equipoDestacado.foto_url)"
+                [alt]="equipoDestacado.nombre"
+                class="team-shield">
 
-          <!-- Elite Players -->
-          <div class="elite">
-            <h2>Week's Elite Performers</h2>
-            <div class="elite-grid">
-              <div class="elite-card">
-                <h4>Marco Rossi</h4>
-                <p>Setter</p>
-              </div>
-              <div class="elite-card">
-                <h4>Liam Chen</h4>
-                <p>Outside Hitter</p>
-              </div>
-              <div class="elite-card">
-                <h4>David Okafor</h4>
-                <p>Middle Blocker</p>
+              <ng-template #teamAvatar>
+                <div class="team-shield placeholder">{{ getInitials(equipoDestacado.nombre) }}</div>
+              </ng-template>
+
+              <div class="team-meta">
+                <span class="category-pill">{{ equipoDestacado.categoria }}</span>
+                <p>{{ equipoDestacado.descripcion || 'Sin descripcion registrada.' }}</p>
+                <div class="mini-stats">
+                  <span>{{ equipoDestacado.jugadores_count || 0 }} jugadores</span>
+                  <span>Fundado en {{ equipoDestacado.ano_fundacion || 'N/D' }}</span>
+                </div>
               </div>
             </div>
-          </div>
+          </article>
 
+          <ng-template #noTeam>
+            <article class="panel empty-panel">
+              <span class="material-symbols-outlined">groups</span>
+              <h2>No hay equipos registrados</h2>
+              <p>Cuando exista al menos un equipo, aparecera aqui para seguimiento rapido.</p>
+            </article>
+          </ng-template>
+
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <span class="section-label">Agenda</span>
+                <h2>Proximos entrenamientos</h2>
+              </div>
+              <a routerLink="/ver-entrenamientos-e" class="link-button">Ver todos</a>
+            </div>
+
+            <div *ngIf="entrenamientosProximos.length; else noTraining" class="timeline">
+              <div *ngFor="let entrenamiento of entrenamientosProximos" class="timeline-item">
+                <div class="date-block">
+                  <strong>{{ entrenamiento.fecha_corta }}</strong>
+                  <span>{{ entrenamiento.fecha_relativa }}</span>
+                </div>
+                <div class="timeline-content">
+                  <h3>{{ entrenamiento.tipo || 'Entrenamiento' }}</h3>
+                  <p>{{ entrenamiento.equipo_nombre || 'Equipo por confirmar' }}</p>
+                </div>
+                <a *ngIf="entrenamiento.id" [routerLink]="['/detalle-entrenamiento', entrenamiento.id]" class="icon-link">
+                  <span class="material-symbols-outlined">visibility</span>
+                </a>
+              </div>
+            </div>
+
+            <ng-template #noTraining>
+              <p class="empty-text">No hay entrenamientos proximos registrados.</p>
+            </ng-template>
+          </article>
+
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <span class="section-label">Competencia</span>
+                <h2>Ultimos partidos</h2>
+              </div>
+              <a routerLink="/ver-partidos-e" class="link-button">Ver todos</a>
+            </div>
+
+            <div *ngIf="partidosRecientes.length; else noMatches" class="match-list">
+              <div *ngFor="let partido of partidosRecientes" class="match-row">
+                <div>
+                  <strong>{{ partido.equipo_local_nombre || partido.equipo_nombre || 'Equipo local' }}</strong>
+                  <span>vs {{ partido.equipo_visitante_nombre || partido.rival || 'Rival' }}</span>
+                </div>
+                <span class="date-chip">{{ partido.fecha_corta }}</span>
+                <span class="status-chip">{{ partido.estado_label }}</span>
+              </div>
+            </div>
+
+            <ng-template #noMatches>
+              <p class="empty-text">No hay partidos registrados todavia.</p>
+            </ng-template>
+          </article>
         </div>
 
-        <!-- Right Column -->
-        <div class="right-column">
+        <aside class="side-column">
+          <article class="panel">
+            <div class="panel-header compact">
+              <div>
+                <span class="section-label">Plantilla</span>
+                <h2>Posiciones</h2>
+              </div>
+            </div>
 
-          <div class="card">
-            <h3>Upcoming Activities</h3>
-            <ul class="activities">
-              <li><strong>Oct 15</strong> Skill Training</li>
-              <li><strong>Oct 17</strong> Match vs Raptors</li>
-              <li><strong>Oct 19</strong> Defensive Drill</li>
-            </ul>
-          </div>
+            <div *ngIf="positionDistribution.length; else noPositions" class="position-list">
+              <div *ngFor="let item of positionDistribution" class="position-item">
+                <div class="position-top">
+                  <span>{{ item.posicion }}</span>
+                  <strong>{{ item.total }}</strong>
+                </div>
+                <div class="bar-track">
+                  <div class="bar-fill" [style.width.%]="item.percent"></div>
+                </div>
+              </div>
+            </div>
 
-          <div class="card dark">
-            <h3>Top Player Analysis</h3>
-            <div class="radar-placeholder"></div>
-            <p class="center">Marco "Spike" Rossi</p>
-          </div>
+            <ng-template #noPositions>
+              <p class="empty-text">Sin jugadores para distribuir.</p>
+            </ng-template>
+          </article>
 
-          <div class="card">
-            <h3>Position Distribution</h3>
-            <div class="donut-placeholder">24 Total</div>
-          </div>
+          <article class="panel alerts-panel">
+            <div class="panel-header compact">
+              <div>
+                <span class="section-label">Atencion</span>
+                <h2>Alertas</h2>
+              </div>
+            </div>
 
-        </div>
-      </div>
+            <div *ngIf="alertas.length; else noAlerts" class="alerts-list">
+              <div *ngFor="let alerta of alertas" class="alert-item">
+                <span class="material-symbols-outlined">priority_high</span>
+                <p>{{ alerta }}</p>
+              </div>
+            </div>
 
-    </section>
+            <ng-template #noAlerts>
+              <div class="all-good">
+                <span class="material-symbols-outlined">check_circle</span>
+                <p>Todo esta al dia.</p>
+              </div>
+            </ng-template>
+          </article>
+        </aside>
+      </section>
+    </div>
   </main>
-
 </div>

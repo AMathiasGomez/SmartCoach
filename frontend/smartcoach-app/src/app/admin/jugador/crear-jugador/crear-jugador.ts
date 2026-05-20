@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../services/auth/auth-service';
@@ -31,7 +31,8 @@ export class CrearJugador implements OnInit {
     private jugadorService: JugadorService,
     public router: Router,
     private authService: AuthService,
-    private equipoService: EquipoService
+    private equipoService: EquipoService,
+    private cd: ChangeDetectorRef
   ) { }
 
   ngOnInit(): void {
@@ -116,6 +117,7 @@ export class CrearJugador implements OnInit {
     const reader = new FileReader();
     reader.onload = () => {
       this.fotoPreview = reader.result as string;
+      this.cd.detectChanges();
     };
     reader.readAsDataURL(archivo);
   }
@@ -126,6 +128,7 @@ export class CrearJugador implements OnInit {
     this.fotoArchivo = null;
     this.fotoPreview = null;
     this.fotoError = '';
+    this.cd.detectChanges();
     const input = document.getElementById('foto-input') as HTMLInputElement;
     if (input) {
       input.value = '';

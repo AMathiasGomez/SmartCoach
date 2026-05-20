@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { AuthService } from '../../services/auth/auth-service';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -7,69 +7,73 @@ import { JugadorService } from '../../services/jugador/jugador-service';
 import { EquipoService } from '../../services/equipo/equipo-service';
 import { EntrenamientoService } from '../../services/entrenamiento/entrenamiento-service';
 import { PartidoService } from '../../services/partido/partido-service';
+import { Equipo } from '../../models/equipo.model';
+import { Jugador } from '../../models/jugador.model';
+import { environment } from '../../../environments/environment';
+import { catchError, forkJoin, Observable, of, timeout } from 'rxjs';
+
+interface QuickAction {
+  label: string;
+  icon: string;
+  route: string;
+  tone: string;
+}
+
+interface PositionStat {
+  posicion: string;
+  total: number;
+  percent: number;
+}
 
 @Component({
   selector: 'app-dashboard-entrenador',
   standalone: true,
   imports: [RouterLink, CommonModule, FormsModule],
   templateUrl: './dashboard-entrenador.html',
-  styleUrl: './dashboard-entrenador.css',
+  styleUrls: ['./dashboard-entrenador.css'],
 })
 export class DashboardEntrenador implements OnInit {
-
-  activePage: string = 'dashboard';
-  activeTab: string = 'lista';
- 
-  // Data from API
   totalJugadores = 0;
   totalEquipos = 0;
   totalEntrenamientos = 0;
   totalPartidos = 0;
-  promedioRendimiento = 0;
-  jugadoresLesionados = 0;
-  
-  // Recent matches
+  entrenamientosSemana = 0;
+  partidosMes = 0;
+
+  jugadores: Jugador[] = [];
+  equipos: Equipo[] = [];
   partidosRecientes: any[] = [];
   entrenamientosProximos: any[] = [];
-  
-  // Loading state
+  positionDistribution: PositionStat[] = [];
+  alertas: string[] = [];
+  equipoDestacado: (Equipo & { jugadores_count?: number }) | null = null;
+
   loading = true;
   error = '';
- 
-  matchScore = { us: 3, them: 1 };
- 
-  players = [
-    { name: 'Marco Rossi',  initials: 'MR', position: 'Colocador', team: 'Equipo A', number: 7,  status: 'Activo'    },
-    { name: 'Liam Chen',    initials: 'LC', position: 'Atacante',  team: 'Equipo A', number: 11, status: 'Activo'    },
-    { name: 'David Okafor', initials: 'DO', position: 'Central',   team: 'Equipo B', number: 3,  status: 'Lesionado' },
-    { name: 'Ana García',   initials: 'AG', position: 'Líbero',    team: 'Equipo A', number: 2,  status: 'Activo'    },
-    { name: 'Pedro Vega',   initials: 'PV', position: 'Central',   team: 'Equipo A', number: 5,  status: 'Activo'    },
+  todayLabel = new Date().toLocaleDateString('es-CO', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long'
+  });
+
+  quickActions: QuickAction[] = [
+    { label: 'Ver equipos', icon: 'groups', route: '/ver-equipos-e', tone: 'blue' },
+    { label: 'Ver jugadores', icon: 'person_search', route: '/ver-jugadores-e', tone: 'green' },
+    { label: 'Entrenamientos', icon: 'fitness_center', route: '/ver-entrenamientos-e', tone: 'amber' },
+    { label: 'Partidos', icon: 'sports_soccer', route: '/ver-partidos-e', tone: 'violet' },
+    { label: 'Clasificacion', icon: 'leaderboard', route: '/clasificacion-jugadores', tone: 'rose' },
   ];
- 
-  attendance = [
-    { name: 'Marco Rossi',  position: 'Colocador', present: true  },
-    { name: 'Liam Chen',    position: 'Atacante',  present: true  },
-    { name: 'Ana García',   position: 'Líbero',    present: false },
-    { name: 'Pedro Vega',   position: 'Central',   present: true  },
-    { name: 'Luis Torres',  position: 'Atacante',  present: true  },
-  ];
- 
-  ratingCategories = [
-    { name: 'Saque',     value: 4 },
-    { name: 'Ataque',    value: 5 },
-    { name: 'Defensa',   value: 3 },
-    { name: 'Recepción', value: 4 },
-    { name: 'Bloqueo',   value: 3 },
-    { name: 'Actitud',   value: 5 },
-  ];
- 
+
+  private baseUrl = environment.apiUrl.replace(/\/api\/?$/, '');
+
   constructor(
     private authService: AuthService,
     public router: Router,
     private jugadorService: JugadorService,
     private equipoService: EquipoService,
     private entrenamientoService: EntrenamientoService,
-    private partidoService: PartidoService
+    private partidoService: PartidoService,
+    private cd: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -78,109 +82,202 @@ export class DashboardEntrenador implements OnInit {
 
   loadDashboardData() {
     this.loading = true;
-    
-    this.jugadorService.getJugadores().subscribe({
-      next: (jugadores) => {
+    this.error = '';
+
+    forkJoin({
+      jugadores: this.withFallback(this.jugadorService.getJugadores(), [] as Jugador[]),
+      equipos: this.withFallback(this.equipoService.getEquipos(), [] as Equipo[]),
+      entrenamientos: this.withFallback(this.entrenamientoService.getEntrenamientos(), [] as any[]),
+      partidos: this.withFallback(this.partidoService.getPartidos(), [] as any[])
+    }).subscribe({
+      next: ({ jugadores, equipos, entrenamientos, partidos }) => {
+        this.jugadores = jugadores;
+        this.equipos = equipos;
         this.totalJugadores = jugadores.length;
-        // Count injured players
-        this.jugadoresLesionados = jugadores.filter((j: any) => j.lesionado).length;
-        this.loadEquipos();
-      },
-      error: (err) => {
-        console.error('Error loading jugadores:', err);
-        this.totalJugadores = 0;
-        this.loadEquipos();
-      }
-    });
-  }
-
-  loadEquipos() {
-    this.equipoService.getEquipos().subscribe({
-      next: (equipos) => {
         this.totalEquipos = equipos.length;
-        this.loadEntrenamientos();
-      },
-      error: (err) => {
-        console.error('Error loading equipos:', err);
-        this.totalEquipos = 0;
-        this.loadEntrenamientos();
-      }
-    });
-  }
-
-  loadEntrenamientos() {
-    this.entrenamientoService.getEntrenamientos().subscribe({
-      next: (entrenamientos) => {
         this.totalEntrenamientos = entrenamientos.length;
-        // Get upcoming trainings (next 7 days)
-        const today = new Date();
-        const nextWeek = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
-        
-        this.entrenamientosProximos = entrenamientos
-          .filter((e: any) => {
-            const fecha = new Date(e.fecha);
-            return fecha >= today && fecha <= nextWeek;
-          })
-          .slice(0, 3)
-          .map((e: any) => ({
-            ...e,
-            fecha_formatted: new Date(e.fecha).toLocaleDateString('es-ES', { 
-              month: 'short', 
-              day: 'numeric' 
-            })
-          }));
-          
-        this.loadPartidos();
-      },
-      error: (err) => {
-        console.error('Error loading entrenamientos:', err);
-        this.totalEntrenamientos = 0;
-        this.loadPartidos();
-      }
-    });
-  }
-
-  loadPartidos() {
-    this.partidoService.getPartidos().subscribe({
-      next: (partidos) => {
         this.totalPartidos = partidos.length;
-        
-        // Get recent matches (last 5)
-        const sortedPartidos = [...partidos].sort((a: any, b: any) => {
-          return new Date(b.fecha).getTime() - new Date(a.fecha).getTime();
-        });
-        
-        this.partidosRecientes = sortedPartidos.slice(0, 5).map((p: any) => ({
-          ...p,
-          fecha_formatted: new Date(p.fecha).toLocaleDateString('es-ES', { 
-            month: 'short', 
-            day: 'numeric',
-            year: 'numeric'
-          })
-        }));
-        
-        // Calculate average performance (mock for now)
-        this.promedioRendimiento = 8.2;
-        
+
+        this.entrenamientosProximos = this.getUpcomingItems(entrenamientos, 4);
+        this.entrenamientosSemana = this.countItemsInNextDays(entrenamientos, 7);
+        this.partidosMes = this.countItemsInCurrentMonth(partidos);
+        this.partidosRecientes = this.getRecentMatches(partidos);
+        this.positionDistribution = this.getPositionDistribution(jugadores);
+        this.equipoDestacado = this.getFeaturedTeam(equipos, jugadores);
+        this.alertas = this.buildAlerts();
+
         this.loading = false;
+        this.cd.detectChanges();
       },
       error: (err) => {
-        console.error('Error loading partidos:', err);
-        this.totalPartidos = 0;
+        console.error('Error loading dashboard:', err);
+        this.error = 'No se pudo cargar la informacion del dashboard.';
         this.loading = false;
+        this.cd.detectChanges();
       }
     });
   }
- 
-  showPage(page: string): void {
-    this.activePage = page;
-    this.activeTab = 'lista';
+
+  getFotoEquipo(fotoUrl?: string): string {
+    if (!fotoUrl) return '';
+    if (fotoUrl.startsWith('http')) return fotoUrl;
+    return `${this.baseUrl}${fotoUrl}`;
   }
 
+  getInitials(name?: string): string {
+    return (name || 'E').slice(0, 1).toUpperCase();
+  }
+
+  getNextTrainingLabel(): string {
+    return this.entrenamientosProximos[0]?.fecha_corta || 'Sin programar';
+  }
+
+  private getUpcomingItems(items: any[], limit: number): any[] {
+    const today = this.startOfDay(new Date());
+
+    return [...items]
+      .filter(item => {
+        const date = this.parseDate(item.fecha);
+        return date && date >= today;
+      })
+      .sort((a, b) => this.parseDate(a.fecha)!.getTime() - this.parseDate(b.fecha)!.getTime())
+      .slice(0, limit)
+      .map(item => ({
+        ...item,
+        fecha_corta: this.formatShortDate(item.fecha),
+        fecha_relativa: this.formatRelativeDate(item.fecha)
+      }));
+  }
+
+  private getRecentMatches(partidos: any[]): any[] {
+    return [...partidos]
+      .filter(partido => this.parseDate(partido.fecha))
+      .sort((a, b) => this.parseDate(b.fecha)!.getTime() - this.parseDate(a.fecha)!.getTime())
+      .slice(0, 5)
+      .map(partido => ({
+        ...partido,
+        fecha_corta: this.formatShortDate(partido.fecha),
+        estado_label: partido.estado || partido.resultado || 'Registrado'
+      }));
+  }
+
+  private getPositionDistribution(jugadores: Jugador[]): PositionStat[] {
+    const counts = jugadores.reduce((acc, jugador) => {
+      const posicion = jugador.posicion || 'Sin posicion';
+      acc[posicion] = (acc[posicion] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    return Object.entries(counts)
+      .map(([posicion, total]) => ({
+        posicion,
+        total,
+        percent: jugadores.length ? Math.round((total / jugadores.length) * 100) : 0
+      }))
+      .sort((a, b) => b.total - a.total)
+      .slice(0, 5);
+  }
+
+  private getFeaturedTeam(equipos: Equipo[], jugadores: Jugador[]): (Equipo & { jugadores_count?: number }) | null {
+    if (!equipos.length) return null;
+
+    const teamCounts = jugadores.reduce((acc, jugador) => {
+      const key = Number(jugador.equipo_id);
+      acc[key] = (acc[key] || 0) + 1;
+      return acc;
+    }, {} as Record<number, number>);
+
+    const featured = [...equipos].sort((a, b) => {
+      const totalA = a.id ? teamCounts[a.id] || 0 : 0;
+      const totalB = b.id ? teamCounts[b.id] || 0 : 0;
+      return totalB - totalA;
+    })[0];
+
+    return {
+      ...featured,
+      jugadores_count: featured.id ? teamCounts[featured.id] || 0 : 0
+    };
+  }
+
+  private buildAlerts(): string[] {
+    const alerts: string[] = [];
+
+    if (this.totalEquipos === 0) alerts.push('Aun no hay equipos registrados.');
+    if (this.totalJugadores === 0) alerts.push('No hay jugadores cargados para seguimiento.');
+    if (this.entrenamientosProximos.length === 0) alerts.push('No hay entrenamientos proximos en agenda.');
+    if (this.partidosRecientes.length === 0) alerts.push('Todavia no hay partidos registrados.');
+    if (this.positionDistribution.length > 0 && this.positionDistribution[0].percent >= 45) {
+      alerts.push(`Alta concentracion de jugadores en ${this.positionDistribution[0].posicion}.`);
+    }
+
+    return alerts.slice(0, 4);
+  }
+
+  private countItemsInNextDays(items: any[], days: number): number {
+    const today = this.startOfDay(new Date());
+    const limit = new Date(today);
+    limit.setDate(limit.getDate() + days);
+
+    return items.filter(item => {
+      const date = this.parseDate(item.fecha);
+      return date && date >= today && date <= limit;
+    }).length;
+  }
+
+  private countItemsInCurrentMonth(items: any[]): number {
+    const today = new Date();
+    return items.filter(item => {
+      const date = this.parseDate(item.fecha);
+      return date && date.getFullYear() === today.getFullYear() && date.getMonth() === today.getMonth();
+    }).length;
+  }
+
+  private parseDate(value: string | Date | undefined | null): Date | null {
+    if (!value) return null;
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? null : date;
+  }
+
+  private startOfDay(date: Date): Date {
+    const copy = new Date(date);
+    copy.setHours(0, 0, 0, 0);
+    return copy;
+  }
+
+  private formatShortDate(value: string | Date): string {
+    const date = this.parseDate(value);
+    if (!date) return 'Sin fecha';
+    return date.toLocaleDateString('es-CO', { day: '2-digit', month: 'short' });
+  }
+
+  private formatRelativeDate(value: string | Date): string {
+    const date = this.parseDate(value);
+    if (!date) return '';
+
+    const today = this.startOfDay(new Date());
+    const target = this.startOfDay(date);
+    const diff = Math.round((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+
+    if (diff === 0) return 'Hoy';
+    if (diff === 1) return 'Manana';
+    if (diff < 7) return `En ${diff} dias`;
+    return this.formatShortDate(date);
+  }
+
+  private withFallback<T>(request: Observable<T>, fallback: T): Observable<T> {
+    return request.pipe(
+      timeout(7000),
+      catchError((err: any) => {
+        console.error('Dashboard request fallback:', err);
+        this.error = 'Algunos datos no respondieron a tiempo, pero el dashboard se cargo con la informacion disponible.';
+        this.cd.detectChanges();
+        return of(fallback);
+      })
+    );
+  }
 
   logout() {
     this.authService.logOut();
     this.router.navigate(['/login']);
   }
-
 }

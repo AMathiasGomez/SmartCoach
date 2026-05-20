@@ -5,6 +5,7 @@ import { EquipoService } from '../../../services/equipo/equipo-service';
 import { AuthService } from '../../../services/auth/auth-service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-ver-equipos',
@@ -22,7 +23,7 @@ export class VerEquipos implements OnInit {
   categorias: string[] = [];
 
 
-  private baseUrl = 'https://smartcoach-production.up.railway.app:3006';
+  private baseUrl = environment.apiUrl.replace(/\/api\/?$/, '');
 
   constructor(
     private equipoService: EquipoService,

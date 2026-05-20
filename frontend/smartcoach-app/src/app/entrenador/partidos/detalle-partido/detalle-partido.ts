@@ -4,8 +4,10 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AnalyticsService, MatchAnalyticsResponse } from '../../../services/analytics/analytics.service';
 import { AuthService } from '../../../services/auth/auth-service';
+import { JugadorService } from '../../../services/jugador/jugador-service';
 import { PartidoService } from '../../../services/partido/partido-service';
-import { forkJoin } from 'rxjs';
+import { catchError, forkJoin, of } from 'rxjs';
+import { environment } from '../../../../environments/environment';
 
 interface EstadoPuntos {
   puntosEquipo: number;
@@ -113,7 +115,8 @@ export class DetallePartido implements OnInit {
     public authService: AuthService,
     private router: Router,
     private cd: ChangeDetectorRef,
-    private analyticsService: AnalyticsService
+    private analyticsService: AnalyticsService,
+    private jugadorService: JugadorService
   ) { }
 
   ngOnInit(): void {
@@ -237,16 +240,40 @@ export class DetallePartido implements OnInit {
   cargarJugadoresYEstadisticas(): void {
     forkJoin({
       jugadores: this.partidoService.getJugadoresByPartido(this.partidoId),
-      estadisticas: this.partidoService.getEstadisticas(this.partidoId)
+      estadisticas: this.partidoService.getEstadisticas(this.partidoId),
+      todosJugadores: this.jugadorService.getJugadores().pipe(catchError(() => of([])))
     }).subscribe({
-      next: ({ jugadores, estadisticas }) => {
-        this.jugadoresConvocados = jugadores;
+      next: ({ jugadores, estadisticas, todosJugadores }) => {
+        this.jugadoresConvocados = this.completarFotosJugadores(jugadores, todosJugadores);
         this.estadisticas = estadisticas;
         this.construirTabla();
         this.cd.detectChanges();
       },
       error: (err) => console.error(err)
     });
+  }
+
+  completarFotosJugadores(jugadores: any[], todosJugadores: any[]): any[] {
+    return jugadores.map(jugador => {
+      const jugadorCompleto = todosJugadores.find(j =>
+        j.id?.toString() === jugador.id?.toString() ||
+        this.normalizarTexto(j.nombre) === this.normalizarTexto(jugador.nombre)
+      );
+
+      return {
+        ...jugador,
+        foto_url: jugador.foto_url || jugadorCompleto?.foto_url,
+        foto: jugador.foto || jugadorCompleto?.foto,
+      };
+    });
+  }
+
+  normalizarTexto(valor?: string): string {
+    return (valor || '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .trim();
   }
 
   cargarSets() {
@@ -756,11 +783,17 @@ export class DetallePartido implements OnInit {
     this.jugadorSeleccionado = null;
   }
 
-  getFotoJugador(playerId: string): string | null {
-    const jugador = this.jugadoresConvocados.find(j => j.id.toString() === playerId);
-    if (!jugador?.foto) return null;
-    // La foto viene como nombre de archivo, necesitamos la URL completa
-    return `http://localhost:3006/uploads/jugadores/${jugador.foto}`;
+  getFotoJugador(playerId: string, playerName?: string): string | null {
+    const jugador = this.jugadoresConvocados.find(j => j.id?.toString() === playerId)
+      || this.jugadoresConvocados.find(j => this.normalizarTexto(j.nombre) === this.normalizarTexto(playerName));
+    const foto = jugador?.foto_url || jugador?.foto;
+    if (!foto) return null;
+
+    if (foto.startsWith('http')) return foto;
+
+    const baseUrl = environment.apiUrl.replace(/\/api\/?$/, '');
+    const path = foto.startsWith('/uploads') ? foto : `/uploads/jugadores/${foto}`;
+    return `${baseUrl}${path}`;
   }
 
   getNumeroJugador(playerId: string): string {

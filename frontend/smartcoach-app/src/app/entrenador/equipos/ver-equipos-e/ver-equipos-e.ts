@@ -5,6 +5,7 @@ import { Router, RouterLink } from '@angular/router';
 import { EquipoService } from '../../../services/equipo/equipo-service';
 import { Equipo } from '../../../models/equipo.model';
 import { AuthService } from '../../../services/auth/auth-service';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-ver-equipos-e',
@@ -21,7 +22,7 @@ export class VerEquiposE {
   equiposFiltrados: Equipo[] = [];
   categorias: string[] = [];
 
-  private baseUrl = 'https://smartcoach-production.up.railway.app';
+  private baseUrl = environment.apiUrl.replace(/\/api\/?$/, '');
 
   constructor(
     private equipoService: EquipoService,

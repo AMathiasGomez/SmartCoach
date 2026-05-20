@@ -51,15 +51,37 @@ router.get('/:id/analytics', async (req, res) => {
     // ── 2. Obtener estadísticas históricas por partido ───────────────────
     const [statsRows] = await db.query(
       `SELECT 
-         ej.ataques,
-         ej.bloqueos,
-         ej.recepciones,
-         ej.errores,
-         ej.partido_id,
-         ej.created_at
-       FROM estadisticas_jugador ej
-       WHERE ej.jugador_id = ?
-       ORDER BY ej.created_at ASC`,
+         sp.partido_id,
+         p.fecha,
+         COALESCE(SUM(ejs.ataques_positivos), 0) AS ataques_positivos,
+         COALESCE(SUM(ejs.errores_ataque), 0) AS errores_ataque,
+         COALESCE(SUM(ejs.aces), 0) AS aces,
+         COALESCE(SUM(ejs.errores_saque), 0) AS errores_saque,
+         COALESCE(SUM(ejs.bloqueos_positivos), 0) AS bloqueos_positivos,
+         COALESCE(SUM(ejs.errores_bloqueo), 0) AS errores_bloqueo,
+         COALESCE(SUM(ejs.recepciones_positivas), 0) AS recepciones_positivas,
+         COALESCE(SUM(ejs.recepciones_negativas), 0) AS recepciones_negativas,
+         COALESCE(SUM(ejs.defensas_positivas), 0) AS defensas_positivas,
+         COALESCE(SUM(ejs.defensas_negativas), 0) AS defensas_negativas,
+         COALESCE(SUM(ejs.asistencias), 0) AS asistencias,
+         COALESCE(SUM(ejs.errores_armado), 0) AS errores_armado,
+         COALESCE(SUM(ejs.ataques_positivos), 0) AS ataques,
+         COALESCE(SUM(ejs.recepciones_positivas), 0) AS recepciones,
+         COALESCE(SUM(ejs.bloqueos_positivos), 0) AS bloqueos,
+         COALESCE(SUM(
+           ejs.errores_ataque +
+           ejs.errores_saque +
+           ejs.errores_bloqueo +
+           ejs.recepciones_negativas +
+           ejs.defensas_negativas +
+           ejs.errores_armado
+         ), 0) AS errores
+       FROM estadisticas_jugador_set ejs
+       JOIN sets_partido sp ON ejs.set_id = sp.id
+       JOIN partidos p ON sp.partido_id = p.id
+       WHERE ejs.jugador_id = ?
+       GROUP BY sp.partido_id, p.fecha
+       ORDER BY p.fecha ASC`,
       [jugadorId]
     );
  
@@ -75,10 +97,22 @@ router.get('/:id/analytics', async (req, res) => {
  
     // ── 3. Llamar al script Python (scikit-learn) ────────────────────────
     const partidos = statsRows.map(r => ({
-      ataques:     Number(r.ataques)     || 0,
-      bloqueos:    Number(r.bloqueos)    || 0,
+      ataques_positivos: Number(r.ataques_positivos) || 0,
+      errores_ataque: Number(r.errores_ataque) || 0,
+      aces: Number(r.aces) || 0,
+      errores_saque: Number(r.errores_saque) || 0,
+      bloqueos_positivos: Number(r.bloqueos_positivos) || 0,
+      errores_bloqueo: Number(r.errores_bloqueo) || 0,
+      recepciones_positivas: Number(r.recepciones_positivas) || 0,
+      recepciones_negativas: Number(r.recepciones_negativas) || 0,
+      defensas_positivas: Number(r.defensas_positivas) || 0,
+      defensas_negativas: Number(r.defensas_negativas) || 0,
+      asistencias: Number(r.asistencias) || 0,
+      errores_armado: Number(r.errores_armado) || 0,
+      ataques: Number(r.ataques) || 0,
+      bloqueos: Number(r.bloqueos) || 0,
       recepciones: Number(r.recepciones) || 0,
-      errores:     Number(r.errores)     || 0
+      errores: Number(r.errores) || 0
     }));
  
     const analysis = await analyzePlayer(jugadorId, jugador.posicion || '', partidos);

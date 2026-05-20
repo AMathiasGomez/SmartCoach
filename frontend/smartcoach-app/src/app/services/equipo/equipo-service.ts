@@ -22,7 +22,7 @@ export class EquipoService {
     return this.http.post(`${this.api}`, data);
   }
 
-  actualizarEquipo(id: number, equipo: Equipo) {
+  actualizarEquipo(id: number, equipo: Equipo | FormData) {
     return this.http.put(`${this.api}/${id}`, equipo);
   }
 

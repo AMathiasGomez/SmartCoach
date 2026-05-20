@@ -1,10 +1,16 @@
-import { Component, OnInit, AfterViewInit, ElementRef, ViewChild, ChangeDetectorRef } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { JugadorService } from '../../../services/jugador/jugador-service';
 import { PartidoService } from '../../../services/partido/partido-service';
 import { Jugador } from '../../../models/jugador.model';
 import { AuthService } from '../../../services/auth/auth-service';
+
+interface RadarAxis {
+  key: string;
+  label: string;
+  value: number;
+}
 
 @Component({
   selector: 'app-detalle-jugador',
@@ -22,7 +28,6 @@ export class DetalleJugador implements OnInit, AfterViewInit {
   stats: any = null;
   statsLoading = false;
 
-  // Analytics ML
   analytics: any = null;
   analyticsLoading = false;
   private radarDrawn = false;
@@ -41,12 +46,17 @@ export class DetalleJugador implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    // El canvas se dibuja después de que analytics cargue (ver drawRadar)
+    if (this.analytics?.analysis && !this.radarDrawn) {
+      setTimeout(() => this.drawRadar(), 100);
+    }
   }
 
   loadJugador(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
-    if (!id) { this.error = 'ID de jugador no válido'; return; }
+    if (!id) {
+      this.error = 'ID de jugador no valido';
+      return;
+    }
 
     this.loading = true;
     this.jugadorService.getJugador(id).subscribe({
@@ -67,8 +77,15 @@ export class DetalleJugador implements OnInit, AfterViewInit {
   loadEstadisticas(jugadorId: number): void {
     this.statsLoading = true;
     this.partidoService.getEstadisticasJugador(jugadorId).subscribe({
-      next: (data) => { this.stats = data; this.statsLoading = false; this.cd.detectChanges(); },
-      error: () => { this.stats = null; this.statsLoading = false; }
+      next: (data) => {
+        this.stats = data;
+        this.statsLoading = false;
+        this.cd.detectChanges();
+      },
+      error: () => {
+        this.stats = null;
+        this.statsLoading = false;
+      }
     });
   }
 
@@ -78,8 +95,8 @@ export class DetalleJugador implements OnInit, AfterViewInit {
       next: (data) => {
         this.analytics = data;
         this.analyticsLoading = false;
+        this.radarDrawn = false;
         this.cd.detectChanges();
-        // Dibuja el radar después del próximo ciclo de detección de cambios
         setTimeout(() => this.drawRadar(), 100);
       },
       error: () => {
@@ -89,7 +106,6 @@ export class DetalleJugador implements OnInit, AfterViewInit {
     });
   }
 
-  // ─── Radar Chart (Canvas puro, sin dependencias externas) ──────────────────
   drawRadar(): void {
     if (!this.radarCanvasRef || !this.analytics?.analysis) return;
 
@@ -97,24 +113,20 @@ export class DetalleJugador implements OnInit, AfterViewInit {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const scores = this.analytics.analysis.scores;
-    const labels = ['Ataques', 'Bloqueos', 'Recepciones', 'Eficiencia'];
-    const values = [
-      scores.ataques / 10,
-      scores.bloqueos / 10,
-      scores.recepciones / 10,
-      scores.eficiencia / 10
-    ];
+    const axes = this.getRadarAxes();
+    if (!axes.length) return;
+
+    const labels = axes.map(axis => axis.label);
+    const values = axes.map(axis => axis.value / 100);
 
     const size = canvas.width;
     const cx = size / 2;
     const cy = size / 2;
-    const R = size * 0.36;
+    const R = size * 0.34;
     const n = labels.length;
 
     ctx.clearRect(0, 0, size, size);
 
-    // ── Círculos de fondo
     for (let level = 1; level <= 5; level++) {
       const r = (R * level) / 5;
       ctx.beginPath();
@@ -128,13 +140,8 @@ export class DetalleJugador implements OnInit, AfterViewInit {
       ctx.strokeStyle = 'rgba(99,179,237,0.25)';
       ctx.lineWidth = 1;
       ctx.stroke();
-      if (level === 5) {
-        ctx.fillStyle = 'rgba(235,248,255,0.04)';
-        ctx.fill();
-      }
     }
 
-    // ── Ejes
     for (let i = 0; i < n; i++) {
       const angle = (Math.PI * 2 * i) / n - Math.PI / 2;
       ctx.beginPath();
@@ -145,7 +152,6 @@ export class DetalleJugador implements OnInit, AfterViewInit {
       ctx.stroke();
     }
 
-    // ── Polígono de datos
     ctx.beginPath();
     for (let i = 0; i < n; i++) {
       const angle = (Math.PI * 2 * i) / n - Math.PI / 2;
@@ -155,6 +161,7 @@ export class DetalleJugador implements OnInit, AfterViewInit {
       i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
     }
     ctx.closePath();
+
     const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, R);
     grad.addColorStop(0, 'rgba(66,153,225,0.55)');
     grad.addColorStop(1, 'rgba(49,130,206,0.20)');
@@ -164,7 +171,6 @@ export class DetalleJugador implements OnInit, AfterViewInit {
     ctx.lineWidth = 2.5;
     ctx.stroke();
 
-    // ── Puntos en vértices
     for (let i = 0; i < n; i++) {
       const angle = (Math.PI * 2 * i) / n - Math.PI / 2;
       const r = R * Math.max(0, Math.min(1, values[i]));
@@ -174,28 +180,24 @@ export class DetalleJugador implements OnInit, AfterViewInit {
       ctx.fill();
     }
 
-    // ── Etiquetas
-    ctx.font = 'bold 13px system-ui, sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     for (let i = 0; i < n; i++) {
       const angle = (Math.PI * 2 * i) / n - Math.PI / 2;
-      const labelR = R + 10;
+      const labelR = R + 18;
       const x = cx + labelR * Math.cos(angle);
       const y = cy + labelR * Math.sin(angle);
+      ctx.font = 'bold 12px system-ui, sans-serif';
       ctx.fillStyle = '#2B6CB0';
       ctx.fillText(labels[i], x, y);
-      // Score debajo
       ctx.font = '11px system-ui, sans-serif';
       ctx.fillStyle = '#4A5568';
-      ctx.fillText(`${(values[i] * 10).toFixed(1)}`, x, y + 15);
-      ctx.font = 'bold 13px system-ui, sans-serif';
+      ctx.fillText(`${Math.round(values[i] * 100)}`, x, y + 15);
     }
 
     this.radarDrawn = true;
   }
 
-  // ─── Helpers de template ────────────────────────────────────────────────────
   getTendenciaIcon(): string {
     const t = this.analytics?.analysis?.tendencia;
     if (t === 'mejorando') return 'trending_up';
@@ -213,14 +215,77 @@ export class DetalleJugador implements OnInit, AfterViewInit {
   getNivelClass(): string {
     const nivel = this.analytics?.analysis?.nivel || '';
     const map: Record<string, string> = {
-      'Élite': 'nivel-elite', 'Alto': 'nivel-alto',
-      'Medio': 'nivel-medio', 'Bajo': 'nivel-bajo', 'Inicial': 'nivel-inicial'
+      Excelente: 'nivel-elite',
+      Bueno: 'nivel-alto',
+      Regular: 'nivel-medio',
+      Bajo: 'nivel-bajo',
+      Critico: 'nivel-bajo',
+      Crítico: 'nivel-bajo',
+      Elite: 'nivel-elite',
+      Alto: 'nivel-alto',
+      Medio: 'nivel-medio',
+      Inicial: 'nivel-inicial'
     };
     return map[nivel] || '';
   }
 
   getOverallPercent(): number {
-    return Math.round((this.analytics?.analysis?.overall_score || 0) * 10);
+    return Math.round(this.getOverallDisplay());
+  }
+
+  getOverallDisplay(): number {
+    const analysis = this.analytics?.analysis;
+    return analysis?.overall_score_100 ?? ((analysis?.overall_score || 0) * 10);
+  }
+
+  getRadarAxes(): RadarAxis[] {
+    const analysis = this.analytics?.analysis;
+
+    if (analysis?.radar_axes) {
+      return Object.entries(analysis.radar_axes).map(([key, value]) => ({
+        key,
+        label: analysis.radar_labels?.[key] || this.formatAxisLabel(key),
+        value: Number(value) || 0,
+      }));
+    }
+
+    const scores = analysis?.scores || {};
+    return [
+      { key: 'ataque', label: 'Ataque', value: Number(scores.ataques || 0) * 10 },
+      { key: 'bloqueo', label: 'Bloqueo', value: Number(scores.bloqueos || 0) * 10 },
+      { key: 'recepcion', label: 'Recepcion', value: Number(scores.recepciones || 0) * 10 },
+      { key: 'consistencia', label: 'Consistencia', value: Number(scores.eficiencia || 0) * 10 },
+    ];
+  }
+
+  formatAxisLabel(key: string): string {
+    return key.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
+  }
+
+  getAxisFillClass(key: string): string {
+    const map: Record<string, string> = {
+      ataque: 'fill-ataques',
+      bloqueo: 'fill-bloqueos',
+      recepcion: 'fill-recepciones',
+      defensa: 'fill-defensa',
+      saque: 'fill-saque',
+      armado: 'fill-armado',
+      consistencia: 'fill-eficiencia',
+    };
+    return map[key] || 'fill-eficiencia';
+  }
+
+  getAxisIcon(key: string): string {
+    const map: Record<string, string> = {
+      ataque: 'trending_up',
+      bloqueo: 'shield',
+      recepcion: 'swap_vert',
+      defensa: 'sports_handball',
+      saque: 'ads_click',
+      armado: 'hub',
+      consistencia: 'verified',
+    };
+    return map[key] || 'analytics';
   }
 
   calculateAge(): string {
@@ -237,8 +302,13 @@ export class DetalleJugador implements OnInit, AfterViewInit {
   eliminar(): void {
     if (!this.jugador?.id || !confirm('¿Deseas eliminar este jugador?')) return;
     this.jugadorService.eliminarJugador(this.jugador.id).subscribe({
-      next: () => { alert('Jugador eliminado correctamente'); this.back(); },
-      error: () => { alert('Error al eliminar el jugador'); }
+      next: () => {
+        alert('Jugador eliminado correctamente');
+        this.back();
+      },
+      error: () => {
+        alert('Error al eliminar el jugador');
+      }
     });
   }
 
