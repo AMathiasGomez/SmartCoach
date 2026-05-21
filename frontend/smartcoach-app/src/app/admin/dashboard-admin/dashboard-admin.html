@@ -48,64 +48,137 @@
   <main class="main">
 
     <button class="hamburger" (click)="toggleSidebar()">
-  <span class="material-symbols-outlined">menu</span>
-</button>
+      <span class="material-symbols-outlined">menu</span>
+    </button>
+
     <section class="welcome">
-      <h1>Bienvenido de nuevo, Administrador</h1>
+      <div>
+        <p class="eyebrow">Panel administrativo</p>
+        <h1>Bienvenido de nuevo, {{ adminName }}</h1>
+        <p class="sub">Resumen operativo de equipos, jugadores, entrenamientos y partidos.</p>
+      </div>
+      <button class="refresh-button" type="button" (click)="loadDashboardData()" [disabled]="loading">
+        <span class="material-symbols-outlined">refresh</span>
+        Actualizar
+      </button>
     </section>
+
+    <div *ngIf="error" class="alert-banner">
+      <span class="material-symbols-outlined">info</span>
+      {{ error }}
+    </div>
 
     <section class="quick-actions">
-      <button routerLink="/crear-jugador">Crear nuevo jugador</button>
-      <button routerLink="/crear-equipo">Crear equipo</button>
-      <button routerLink="/crear-partido">Crear partido</button>
-      <button routerLink="/crear-entrenamiento">Crear entrenamiento</button>
+      <button routerLink="/crear-jugador">
+        <span class="material-symbols-outlined">person_add</span>
+        Crear jugador
+      </button>
+      <button routerLink="/crear-equipo">
+        <span class="material-symbols-outlined">group_add</span>
+        Crear equipo
+      </button>
+      <button routerLink="/crear-partido">
+        <span class="material-symbols-outlined">add_circle</span>
+        Crear partido
+      </button>
+      <button routerLink="/crear-entrenamiento">
+        <span class="material-symbols-outlined">fitness_center</span>
+        Crear entrenamiento
+      </button>
     </section>
 
-<section class="cards">
+    <section class="cards" [class.loading-cards]="loading">
       <div class="card">
         <div class="card-icon players">
           <span class="material-symbols-outlined">person</span>
         </div>
         <h3>Total Jugadores</h3>
-        <p class="stat-value">{{ totalJugadores }}</p>
+        <p class="stat-value">{{ loading ? '-' : totalJugadores }}</p>
       </div>
       <div class="card">
         <div class="card-icon teams">
           <span class="material-symbols-outlined">group</span>
         </div>
         <h3>Total Equipos</h3>
-        <p class="stat-value">{{ totalEquipos }}</p>
+        <p class="stat-value">{{ loading ? '-' : totalEquipos }}</p>
       </div>
       <div class="card">
         <div class="card-icon matches">
           <span class="material-symbols-outlined">sports_soccer</span>
         </div>
         <h3>Partidos Registrados</h3>
-        <p class="stat-value">{{ totalPartidos }}</p>
+        <p class="stat-value">{{ loading ? '-' : totalPartidos }}</p>
+        <small>{{ partidosPendientes }} pendientes</small>
       </div>
       <div class="card">
         <div class="card-icon training">
           <span class="material-symbols-outlined">fitness_center</span>
         </div>
         <h3>Entrenamientos</h3>
-        <p class="stat-value">{{ totalEntrenamientos }}</p>
+        <p class="stat-value">{{ loading ? '-' : totalEntrenamientos }}</p>
+        <small>{{ entrenamientosProgramados }} programados</small>
       </div>
+    </section>
+
+    <section class="health-grid">
+      <article *ngFor="let item of healthCards" class="health-card">
+        <span class="material-symbols-outlined" [ngClass]="item.tone">{{ item.icon }}</span>
+        <div>
+          <strong>{{ item.value }}</strong>
+          <p>{{ item.label }}</p>
+        </div>
+      </article>
     </section>
 
     <section class="charts">
       <div class="chart large">
-        <h3>Rendimiento de equipo</h3>
-        <div class="chart-placeholder">Grafica</div>
+        <div class="section-title">
+          <h3>Distribucion por posiciones</h3>
+          <a routerLink="/ver-jugadores">Ver jugadores</a>
+        </div>
+
+        <div class="bars" *ngIf="positionMetrics.length; else noPositions">
+          <div class="bar-row" *ngFor="let position of positionMetrics">
+            <div class="bar-label">
+              <span>{{ position.name }}</span>
+              <strong>{{ position.count }}</strong>
+            </div>
+            <div class="bar-track">
+              <div class="bar-fill" [style.width.%]="position.percent"></div>
+            </div>
+          </div>
+        </div>
+
+        <ng-template #noPositions>
+          <div class="chart-placeholder">Aun no hay jugadores registrados.</div>
+        </ng-template>
       </div>
 
       <div class="chart">
-        <h3>Posiciones</h3>
-        <div class="chart-placeholder">Grafica</div>
+        <div class="section-title">
+          <h3>Proxima agenda</h3>
+          <a routerLink="/ver-entrenamientos">Ver agenda</a>
+        </div>
+
+        <div class="agenda" *ngIf="upcomingItems.length; else noAgenda">
+          <a *ngFor="let item of upcomingItems" [routerLink]="item.route" class="agenda-item">
+            <span class="agenda-type">{{ item.type }}</span>
+            <strong>{{ item.title }}</strong>
+            <small>{{ formatDate(item.date) }} - {{ item.meta }}</small>
+          </a>
+        </div>
+
+        <ng-template #noAgenda>
+          <div class="chart-placeholder">No hay eventos proximos.</div>
+        </ng-template>
       </div>
     </section>
 
     <section class="table-section">
-      <h3>Actualizaciones recientes</h3>
+      <div class="section-title">
+        <h3>Actualizaciones recientes</h3>
+        <span>{{ recentActivity.length }} registros</span>
+      </div>
       <div class="table-container">
         <table>
           <thead>
@@ -117,23 +190,16 @@
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>New Player Registration</td>
-              <td>Marco Rossi</td>
-              <td>Approved</td>
-              <td>Today, 10:24 AM</td>
+            <tr *ngFor="let activity of recentActivity">
+              <td>{{ activity.event }}</td>
+              <td>{{ activity.object }}</td>
+              <td>
+                <span class="status-pill" [ngClass]="activity.tone">{{ activity.status }}</span>
+              </td>
+              <td>{{ activity.time }}</td>
             </tr>
-            <tr>
-              <td>Match Results Validated</td>
-              <td>Titans vs. Vikings</td>
-              <td>Syncing</td>
-              <td>Today, 09:15 AM</td>
-            </tr>
-            <tr>
-              <td>Training Log Updated</td>
-              <td>Elite Strength &amp; Conditioning</td>
-              <td>Completed</td>
-              <td>Yesterday</td>
+            <tr *ngIf="!loading && recentActivity.length === 0">
+              <td colspan="4" class="empty-row">No hay actividad reciente para mostrar.</td>
             </tr>
           </tbody>
         </table>

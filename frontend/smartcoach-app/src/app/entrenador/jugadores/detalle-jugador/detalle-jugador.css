@@ -702,3 +702,234 @@ h1.detail-title {
     grid-template-columns: 1fr;
   }
 }
+
+.mobile-menu-button {
+  display: none;
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .sidebar {
+    width: 88px !important;
+    padding: 1.25rem 0.75rem !important;
+    align-items: center;
+  }
+
+  .logo {
+    justify-content: center;
+    padding: 0;
+    margin-bottom: 2rem;
+  }
+
+  .logo-text-wrapper,
+  .sidebar nav a span:not(.material-symbols-outlined),
+  .logout {
+    overflow: hidden;
+  }
+
+  .logo-text-wrapper,
+  .sidebar nav a span:not(.material-symbols-outlined),
+  .logout span:not(.material-symbols-outlined) {
+    display: none;
+  }
+
+  .sidebar nav a,
+  .logout {
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    padding: 0;
+    gap: 0;
+  }
+
+  .main-content {
+    margin-left: 88px !important;
+    padding: 1.5rem !important;
+  }
+
+  .page-header-detail {
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .player-name {
+    font-size: 2rem;
+  }
+
+  .player-number {
+    font-size: 3rem;
+  }
+
+  .info-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .analytics-kpi-row {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .analytics-charts-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .mobile-menu-button {
+    position: fixed;
+    top: 0.85rem;
+    left: 0.85rem;
+    z-index: 1101;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none;
+    border-radius: 8px;
+    background: #0f172a;
+    color: #ffffff;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.22);
+  }
+
+  .sidebar {
+    width: min(84vw, 320px) !important;
+    transform: translateX(-105%) !important;
+  }
+
+  .sidebar.active {
+    transform: translateX(0) !important;
+  }
+
+  .sidebar-overlay.active {
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+
+  .main-content {
+    padding: 5rem 1rem 1.25rem !important;
+  }
+
+  .page-header-detail {
+    flex-direction: column-reverse;
+    align-items: stretch;
+    gap: 0.9rem;
+    margin-bottom: 1.25rem;
+  }
+
+  h1.detail-title {
+    line-height: 1.15;
+  }
+
+  .btn-back {
+    width: 100% !important;
+    justify-content: center;
+  }
+
+  .hero-section {
+    border-radius: 8px;
+    margin-bottom: 1rem;
+  }
+
+  .player-avatar-large {
+    width: 86px;
+    height: 86px;
+    margin-bottom: 1rem;
+  }
+
+  .player-name {
+    font-size: clamp(1.5rem, 8vw, 2rem);
+    line-height: 1.1;
+    overflow-wrap: anywhere;
+  }
+
+  .player-number {
+    font-size: 2.6rem;
+  }
+
+  .position-badge-large {
+    display: inline-flex;
+    max-width: 100%;
+    justify-content: center;
+    white-space: normal;
+  }
+
+  .info-grid {
+    gap: 0.9rem;
+    margin: 1rem 0;
+  }
+
+  .info-card,
+  .stats-section,
+  .analytics-section {
+    padding: 1rem;
+    border-radius: 8px;
+  }
+
+  .analytics-header {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .analytics-title {
+    font-size: 1.05rem;
+    line-height: 1.25;
+  }
+
+  .analytics-badge {
+    margin-left: 0;
+  }
+
+  .analytics-kpi-row {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .analysis-insights-grid,
+  .analytics-charts-row {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .radar-wrapper {
+    overflow-x: auto;
+  }
+
+  .radar-canvas {
+    width: min(100%, 300px);
+    height: auto;
+  }
+
+  .score-bar-header {
+    flex-wrap: wrap;
+  }
+
+  .score-num {
+    margin-left: 0;
+  }
+
+  .historial-bars {
+    min-width: 420px;
+  }
+
+  .historial-wrapper {
+    overflow-x: auto;
+  }
+
+  .match-history {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .stats-table {
+    min-width: 720px;
+  }
+
+  .stats-table th,
+  .stats-table td {
+    padding: 0.65rem;
+  }
+}

@@ -32,6 +32,10 @@ export class EntrenamientoService {
     return this.http.get(`${this.apiUrl}/${id}`);
   }
 
+  updateEntrenamiento(id: number, data: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${id}`, data);
+  }
+
   saveAsistencia(entrenamientoId: number, asistencias: any[]): Observable<any> {
     return this.http.post(`${this.apiUrl}/${entrenamientoId}/asistencia`, { asistencias });
   }

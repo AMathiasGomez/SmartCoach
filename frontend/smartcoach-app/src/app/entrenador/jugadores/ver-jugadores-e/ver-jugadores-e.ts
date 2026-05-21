@@ -23,6 +23,7 @@ interface PlayerClassificationLite {
 })
 export class VerJugadoresE implements OnInit {
 
+  sidebarOpen = false;
   loading = false;
   jugadores: Jugador[] = [];
   filtroNombre = '';
@@ -46,6 +47,14 @@ export class VerJugadoresE implements OnInit {
 
   ngOnInit(): void {
     this.cargarJugadores();
+  }
+
+  toggleSidebar(): void {
+    this.sidebarOpen = !this.sidebarOpen;
+  }
+
+  closeSidebar(): void {
+    this.sidebarOpen = false;
   }
 
   cargarJugadores() {

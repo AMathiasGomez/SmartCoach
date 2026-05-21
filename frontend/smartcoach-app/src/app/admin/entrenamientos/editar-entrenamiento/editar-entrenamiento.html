@@ -1,0 +1,173 @@
+<div class="app-container">
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-icon">SC</div>
+      <div class="logo-text-wrapper">
+        <h3 class="logo-text">SmartCoach</h3>
+        <p class="logo-subtext">GESTION DEPORTIVA</p>
+      </div>
+    </div>
+
+    <nav>
+      <a routerLink="/dashboard-admin">
+        <span class="material-symbols-outlined">space_dashboard</span>
+        <span>Panel de Control</span>
+      </a>
+      <a routerLink="/ver-equipos">
+        <span class="material-symbols-outlined">group</span>
+        <span>Equipos</span>
+      </a>
+      <a routerLink="/ver-jugadores">
+        <span class="material-symbols-outlined">person</span>
+        <span>Jugadores</span>
+      </a>
+      <a class="active" routerLink="/ver-entrenamientos">
+        <span class="material-symbols-outlined">fitness_center</span>
+        <span>Entrenamientos</span>
+      </a>
+      <a routerLink="/ver-partidos">
+        <span class="material-symbols-outlined">sports_soccer</span>
+        <span>Partidos</span>
+      </a>
+      <a routerLink="/ver-usuarios">
+        <span class="material-symbols-outlined">emoji_people</span>
+        <span>Usuarios</span>
+      </a>
+    </nav>
+
+    <button class="logout" (click)="logout()">
+      <span class="material-symbols-outlined">logout</span>
+      Cerrar sesion
+    </button>
+  </aside>
+
+  <main class="main-content">
+    <nav class="breadcrumb">
+      <a routerLink="/ver-entrenamientos">Entrenamientos</a>
+      <span class="separator">/</span>
+      <span class="current">Editar entrenamiento</span>
+    </nav>
+
+    <section class="header-section">
+      <h1>Editar entrenamiento</h1>
+      <p>Actualiza la programacion y los datos operativos de la sesion.</p>
+    </section>
+
+    <div *ngIf="loading" class="card loading-state">
+      <span class="material-symbols-outlined">progress_activity</span>
+      Cargando entrenamiento...
+    </div>
+
+    <section class="card" *ngIf="!loading && entrenamiento">
+      <div *ngIf="entrenamiento.estado === 'completado'" class="alert">
+        Este entrenamiento ya esta completado y no se puede editar.
+      </div>
+
+      <div class="card-header">
+        <h5>
+          <span class="material-symbols-outlined">edit</span>
+          Informacion del entrenamiento
+        </h5>
+      </div>
+
+      <form class="form" [formGroup]="formEntrenamiento" (ngSubmit)="actualizarEntrenamiento()">
+        <div class="grid-2">
+          <div class="form-group">
+            <label>Equipo</label>
+            <div class="input-container">
+              <span class="material-symbols-outlined icon">groups</span>
+              <select formControlName="equipo_id" [class.input-error]="campoInvalido('equipo_id')">
+                <option [ngValue]="null">Selecciona un equipo</option>
+                <option *ngFor="let equipo of equipos" [ngValue]="equipo.id">
+                  {{ equipo.nombre }}
+                </option>
+              </select>
+            </div>
+            <span class="error-message" *ngIf="campoInvalido('equipo_id')">Selecciona un equipo.</span>
+          </div>
+
+          <div class="form-group">
+            <label>Fecha</label>
+            <div class="input-container">
+              <span class="material-symbols-outlined icon">event</span>
+              <input type="date" formControlName="fecha" [class.input-error]="campoInvalido('fecha')">
+            </div>
+            <span class="error-message" *ngIf="campoInvalido('fecha')">La fecha es obligatoria.</span>
+          </div>
+
+          <div class="form-group">
+            <label>Hora</label>
+            <div class="input-container">
+              <span class="material-symbols-outlined icon">schedule</span>
+              <input type="time" formControlName="hora" [class.input-error]="campoInvalido('hora')">
+            </div>
+            <span class="error-message" *ngIf="campoInvalido('hora')">La hora es obligatoria.</span>
+          </div>
+
+          <div class="form-group">
+            <label>Tipo de entrenamiento</label>
+            <div class="input-container">
+              <span class="material-symbols-outlined icon">category</span>
+              <select formControlName="tipo" [class.input-error]="campoInvalido('tipo')">
+                <option value="">Selecciona</option>
+                <option value="tactico">Tactico</option>
+                <option value="fisico">Fisico</option>
+                <option value="tecnico">Tecnico</option>
+              </select>
+            </div>
+            <span class="error-message" *ngIf="campoInvalido('tipo')">Selecciona un tipo.</span>
+          </div>
+
+          <div class="form-group">
+            <label>Duracion (minutos)</label>
+            <div class="input-container">
+              <span class="material-symbols-outlined icon">timer</span>
+              <input
+                type="number"
+                placeholder="Ej. 90"
+                formControlName="duracion"
+                [class.input-error]="campoInvalido('duracion')">
+            </div>
+            <span class="error-message" *ngIf="campoInvalido('duracion')">
+              Ingresa una duracion entre 10 y 180 minutos.
+            </span>
+          </div>
+
+          <div class="form-group">
+            <label>Estado</label>
+            <div class="input-container">
+              <span class="material-symbols-outlined icon">flag</span>
+              <select formControlName="estado">
+                <option value="programado">Programado</option>
+                <option value="completado">Completado</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group full-width">
+          <label>Descripcion</label>
+          <div class="textarea-container">
+            <span class="material-symbols-outlined icon">notes</span>
+            <textarea rows="4" formControlName="descripcion" placeholder="Objetivos, enfoque o notas de la sesion"></textarea>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="button" class="btn-outline" routerLink="/ver-entrenamientos">
+            <span class="material-symbols-outlined">close</span>
+            Cancelar
+          </button>
+
+          <button
+            type="submit"
+            class="btn-primary"
+            [disabled]="formEntrenamiento.invalid || saving || entrenamiento.estado === 'completado'">
+            <span class="material-symbols-outlined">save</span>
+            {{ saving ? 'Guardando...' : 'Actualizar entrenamiento' }}
+          </button>
+        </div>
+      </form>
+    </section>
+  </main>
+</div>

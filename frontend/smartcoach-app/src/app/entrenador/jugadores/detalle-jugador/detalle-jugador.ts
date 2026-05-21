@@ -22,6 +22,7 @@ interface RadarAxis {
 export class DetalleJugador implements OnInit, AfterViewInit {
   @ViewChild('radarCanvas') radarCanvasRef!: ElementRef<HTMLCanvasElement>;
 
+  sidebarOpen = false;
   jugador: Jugador | null = null;
   loading = false;
   error = '';
@@ -43,6 +44,14 @@ export class DetalleJugador implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.loadJugador();
+  }
+
+  toggleSidebar(): void {
+    this.sidebarOpen = !this.sidebarOpen;
+  }
+
+  closeSidebar(): void {
+    this.sidebarOpen = false;
   }
 
   ngAfterViewInit(): void {

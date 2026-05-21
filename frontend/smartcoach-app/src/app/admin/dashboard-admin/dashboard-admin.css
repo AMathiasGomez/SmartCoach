@@ -197,9 +197,63 @@ h1 {
    ===================== */
 .welcome h1 {
   font-size: 1.8rem;
-  margin-bottom: 2rem;
+  margin-bottom: 0.35rem;
   font-weight: 700;
   color: #1e293b;
+}
+
+.welcome {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.eyebrow {
+  color: #2563eb;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.45rem;
+  text-transform: uppercase;
+}
+
+.refresh-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #ffffff;
+  color: #1e293b;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+  transition: all 0.2s ease;
+}
+
+.refresh-button:hover:not(:disabled) {
+  background: #f8fafc;
+  transform: translateY(-1px);
+}
+
+.refresh-button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.alert-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  margin-bottom: 1.25rem;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-radius: 8px;
+  color: #9a3412;
+  font-weight: 600;
 }
 
 /* =====================
@@ -221,6 +275,9 @@ h1 {
   font-weight: 600;
   cursor: pointer;
   transition: background 0.3s ease, transform 0.1s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .quick-actions button:hover {
@@ -303,6 +360,17 @@ h1 {
   font-weight: 600;
 }
 
+.card small {
+  display: inline-flex;
+  margin-top: 0.55rem;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.loading-cards .card {
+  opacity: 0.75;
+}
+
 .stat-value {
   font-size: 2.25rem;
   font-weight: 800;
@@ -311,6 +379,61 @@ h1 {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+}
+
+.health-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+}
+
+.health-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 1rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+}
+
+.health-card > span {
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+}
+
+.health-card > span.players {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.health-card > span.teams {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.health-card > span.matches {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.health-card strong {
+  display: block;
+  color: #0f172a;
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.health-card p {
+  color: #64748b;
+  margin: 0.25rem 0 0;
+  font-size: 0.88rem;
 }
 
 /* =====================
@@ -332,6 +455,90 @@ h1 {
 
 .chart h3 {
   font-weight: bold;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.section-title h3 {
+  margin: 0;
+}
+
+.section-title a,
+.section-title span {
+  color: #2563eb;
+  font-size: 0.86rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.bars {
+  display: grid;
+  gap: 1rem;
+}
+
+.bar-label {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.45rem;
+  color: #334155;
+  font-weight: 700;
+}
+
+.bar-label strong {
+  color: #2563eb;
+}
+
+.bar-track {
+  height: 10px;
+  overflow: hidden;
+  background: #e2e8f0;
+  border-radius: 999px;
+}
+
+.bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #2563eb, #22c55e);
+  border-radius: inherit;
+}
+
+.agenda {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.agenda-item {
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.9rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  color: #0f172a;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.agenda-item:hover {
+  border-color: #bfdbfe;
+  transform: translateY(-1px);
+}
+
+.agenda-item small {
+  color: #64748b;
+}
+
+.agenda-type {
+  color: #2563eb;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
 }
 
 .chart-placeholder {
@@ -385,6 +592,44 @@ td {
 
 tr:hover {
   background-color: #fcfcfc;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  max-width: 220px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.status-pill.success {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.status-pill.info {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.status-pill.warning {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.status-pill.neutral {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.empty-row {
+  color: #64748b;
+  text-align: center;
 }
 
 @media (max-width: 1024px) and (min-width: 769px) {
@@ -473,8 +718,16 @@ tr:hover {
     grid-template-columns: 1fr;
   }
 
+  .welcome {
+    flex-direction: column;
+  }
+
   .quick-actions {
     flex-direction: column;
+  }
+
+  .health-grid {
+    grid-template-columns: 1fr;
   }
 
   .welcome h1 {

@@ -133,6 +133,58 @@ exports.getEntrenamientoById = async (req, res) => {
   }
 };
 
+exports.updateEntrenamiento = async (req, res) => {
+  try {
+    const { id } = req.params;
+    let { equipo_id, fecha, hora, tipo, duracion, descripcion, estado } = req.body;
+
+    if (!equipo_id || !fecha || !hora || !tipo || !duracion || !estado) {
+      return res.status(400).json({
+        message: 'Faltan campos obligatorios'
+      });
+    }
+
+    const [entrenamientos] = await db.query(
+      'SELECT estado FROM entrenamientos WHERE id = ?',
+      [id]
+    );
+
+    if (entrenamientos.length === 0) {
+      return res.status(404).json({ message: 'Entrenamiento no encontrado' });
+    }
+
+    if (entrenamientos[0].estado === 'completado') {
+      return res.status(400).json({
+        message: 'No se puede editar un entrenamiento completado'
+      });
+    }
+
+    tipo = tipo.trim().toLowerCase();
+    estado = estado.trim().toLowerCase();
+
+    if (!['programado', 'completado'].includes(estado)) {
+      return res.status(400).json({ message: 'Estado invalido' });
+    }
+
+    const [result] = await db.query(
+      `UPDATE entrenamientos
+       SET equipo_id = ?, fecha = ?, hora = ?, tipo = ?, duracion = ?, descripcion = ?, estado = ?
+       WHERE id = ?`,
+      [equipo_id, fecha, hora, tipo, duracion, descripcion || null, estado, id]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Entrenamiento no encontrado' });
+    }
+
+    res.json({ message: 'Entrenamiento actualizado correctamente' });
+
+  } catch (error) {
+    console.error('ERROR updateEntrenamiento:', error);
+    res.status(500).json({ message: 'Error al actualizar entrenamiento' });
+  }
+};
+
 exports.saveAsistencia = async (req, res) => {
   try {
     const { id } = req.params;

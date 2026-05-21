@@ -1,3 +1,12 @@
 <div class="app-wrapper">
+  <button
+    type="button"
+    class="theme-toggle"
+    (click)="toggleTheme()"
+    [attr.aria-label]="isDarkMode ? 'Activar modo claro' : 'Activar modo oscuro'"
+    [title]="isDarkMode ? 'Modo claro' : 'Modo oscuro'">
+    <span class="material-symbols-outlined">{{ isDarkMode ? 'light_mode' : 'dark_mode' }}</span>
+  </button>
+
   <router-outlet></router-outlet>
 </div>

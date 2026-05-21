@@ -17,6 +17,7 @@ import { VerEntrenamientos } from './admin/entrenamientos/ver-entrenamientos/ver
 import { CrearPartidos } from './admin/partidos/crear-partidos/crear-partidos';
 import { DetallePartido } from './entrenador/partidos/detalle-partido/detalle-partido';
 import { CrearEntrenamiento } from './admin/entrenamientos/crear-entrenamiento/crear-entrenamiento';
+import { EditarEntrenamiento } from './admin/entrenamientos/editar-entrenamiento/editar-entrenamiento';
 import { EditarPartido } from './admin/partidos/editar-partido/editar-partido';
 import { DashboardEntrenador } from './entrenador/dashboard-entrenador/dashboard-entrenador';
 import { DetalleEntrenamiento } from './entrenador/entrenamientos/detalle-entrenamiento/detalle-entrenamiento';
@@ -76,6 +77,7 @@ export const routes: Routes = [
   //ADMIN
   { path: 'ver-entrenamientos', component: VerEntrenamientos, canActivate: [authGuard], data: { roles: ['administrador'] } },
   { path: 'crear-entrenamiento', component: CrearEntrenamiento, canActivate: [authGuard], data: { roles: ['administrador'] } },
+  { path: 'editar-entrenamiento/:id', component: EditarEntrenamiento, canActivate: [authGuard], data: { roles: ['administrador'] } },
   
   //ENTRENADOR
   { path: 'ver-entrenamientos-e', component: VerEntrenamientosE, canActivate: [authGuard], data: { roles: ['entrenador'] } },

@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule, NgIf, NgFor, DatePipe, TitleCasePipe } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { EntrenamientoService } from '../../../services/entrenamiento/entrenamiento-service';
 import { AuthService } from '../../../services/auth/auth-service';
@@ -17,7 +17,7 @@ interface Comentario {
 @Component({
   selector: 'app-detalle-entrenamiento',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, NgIf, NgFor, DatePipe, TitleCasePipe],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, NgIf, NgFor, DatePipe, TitleCasePipe, RouterLink],
   templateUrl: './detalle-entrenamiento.html',
   styleUrl: './detalle-entrenamiento.css'
 })
