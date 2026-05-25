@@ -1,0 +1,45 @@
+<section class="reports-console">
+  <article class="report-feature">
+    <span class="material-symbols-outlined">fact_check</span>
+    <div>
+      <p class="eyebrow">Centro de informes</p>
+      <h2>{{ reportes.length }} reportes para seguimiento</h2>
+      <p>Prioriza los informes con estado de seguimiento y exporta el consolidado cuando sea necesario.</p>
+    </div>
+  </article>
+
+  <article class="report-action-card">
+    <span class="material-symbols-outlined">download_for_offline</span>
+    <strong>Consolidado CSV</strong>
+    <p>Archivo con indicadores generales del club.</p>
+    <button class="btn btn-primary" (click)="download.emit(undefined)">Descargar</button>
+  </article>
+</section>
+
+<section class="panel report-board">
+  <div class="panel-header">
+    <div>
+      <p class="eyebrow">Reportes ejecutivos</p>
+      <h2>Informes disponibles</h2>
+    </div>
+    <button class="icon-button" (click)="download.emit(undefined)" title="Descargar todos">
+      <span class="material-symbols-outlined">download</span>
+    </button>
+  </div>
+
+  <div class="reports-list">
+    <article class="report-row" *ngFor="let reporte of reportes">
+      <span class="report-marker" [ngClass]="getReportClass(reporte.status)"></span>
+      <div>
+        <h3>{{ reporte.title }}</h3>
+        <p>{{ reporte.summary }}</p>
+        <span>{{ reporte.category }} - {{ reporte.owner }}</span>
+      </div>
+      <div class="report-meta">
+        <strong>{{ reporte.metric }}</strong>
+        <span class="status" [ngClass]="getReportClass(reporte.status)">{{ reporte.status }}</span>
+        <button class="small-button" (click)="download.emit(reporte)">CSV</button>
+      </div>
+    </article>
+  </div>
+</section>

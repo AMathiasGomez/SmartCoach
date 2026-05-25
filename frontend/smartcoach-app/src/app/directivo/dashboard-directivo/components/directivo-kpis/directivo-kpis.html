@@ -1,0 +1,45 @@
+<section class="kpi-grid compact">
+  <article class="kpi-card">
+    <div class="kpi-top">
+      <div class="kpi-icon players">
+        <span class="material-symbols-outlined">person</span>
+      </div>
+      <p>Jugadores</p>
+    </div>
+    <h3>{{ totalJugadores }}</h3>
+    <span>{{ promedioJugadoresPorEquipo }} por equipo</span>
+  </article>
+
+  <article class="kpi-card">
+    <div class="kpi-top">
+      <div class="kpi-icon teams">
+        <span class="material-symbols-outlined">groups</span>
+      </div>
+      <p>Equipos</p>
+    </div>
+    <h3>{{ totalEquipos }}</h3>
+    <span>Base institucional</span>
+  </article>
+
+  <article class="kpi-card">
+    <div class="kpi-top">
+      <div class="kpi-icon training">
+        <span class="material-symbols-outlined">fitness_center</span>
+      </div>
+      <p>Entrenamientos</p>
+    </div>
+    <h3>{{ totalEntrenamientos }}</h3>
+    <span>{{ coberturaEntrenamiento }}% cobertura</span>
+  </article>
+
+  <article class="kpi-card">
+    <div class="kpi-top">
+      <div class="kpi-icon winrate">
+        <span class="material-symbols-outlined">emoji_events</span>
+      </div>
+      <p>Efectividad</p>
+    </div>
+    <h3>{{ winRate }}%</h3>
+    <span>{{ partidosFinalizados }} de {{ totalPartidos }} finalizados</span>
+  </article>
+</section>

@@ -1,0 +1,83 @@
+<section class="agenda-strip">
+  <article>
+    <span class="material-symbols-outlined">today</span>
+    <div>
+      <p class="eyebrow">Operacion deportiva</p>
+      <h2>{{ proximasActividades.length }} actividades proximas</h2>
+      <p>Seguimiento de compromisos futuros y actividad reciente del club.</p>
+    </div>
+  </article>
+  <article>
+    <span class="material-symbols-outlined">update</span>
+    <div>
+      <strong>{{ actualizaciones.length }}</strong>
+      <p>actualizaciones recientes</p>
+    </div>
+  </article>
+</section>
+
+<section class="split-grid">
+  <article class="panel activity-panel">
+    <div class="panel-header">
+      <div>
+        <p class="eyebrow">Agenda</p>
+        <h2>Proximas actividades</h2>
+      </div>
+    </div>
+
+    <div class="empty" *ngIf="proximasActividades.length === 0">
+      No hay actividades futuras registradas.
+    </div>
+
+    <div class="activity-list" *ngIf="proximasActividades.length > 0">
+      <article class="activity-item" *ngFor="let item of proximasActividades">
+        <span class="material-symbols-outlined">
+          {{ item.rival ? 'sports_volleyball' : 'fitness_center' }}
+        </span>
+        <div>
+          <h3>{{ item.nombre || item.tipo || 'Actividad del club' }}</h3>
+          <p>{{ item.fecha | date:'mediumDate' }} {{ item.hora || '' }}</p>
+        </div>
+      </article>
+    </div>
+  </article>
+
+  <article class="panel table-section">
+    <div class="panel-header">
+      <div>
+        <p class="eyebrow">Actividad</p>
+        <h2>Actualizaciones recientes</h2>
+      </div>
+    </div>
+
+    <div class="table-wrap" *ngIf="actualizaciones.length > 0">
+      <table>
+        <thead>
+          <tr>
+            <th>Evento</th>
+            <th>Objeto</th>
+            <th>Estado</th>
+            <th>Fecha</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let update of actualizaciones">
+            <td>
+              <span class="table-event">
+                <span class="material-symbols-outlined">{{ update.icon }}</span>
+                {{ update.event }}
+              </span>
+            </td>
+            <td class="strong">{{ update.object }}</td>
+            <td><span class="badge neutral">{{ update.status }}</span></td>
+            <td>{{ update.date | date:'shortDate' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="empty" *ngIf="actualizaciones.length === 0">
+      Aun no hay actividad reciente para mostrar.
+    </div>
+  </article>
+</section>

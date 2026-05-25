@@ -1,16 +1,24 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { Router } from '@angular/router';
 import { catchError, forkJoin, of } from 'rxjs';
 import { AuthService } from '../../services/auth/auth-service';
 import { EntrenamientoService } from '../../services/entrenamiento/entrenamiento-service';
 import { EquipoService } from '../../services/equipo/equipo-service';
 import { JugadorService } from '../../services/jugador/jugador-service';
 import { PartidoService } from '../../services/partido/partido-service';
+import { DirectivoAgendaComponent } from './components/directivo-agenda/directivo-agenda';
+import { DirectivoHeroComponent } from './components/directivo-hero/directivo-hero';
+import { DirectivoKpisComponent } from './components/directivo-kpis/directivo-kpis';
+import { DirectivoOverviewComponent } from './components/directivo-overview/directivo-overview';
+import { DirectivoReportsComponent } from './components/directivo-reports/directivo-reports';
+import { DirectivoSidebarComponent } from './components/directivo-sidebar/directivo-sidebar';
+import { DirectivoTeamsComponent } from './components/directivo-teams/directivo-teams';
 
-type ReportStatus = 'Listo' | 'Requiere seguimiento' | 'En observacion';
+export type ReportStatus = 'Listo' | 'Requiere seguimiento' | 'En observacion';
+export type DirectivoSection = 'resumen' | 'reportes' | 'equipos' | 'agenda';
 
-interface ExecutiveReport {
+export interface ExecutiveReport {
   title: string;
   category: string;
   owner: string;
@@ -19,14 +27,14 @@ interface ExecutiveReport {
   metric: string;
 }
 
-interface Insight {
+export interface Insight {
   icon: string;
   title: string;
   detail: string;
   tone: 'success' | 'warning' | 'info';
 }
 
-interface ChartBar {
+export interface ChartBar {
   label: string;
   value: number;
   detail: string;
@@ -36,9 +44,19 @@ interface ChartBar {
 @Component({
   selector: 'app-dashboard-directivo',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [
+    CommonModule,
+    DirectivoAgendaComponent,
+    DirectivoHeroComponent,
+    DirectivoKpisComponent,
+    DirectivoOverviewComponent,
+    DirectivoReportsComponent,
+    DirectivoSidebarComponent,
+    DirectivoTeamsComponent,
+  ],
   templateUrl: './dashboard-directivo.html',
   styleUrl: './dashboard-directivo.css',
+  encapsulation: ViewEncapsulation.None,
 })
 export class DashboardDirectivo implements OnInit {
   totalJugadores = 0;
@@ -70,6 +88,7 @@ export class DashboardDirectivo implements OnInit {
   loading = true;
   error = '';
   sidebarOpen = false;
+  activeSection: DirectivoSection = 'resumen';
 
   constructor(
     private authService: AuthService,
@@ -348,8 +367,8 @@ export class DashboardDirectivo implements OnInit {
     window.print();
   }
 
-  scrollTo(sectionId: string) {
-    document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  showSection(sectionId: DirectivoSection) {
+    this.activeSection = sectionId;
     this.closeSidebar();
   }
 

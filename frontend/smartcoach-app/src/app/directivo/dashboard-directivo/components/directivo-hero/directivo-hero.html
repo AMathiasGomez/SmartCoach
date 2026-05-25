@@ -1,0 +1,31 @@
+<section
+  class="welcome"
+  [ngClass]="'welcome-' + activeSection"
+>
+  <div class="welcome-copy">
+    <p class="eyebrow">Direccion del club</p>
+    <span class="hero-section-icon material-symbols-outlined">{{ sectionIcons[activeSection] }}</span>
+    <h1>{{ sectionLabels[activeSection] }}</h1>
+    <p class="sub">{{ sectionDescriptions[activeSection] }}</p>
+  </div>
+
+  <div class="hero-side">
+    <div class="hero-metrics">
+      <div *ngFor="let metric of heroMetrics">
+        <span>{{ metric.label }}</span>
+        <strong>{{ metric.value }}</strong>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-secondary" (click)="print.emit()">
+        <span class="material-symbols-outlined">print</span>
+        Imprimir
+      </button>
+      <button class="btn btn-primary" (click)="download.emit()">
+        <span class="material-symbols-outlined">download</span>
+        Exportar CSV
+      </button>
+    </div>
+  </div>
+</section>

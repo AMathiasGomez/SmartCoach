@@ -1,0 +1,78 @@
+<section class="executive-grid">
+  <article class="panel performance-panel">
+    <div class="panel-header">
+      <div>
+        <p class="eyebrow">Lectura ejecutiva</p>
+        <h2>Estado general del club</h2>
+      </div>
+      <span class="pill">{{ saludInstitucional }}% salud</span>
+    </div>
+
+    <div class="bar-chart">
+      <div class="bar-row" *ngFor="let item of tendenciaClub">
+        <div class="bar-label">
+          <strong>{{ item.label }}</strong>
+          <span>{{ item.detail }}</span>
+        </div>
+        <div class="bar-track">
+          <div class="bar-fill" [ngClass]="item.color" [style.width.%]="item.value"></div>
+        </div>
+        <b>{{ item.value }}%</b>
+      </div>
+    </div>
+  </article>
+
+  <aside class="panel best-panel">
+    <div class="best-header">
+      <p class="eyebrow">Equipo destacado</p>
+      <span class="material-symbols-outlined">workspace_premium</span>
+    </div>
+    <h2>{{ mejorEquipo?.nombre || 'Sin informacion' }}</h2>
+    <div class="best-stats">
+      <span><b>{{ mejorEquipo?.jugadores || 0 }}</b> jugadores</span>
+      <span><b>{{ mejorEquipo?.entrenamientos || 0 }}</b> entrenamientos</span>
+      <span><b>{{ mejorEquipo?.partidos || 0 }}</b> partidos</span>
+    </div>
+  </aside>
+</section>
+
+<section class="split-grid">
+  <article class="panel">
+    <div class="panel-header">
+      <div>
+        <p class="eyebrow">Gestion</p>
+        <h2>Prioridades</h2>
+      </div>
+    </div>
+
+    <div class="empty" *ngIf="alertas.length === 0">
+      No hay alertas pendientes con la informacion actual.
+    </div>
+
+    <ul class="alerts" *ngIf="alertas.length > 0">
+      <li *ngFor="let alerta of alertas">
+        <span class="material-symbols-outlined">priority_high</span>
+        {{ alerta }}
+      </li>
+    </ul>
+  </article>
+
+  <article class="panel">
+    <div class="panel-header">
+      <div>
+        <p class="eyebrow">Foco directivo</p>
+        <h2>Indicadores clave</h2>
+      </div>
+    </div>
+
+    <div class="insights stacked">
+      <article class="insight" *ngFor="let insight of insights" [ngClass]="insight.tone">
+        <span class="material-symbols-outlined">{{ insight.icon }}</span>
+        <div>
+          <h3>{{ insight.title }}</h3>
+          <p>{{ insight.detail }}</p>
+        </div>
+      </article>
+    </div>
+  </article>
+</section>

@@ -1,0 +1,75 @@
+<section class="teams-command">
+  <article>
+    <p class="eyebrow">Mapa institucional</p>
+    <h2>{{ equiposResumen.length }} equipos bajo seguimiento</h2>
+    <p>Compara plantilla, entrenamientos y competencia para detectar equipos con mayor actividad.</p>
+  </article>
+  <div class="team-rank" *ngIf="equiposResumen.length > 0">
+    <span class="material-symbols-outlined">leaderboard</span>
+    <div>
+      <strong>{{ equiposResumen[0].nombre }}</strong>
+      <p>{{ equiposResumen[0].score }} puntos de indice</p>
+    </div>
+  </div>
+</section>
+
+<section class="split-grid">
+  <article class="panel">
+    <div class="panel-header">
+      <div>
+        <p class="eyebrow">Club</p>
+        <h2>Resumen por equipo</h2>
+      </div>
+      <span class="pill">{{ equiposResumen.length }} registros</span>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Equipo</th>
+            <th>Categoria</th>
+            <th>Jugadores</th>
+            <th>Entrenamientos</th>
+            <th>Partidos</th>
+            <th>Indice</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let equipo of equiposResumen">
+            <td class="strong">{{ equipo.nombre }}</td>
+            <td>{{ equipo.categoria || 'Sin categoria' }}</td>
+            <td>{{ equipo.jugadores }}</td>
+            <td>{{ equipo.entrenamientos }}</td>
+            <td>{{ equipo.partidos }}</td>
+            <td><span class="index-pill">{{ equipo.score }}</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </article>
+
+  <article class="panel category-panel">
+    <div class="panel-header">
+      <div>
+        <p class="eyebrow">Categorias</p>
+        <h2>Distribucion</h2>
+      </div>
+    </div>
+
+    <div class="category-list" *ngIf="distribucionCategorias.length > 0">
+      <div class="category-item" *ngFor="let categoria of distribucionCategorias">
+        <div>
+          <strong>{{ categoria.name }}</strong>
+          <span>{{ categoria.total }} equipo(s)</span>
+        </div>
+        <div class="mini-track">
+          <div [style.width.%]="categoria.percentage"></div>
+        </div>
+      </div>
+    </div>
+    <div class="empty" *ngIf="distribucionCategorias.length === 0">
+      Sin categorias registradas.
+    </div>
+  </article>
+</section>

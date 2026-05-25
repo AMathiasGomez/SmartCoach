@@ -1,0 +1,35 @@
+<aside class="sidebar" [class.open]="open">
+  <div class="logo">
+    <div class="logo-icon">SC</div>
+    <div class="logo-text-wrapper">
+      <h3 class="logo-text">SmartCoach</h3>
+      <p class="logo-subtext">GESTI&Oacute;N DEPORTIVA</p>
+    </div>
+  </div>
+
+  <nav>
+    <a routerLink="/dashboard-directivo" [class.active]="activeSection === 'resumen'" (click)="sectionChange.emit('resumen')">
+      <span class="material-symbols-outlined">space_dashboard</span>
+      <span class="nav-label">Resumen</span>
+    </a>
+    <a href="javascript:void(0)" [class.active]="activeSection === 'reportes'" (click)="sectionChange.emit('reportes')">
+      <span class="material-symbols-outlined">summarize</span>
+      <span class="nav-label">Reportes</span>
+    </a>
+    <a href="javascript:void(0)" [class.active]="activeSection === 'equipos'" (click)="sectionChange.emit('equipos')">
+      <span class="material-symbols-outlined">groups</span>
+      <span class="nav-label">Equipos</span>
+    </a>
+    <a href="javascript:void(0)" [class.active]="activeSection === 'agenda'" (click)="sectionChange.emit('agenda')">
+      <span class="material-symbols-outlined">event_available</span>
+      <span class="nav-label">Agenda</span>
+    </a>
+  </nav>
+
+  <button class="logout" (click)="logout.emit()">
+    <span class="material-symbols-outlined">logout</span>
+    <span class="nav-label">Cerrar sesi&oacute;n</span>
+  </button>
+</aside>
+
+<div class="sidebar-overlay" [class.visible]="open" (click)="close.emit()"></div>
