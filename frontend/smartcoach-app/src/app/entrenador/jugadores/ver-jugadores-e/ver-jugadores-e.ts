@@ -168,7 +168,8 @@ export class VerJugadoresE implements OnInit {
   getFotoUrl(fotoUrl?: string): string {
     if (!fotoUrl) return '';
     if (fotoUrl.startsWith('http')) return fotoUrl;
-    return `${this.baseUrl}${fotoUrl}`;
+    const path = fotoUrl.startsWith('/uploads') ? fotoUrl : `/uploads/jugadores/${fotoUrl}`;
+    return `${this.baseUrl}${path}`;
   }
 
   getJugadorNivel(jugador: Jugador): 'Alto' | 'Medio' | 'Bajo' | 'Sin datos' {

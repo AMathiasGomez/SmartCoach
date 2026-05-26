@@ -4,6 +4,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { EntrenamientoService } from '../../../services/entrenamiento/entrenamiento-service';
 import { AuthService } from '../../../services/auth/auth-service';
+import { environment } from '../../../../environments/environment';
 
 interface Comentario {
   id: number;
@@ -28,6 +29,7 @@ export class DetalleEntrenamiento implements OnInit {
   jugadores: any[] = [];
   loading = false;
   saving = false;
+  statusSaving = false;
   error = '';
   success = '';
   id!: number;
@@ -38,6 +40,7 @@ export class DetalleEntrenamiento implements OnInit {
   enviandoComentario = false;
   cargandoComentarios = false;
   usuarioActual: any = null;
+  private baseUrl = environment.apiUrl.replace(/\/api\/?$/, '');
 
   constructor(
     private route: ActivatedRoute,
@@ -78,10 +81,7 @@ export class DetalleEntrenamiento implements OnInit {
     this.success = '';
     this.error = '';
 
-    const asistencias = this.jugadores.map(j => ({
-      jugador_id: j.id,
-      presente: j.presente
-    }));
+    const asistencias = this.buildAsistenciasPayload();
 
     this.entrenamientoService.saveAsistencia(this.id, asistencias).subscribe({
       next: () => {
@@ -94,6 +94,88 @@ export class DetalleEntrenamiento implements OnInit {
         this.saving = false;
       }
     });
+  }
+
+  iniciarEntrenamiento() {
+    this.updateEstado('en_curso', 'Entrenamiento iniciado correctamente');
+  }
+
+  finalizarEntrenamiento() {
+    this.statusSaving = true;
+    this.success = '';
+    this.error = '';
+
+    this.entrenamientoService.saveAsistencia(this.id, this.buildAsistenciasPayload()).subscribe({
+      next: () => {
+        this.entrenamientoService.updateEstado(this.id, 'completado').subscribe({
+          next: () => {
+            this.entrenamiento.estado = 'completado';
+            this.success = 'Entrenamiento finalizado correctamente';
+            this.statusSaving = false;
+            this.cd.detectChanges();
+          },
+          error: (err: any) => {
+            this.error = err?.error?.message || 'Error al finalizar entrenamiento';
+            console.error(err);
+            this.statusSaving = false;
+          }
+        });
+      },
+      error: (err: any) => {
+        this.error = 'Error al guardar asistencia antes de finalizar';
+        console.error(err);
+        this.statusSaving = false;
+      }
+    });
+  }
+
+  updateEstado(estado: string, message: string) {
+    this.statusSaving = true;
+    this.success = '';
+    this.error = '';
+
+    this.entrenamientoService.updateEstado(this.id, estado).subscribe({
+      next: () => {
+        this.entrenamiento.estado = estado;
+        this.success = message;
+        this.statusSaving = false;
+        this.cd.detectChanges();
+      },
+      error: (err: any) => {
+        this.error = err?.error?.message || 'Error al actualizar estado del entrenamiento';
+        console.error(err);
+        this.statusSaving = false;
+      }
+    });
+  }
+
+  buildAsistenciasPayload() {
+    return this.jugadores.map(j => ({
+      jugador_id: j.id,
+      presente: j.presente
+    }));
+  }
+
+  getEstado(): string {
+    return (this.entrenamiento?.estado || 'programado').toLowerCase();
+  }
+
+  getEstadoLabel(): string {
+    const labels: Record<string, string> = {
+      programado: 'Programado',
+      en_curso: 'En curso',
+      completado: 'Completado',
+      cancelado: 'Cancelado'
+    };
+    return labels[this.getEstado()] || this.entrenamiento?.estado || 'Programado';
+  }
+
+  getEstadoClass(): string {
+    return `estado-${this.getEstado().replace('_', '-')}`;
+  }
+
+  entrenamientoIniciado(): boolean {
+    return ['en_curso', 'completado'].includes(this.getEstado());
   }
 
   togglePresente(jugador: any) {
@@ -174,6 +256,17 @@ export class DetalleEntrenamiento implements OnInit {
   obtenerIniciales(nombre: string): string {
     if (!nombre) return '?';
     return nombre.split(' ').slice(0, 2).map(p => p[0]).join('').toUpperCase();
+  }
+
+  getFotoUrl(fotoUrl?: string): string {
+    if (!fotoUrl) return '';
+    if (fotoUrl.startsWith('http')) return fotoUrl;
+    const path = fotoUrl.startsWith('/uploads') ? fotoUrl : `/uploads/jugadores/${fotoUrl}`;
+    return `${this.baseUrl}${path}`;
+  }
+
+  onJugadorFotoError(jugador: any) {
+    jugador.fotoError = true;
   }
 
   // ── Navegación ──────────────────────────────────────────────────────────────

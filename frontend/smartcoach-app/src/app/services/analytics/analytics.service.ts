@@ -8,11 +8,12 @@ export interface PlayerAnalysis {
   player_id: string;
   name: string;
   position: string;
-  score: number;
-  category: 'Excelente' | 'Bueno' | 'Regular' | 'Malo';
+  score: number | null;
+  category: 'Excelente' | 'Bueno' | 'Regular' | 'Malo' | 'Sin datos';
   label: string;
-  color: 'green' | 'yellow' | 'red';
-  cluster_id: number;
+  color: 'green' | 'yellow' | 'red' | 'neutral';
+  cluster_id: number | null;
+  sin_estadisticas?: boolean;
   profile?: string;
   is_outlier?: boolean;
   outlier_score?: number;
@@ -36,7 +37,7 @@ export interface PlayerAnalysis {
     best_match_score: number;
     best_position_score: number;
     vs_best_same_position: 'por_encima' | 'similar' | 'por_debajo';
-  };
+  } | null;
   stats: {
     blocks: number;
     attacks: number;

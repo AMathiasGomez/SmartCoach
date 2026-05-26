@@ -1,5 +1,7 @@
 const db = require('../config/db');
 
+const ESTADOS_ENTRENAMIENTO = ['programado', 'en_curso', 'completado', 'cancelado'];
+
 exports.createEntrenamiento = async (req, res) => {
   try {
     let { equipo_id, fecha, hora, tipo, duracion, descripcion } = req.body;
@@ -101,7 +103,7 @@ exports.getEntrenamientoById = async (req, res) => {
 
     // Get jugadores del equipo
     const [jugadores] = await db.query(`
-      SELECT id, nombre, numero, posicion 
+      SELECT id, nombre, numero, posicion, foto_url 
       FROM jugadores 
       WHERE equipo_id = ?
     `, [entrenamiento.equipo_id]);
@@ -162,7 +164,7 @@ exports.updateEntrenamiento = async (req, res) => {
     tipo = tipo.trim().toLowerCase();
     estado = estado.trim().toLowerCase();
 
-    if (!['programado', 'completado'].includes(estado)) {
+    if (!ESTADOS_ENTRENAMIENTO.includes(estado)) {
       return res.status(400).json({ message: 'Estado invalido' });
     }
 
@@ -182,6 +184,48 @@ exports.updateEntrenamiento = async (req, res) => {
   } catch (error) {
     console.error('ERROR updateEntrenamiento:', error);
     res.status(500).json({ message: 'Error al actualizar entrenamiento' });
+  }
+};
+
+exports.updateEstadoEntrenamiento = async (req, res) => {
+  try {
+    const { id } = req.params;
+    let { estado } = req.body;
+
+    if (!estado) {
+      return res.status(400).json({ message: 'El estado es obligatorio' });
+    }
+
+    estado = estado.trim().toLowerCase();
+
+    if (!ESTADOS_ENTRENAMIENTO.includes(estado)) {
+      return res.status(400).json({ message: 'Estado invalido' });
+    }
+
+    const [entrenamientos] = await db.query(
+      'SELECT estado FROM entrenamientos WHERE id = ?',
+      [id]
+    );
+
+    if (entrenamientos.length === 0) {
+      return res.status(404).json({ message: 'Entrenamiento no encontrado' });
+    }
+
+    if (entrenamientos[0].estado === 'completado' && estado !== 'completado') {
+      return res.status(400).json({
+        message: 'No se puede cambiar un entrenamiento completado'
+      });
+    }
+
+    await db.query(
+      'UPDATE entrenamientos SET estado = ? WHERE id = ?',
+      [estado, id]
+    );
+
+    res.json({ message: 'Estado actualizado correctamente', estado });
+  } catch (error) {
+    console.error('ERROR updateEstadoEntrenamiento:', error);
+    res.status(500).json({ message: 'Error al actualizar estado del entrenamiento' });
   }
 };
 

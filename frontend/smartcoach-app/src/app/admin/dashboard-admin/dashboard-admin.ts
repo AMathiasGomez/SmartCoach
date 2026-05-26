@@ -31,6 +31,21 @@ interface UpcomingItem {
   route: string;
 }
 
+interface AdminAction {
+  label: string;
+  detail: string;
+  route: string;
+  icon: string;
+  tone: string;
+}
+
+interface SystemAlert {
+  title: string;
+  detail: string;
+  icon: string;
+  tone: 'success' | 'warning' | 'info';
+}
+
 @Component({
   selector: 'app-dashboard-admin',
   standalone: true,
@@ -57,6 +72,37 @@ export class DashboardAdmin implements OnInit {
   recentActivity: DashboardActivity[] = [];
   positionMetrics: PositionMetric[] = [];
   upcomingItems: UpcomingItem[] = [];
+  systemAlerts: SystemAlert[] = [];
+  adminActions: AdminAction[] = [
+    {
+      label: 'Nuevo jugador',
+      detail: 'Registrar ficha deportiva',
+      route: '/crear-jugador',
+      icon: 'person_add',
+      tone: 'blue',
+    },
+    {
+      label: 'Nuevo equipo',
+      detail: 'Crear plantilla y categoria',
+      route: '/crear-equipo',
+      icon: 'group_add',
+      tone: 'green',
+    },
+    {
+      label: 'Programar partido',
+      detail: 'Agregar rival y fecha',
+      route: '/crear-partido',
+      icon: 'add_circle',
+      tone: 'amber',
+    },
+    {
+      label: 'Plan de entrenamiento',
+      detail: 'Coordinar carga semanal',
+      route: '/crear-entrenamiento',
+      icon: 'fitness_center',
+      tone: 'rose',
+    },
+  ];
   healthCards = [
     { label: 'Jugadores registrados', value: '0', icon: 'person', tone: 'players' },
     { label: 'Equipos activos', value: '0', icon: 'group', tone: 'teams' },
@@ -109,6 +155,7 @@ export class DashboardAdmin implements OnInit {
         this.positionMetrics = this.buildPositionMetrics(jugadores);
         this.recentActivity = this.buildRecentActivity(jugadores, equipos, entrenamientos, partidos);
         this.upcomingItems = this.buildUpcomingItems(entrenamientos, partidos);
+        this.systemAlerts = this.buildSystemAlerts();
         this.healthCards = [
           { label: 'Usuarios del sistema', value: String(this.totalUsuarios), icon: 'manage_accounts', tone: 'players' },
           { label: 'Jugadores por equipo', value: String(this.promedioJugadores), icon: 'groups', tone: 'teams' },
@@ -200,6 +247,57 @@ export class DashboardAdmin implements OnInit {
     return activities.slice(0, 6);
   }
 
+  private buildSystemAlerts(): SystemAlert[] {
+    const alerts: SystemAlert[] = [];
+
+    if (this.totalEquipos === 0) {
+      alerts.push({
+        title: 'Sin equipos creados',
+        detail: 'Crea el primer equipo para organizar jugadores, entrenamientos y partidos.',
+        icon: 'groups',
+        tone: 'warning',
+      });
+    }
+
+    if (this.totalJugadores === 0) {
+      alerts.push({
+        title: 'Plantilla vacia',
+        detail: 'Registra jugadores para activar metricas por posicion y cobertura.',
+        icon: 'person_add',
+        tone: 'warning',
+      });
+    }
+
+    if (this.partidosPendientes > 0) {
+      alerts.push({
+        title: 'Partidos por cerrar',
+        detail: `${this.partidosPendientes} partido(s) siguen pendientes de finalizacion.`,
+        icon: 'sports_score',
+        tone: 'info',
+      });
+    }
+
+    if (this.entrenamientosProgramados === 0 && this.totalEntrenamientos > 0) {
+      alerts.push({
+        title: 'Agenda sin proximas sesiones',
+        detail: 'No hay entrenamientos programados en este momento.',
+        icon: 'event_busy',
+        tone: 'info',
+      });
+    }
+
+    if (!alerts.length) {
+      alerts.push({
+        title: 'Operacion estable',
+        detail: 'El panel no detecta pendientes criticos con los datos actuales.',
+        icon: 'verified',
+        tone: 'success',
+      });
+    }
+
+    return alerts.slice(0, 3);
+  }
+
   private buildUpcomingItems(entrenamientos: any[], partidos: any[]): UpcomingItem[] {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -240,6 +338,10 @@ export class DashboardAdmin implements OnInit {
       month: 'short',
       year: 'numeric',
     }).format(date);
+  }
+
+  getAgendaIcon(type: string): string {
+    return type === 'Partido' ? 'sports_soccer' : 'fitness_center';
   }
 
 }

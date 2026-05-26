@@ -118,7 +118,7 @@
                     <img [src]="getFotoUrl(jugador.foto_url)" 
                          [alt]="jugador.nombre"
                          class="user-avatar-img"
-                         (error)="onImageError($event)">
+                         (error)="onImageError(jugador)">
                   </ng-container>
                   <ng-template #defaultAvatar>
                     <div class="user-avatar">

@@ -514,6 +514,30 @@
 .posicion-celda.libero  { border-color: #d97706; background: #fef3c7; }
 
 .numero-posicion { font-size: 1.4rem; color: white; }
+.jugador-formacion-foto {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+
+.jugador-formacion-info {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.35rem;
+  text-align: center;
+}
+
+.formacion-fallback-hidden {
+  display: none;
+}
+
 .jugador-numero  { font-size: 2rem; font-weight: 600; color: #2563eb; }
 .jugador-nombre  { font-size: 0.95rem; font-weight: 700; color: #1d4ed8; }
 
@@ -521,12 +545,21 @@
   position: absolute;
   top: 2px;
   right: 4px;
-  background: none;
-  border: none;
+  background: rgba(255,255,255,0.92);
+  border: 1px solid rgba(220,38,38,0.25);
+  border-radius: 50%;
   font-size: 10px;
   color: #dc2626;
   cursor: pointer;
   padding: 2px;
+  width: 22px;
+  height: 22px;
+  min-width: 22px;
+  min-height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
 }
 
 .modal-overlay {
@@ -1100,6 +1133,7 @@ button {
 .cat-dot.cat-bueno     { background: #2563eb; }
 .cat-dot.cat-regular   { background: #d97706; }
 .cat-dot.cat-malo      { background: #dc2626; }
+.cat-dot.cat-sin-datos { background: #94a3b8; }
  
 /* ============================================
    GRID DE CARDS FIFA/PANINI
@@ -1151,6 +1185,11 @@ button {
 .player-card-fifa.category-malo {
   border-color: #fecaca;
   box-shadow: inset 4px 0 0 #dc2626, 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -2px rgba(0,0,0,0.05);
+}
+
+.player-card-fifa.category-sin-datos {
+  border-color: #e2e8f0;
+  box-shadow: inset 4px 0 0 #94a3b8, 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -2px rgba(0,0,0,0.05);
 }
  
 .card-dorsal-bg {
@@ -1213,6 +1252,15 @@ button {
   color: #1d4ed8;
   line-height: 1;
 }
+
+.card-score-badge-empty {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+  color: #94a3b8;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
  
 .card-info {
   text-align: left;
@@ -1258,6 +1306,19 @@ button {
 .cat-label-green  { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
 .cat-label-yellow { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
 .cat-label-red    { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+.cat-label-neutral { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
+
+.no-stats-card-message {
+  margin: auto 0 0.75rem;
+  padding: 0.75rem;
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 10px;
+  color: #64748b;
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
  
 .card-mini-stats {
   display: flex;
@@ -1464,6 +1525,7 @@ button {
 .category-circle-green  { background: #f0fdf4; border-color: #16a34a; }
 .category-circle-yellow { background: #fefce8; border-color: #d97706; }
 .category-circle-red    { background: #fef2f2; border-color: #dc2626; }
+.category-circle-neutral { background: #f8fafc; border-color: #94a3b8; }
  
 .modal-score-num {
   font-size: 1.4rem;
@@ -1484,6 +1546,26 @@ button {
   margin-bottom: 1.5rem;
   padding-bottom: 1.5rem;
   border-bottom: 1px solid #e2e8f0;
+}
+
+.modal-no-stats {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  color: #475569;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.modal-no-stats .material-symbols-outlined {
+  color: #2563eb;
+  font-size: 20px;
+  flex-shrink: 0;
 }
  
 .modal-section:last-child {

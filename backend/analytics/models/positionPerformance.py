@@ -98,6 +98,10 @@ def category_from_score(score: float) -> Tuple[str, str]:
     return "Malo", "red"
 
 
+def has_registered_stats(stats: Dict[str, float]) -> bool:
+    return any(number(value) > 0 for value in stats.values())
+
+
 def legacy_to_position_stats(player: Dict[str, Any]) -> Dict[str, float]:
     stats = dict(player.get("stats") or {})
     stats.update(player)
@@ -249,17 +253,25 @@ def generate_recommendations(weaknesses: List[str]) -> List[str]:
 
 
 def compare_with_context(players: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    if not players:
+    players_with_stats = [player for player in players if not player.get("sin_estadisticas")]
+
+    if not players_with_stats:
+        for player in players:
+            player["comparisons"] = None
         return players
 
-    team_average = mean([p["score"] for p in players])
-    best_score = max([p["score"] for p in players])
+    team_average = mean([p["score"] for p in players_with_stats])
+    best_score = max([p["score"] for p in players_with_stats])
     best_by_position = {}
-    for player in players:
+    for player in players_with_stats:
         pos = player["position"]
         best_by_position[pos] = max(best_by_position.get(pos, 0), player["score"])
 
     for player in players:
+        if player.get("sin_estadisticas"):
+            player["comparisons"] = None
+            continue
+
         diff_team = player["score"] - team_average
         diff_best = player["score"] - best_by_position[player["position"]]
         player["comparisons"] = {
@@ -281,8 +293,15 @@ def compare_diff(diff: float) -> str:
 
 
 def add_sklearn_profiles(players: List[Dict[str, Any]]) -> None:
-    if len(players) < 3:
-        for player in players:
+    players_with_stats = [player for player in players if not player.get("sin_estadisticas")]
+
+    for player in players:
+        if player.get("sin_estadisticas"):
+            player["profile"] = "Sin estadisticas"
+            player["cluster_id"] = None
+
+    if len(players_with_stats) < 3:
+        for player in players_with_stats:
             player["profile"] = "Perfil individual"
             player["cluster_id"] = 0
         return
@@ -296,21 +315,21 @@ def add_sklearn_profiles(players: List[Dict[str, Any]]) -> None:
             p["metric_scores"].get("saque", 50),
             p["score"],
         ]
-        for p in players
+        for p in players_with_stats
     ])
     scaled = StandardScaler().fit_transform(matrix)
-    cluster_count = min(3, len(players))
+    cluster_count = min(3, len(players_with_stats))
     labels = KMeans(n_clusters=cluster_count, random_state=42, n_init=10).fit_predict(scaled)
 
     cluster_scores = {}
     for index, label in enumerate(labels):
-        cluster_scores.setdefault(int(label), []).append(players[index]["score"])
+        cluster_scores.setdefault(int(label), []).append(players_with_stats[index]["score"])
 
     sorted_clusters = sorted(cluster_scores, key=lambda label: mean(cluster_scores[label]), reverse=True)
     remap = {old: new for new, old in enumerate(sorted_clusters)}
     profile_names = ["Impacto alto", "Rendimiento estable", "Necesita atencion"]
 
-    for index, player in enumerate(players):
+    for index, player in enumerate(players_with_stats):
         cluster_id = remap[int(labels[index])]
         player["cluster_id"] = cluster_id
         player["profile"] = profile_names[min(cluster_id, len(profile_names) - 1)]
@@ -319,6 +338,33 @@ def add_sklearn_profiles(players: List[Dict[str, Any]]) -> None:
 def analyze_player(player: Dict[str, Any]) -> Dict[str, Any]:
     position = normalize_position(player.get("position") or player.get("posicion"))
     stats = legacy_to_position_stats(player)
+
+    if not has_registered_stats(stats):
+        return {
+            "player_id": str(player.get("player_id", "")),
+            "name": player.get("name", "Jugador"),
+            "position": position,
+            "score": None,
+            "category": "Sin datos",
+            "label": "Sin datos",
+            "color": "neutral",
+            "sin_estadisticas": True,
+            "metrics": {"total_acciones": 0, "total_errores": 0},
+            "metric_scores": {},
+            "score_breakdown": {},
+            "strengths": [],
+            "weaknesses": [],
+            "interpretations": ["No se registraron estadisticas para este jugador en el partido."],
+            "recommendations": [],
+            "stats": {
+                "blocks": 0,
+                "attacks": 0,
+                "receptions": 0,
+                "errors": 0,
+                "raw": stats,
+            },
+        }
+
     metrics = calculate_efficiencies(stats)
     score, breakdown = calculate_score(position, metrics)
     category, color = category_from_score(score)
@@ -364,18 +410,19 @@ def analyze_match(payload: Dict[str, Any]) -> Dict[str, Any]:
     analysis = [analyze_player(player) for player in players]
     add_sklearn_profiles(analysis)
     compare_with_context(analysis)
-    analysis.sort(key=lambda item: item["score"], reverse=True)
+    analysis.sort(key=lambda item: item["score"] if item["score"] is not None else -1, reverse=True)
+    players_with_stats = [player for player in analysis if not player.get("sin_estadisticas")]
 
     return {
         "match_id": str(payload.get("match_id", "")),
         "total_players": len(analysis),
         "analysis": analysis,
         "summary": {
-            "team_average_score": round(mean([p["score"] for p in analysis]), 2) if analysis else 0,
-            "top_player": analysis[0] if analysis else None,
+            "team_average_score": round(mean([p["score"] for p in players_with_stats]), 2) if players_with_stats else 0,
+            "top_player": players_with_stats[0] if players_with_stats else None,
             "categories": {
                 category: len([p for p in analysis if p["category"] == category])
-                for category in ["Excelente", "Bueno", "Regular", "Malo"]
+                for category in ["Excelente", "Bueno", "Regular", "Malo", "Sin datos"]
             },
         },
     }

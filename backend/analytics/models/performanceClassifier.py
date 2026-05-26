@@ -103,21 +103,8 @@ def classify_general(data: dict) -> dict:
     kmeans = KMeans(n_clusters=n_clusters, random_state=42, n_init=10)
     labels = kmeans.fit_predict(X_scaled)
 
-    max_partidos = max(p["partidos"] for p in players_data) or 1
-
     for i, p in enumerate(players_data):
-        positivas = p["ataques"] + p["bloqueos"] + p["recepciones"]
-        max_pos   = max(
-            (pl["ataques"] + pl["bloqueos"] + pl["recepciones"]) for pl in players_data
-        ) or 1
-        continuidad = p["partidos"] / max_partidos
-
-        p["combined_score"] = round(
-            0.50 * p["score_historico"] +
-            0.30 * (positivas / max_pos) * 10 + 
-            0.20 * continuidad * 10,
-            4
-        )
+        p["combined_score"] = round(p["score_historico"], 4)
         
     cluster_scores = {}
     for i, label in enumerate(labels):

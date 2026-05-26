@@ -6,6 +6,7 @@ import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../services/auth/auth-service';
 import { EquipoService } from '../../../services/equipo/equipo-service';
 import { Equipo } from '../../../models/equipo.model';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-editar-jugador',
@@ -16,7 +17,7 @@ import { Equipo } from '../../../models/equipo.model';
 })
 export class EditarJugador implements OnInit {
 
-  private apiBaseUrl = 'https://smartcoach-production.up.railway.app';
+  private apiBaseUrl = environment.apiUrl.replace(/\/api\/?$/, '');
   
   formJugador!: FormGroup;
   id!: number;
@@ -29,6 +30,7 @@ export class EditarJugador implements OnInit {
   fotoPreview: string | null = null;
   fotoError: string = '';
   fotoActual: string = '';
+  fotoActualError = false;
   jugadorNombre: string = '';
 
   constructor(
@@ -93,6 +95,7 @@ export class EditarJugador implements OnInit {
 
         // Store current photo and player name
         this.fotoActual = res.foto_url || '';
+        this.fotoActualError = false;
         this.jugadorNombre = res.nombre || '';
 
         this.cargando = false;
@@ -152,13 +155,24 @@ export class EditarJugador implements OnInit {
   }
 
   hasExistingImage(): boolean {
-    return !!this.fotoActual && this.fotoActual.trim() !== '';
+    return !!this.fotoActual && this.fotoActual.trim() !== '' && !this.fotoActualError;
   }
 
   getFotoUrl(fotoUrl: string | undefined | null): string {
     if (!fotoUrl) return '';
     if (fotoUrl.startsWith('http')) return fotoUrl;
-    return this.apiBaseUrl + fotoUrl;
+    const path = fotoUrl.startsWith('/uploads') ? fotoUrl : `/uploads/jugadores/${fotoUrl}`;
+    return `${this.apiBaseUrl}${path}`;
+  }
+
+  onFotoActualError(): void {
+    this.fotoActualError = true;
+    this.cd.detectChanges();
+  }
+
+  getInitials(nombre: string): string {
+    if (!nombre) return '?';
+    return nombre.charAt(0).toUpperCase();
   }
 
   actualizarJugador() {

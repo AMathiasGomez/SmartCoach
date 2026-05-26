@@ -1,18 +1,17 @@
 <div class="app-container">
-
   <aside class="sidebar" [class.open]="sidebarOpen">
     <div class="logo">
       <div class="logo-icon">SC</div>
       <div class="logo-text-wrapper">
         <h3 class="logo-text">SmartCoach</h3>
-        <p class="logo-subtext">GESTIÓN DEPORTIVA</p>
+        <p class="logo-subtext">GESTION DEPORTIVA</p>
       </div>
     </div>
 
-    <nav>
+    <nav aria-label="Menu administrador">
       <a class="active" routerLink="/dashboard-admin" (click)="closeSidebar()">
         <span class="material-symbols-outlined">space_dashboard</span>
-        <span class="nav-label">Panel de Control</span>
+        <span class="nav-label">Panel</span>
       </a>
       <a routerLink="/ver-equipos" (click)="closeSidebar()">
         <span class="material-symbols-outlined">group</span>
@@ -31,36 +30,41 @@
         <span class="nav-label">Partidos</span>
       </a>
       <a routerLink="/ver-usuarios" (click)="closeSidebar()">
-        <span class="material-symbols-outlined">emoji_people</span>
+        <span class="material-symbols-outlined">manage_accounts</span>
         <span class="nav-label">Usuarios</span>
       </a>
     </nav>
 
-    <button class="logout" (click)="logout()">
+    <button class="logout" type="button" (click)="logout()">
       <span class="material-symbols-outlined">logout</span>
-      <span class="nav-label">Cerrar sesión</span>
+      <span class="nav-label">Cerrar sesion</span>
     </button>
   </aside>
 
-  <!-- Overlay para cerrar sidebar en móvil al tocar fuera -->
   <div class="sidebar-overlay" [class.visible]="sidebarOpen" (click)="closeSidebar()"></div>
 
   <main class="main">
-
-    <button class="hamburger" (click)="toggleSidebar()">
+    <button class="hamburger" type="button" (click)="toggleSidebar()" aria-label="Abrir menu">
       <span class="material-symbols-outlined">menu</span>
     </button>
 
-    <section class="welcome">
-      <div>
+    <section class="hero-panel">
+      <div class="hero-copy">
         <p class="eyebrow">Panel administrativo</p>
-        <h1>Bienvenido de nuevo, {{ adminName }}</h1>
-        <p class="sub">Resumen operativo de equipos, jugadores, entrenamientos y partidos.</p>
+        <h1>Hola, {{ adminName }}</h1>
+        <p>Controla la operacion deportiva desde un solo tablero: plantilla, agenda, usuarios y actividad reciente.</p>
       </div>
-      <button class="refresh-button" type="button" (click)="loadDashboardData()" [disabled]="loading">
-        <span class="material-symbols-outlined">refresh</span>
-        Actualizar
-      </button>
+
+      <div class="hero-actions">
+        <button class="refresh-button" type="button" (click)="loadDashboardData()" [disabled]="loading">
+          <span class="material-symbols-outlined">refresh</span>
+          {{ loading ? 'Actualizando' : 'Actualizar' }}
+        </button>
+        <a class="users-link" routerLink="/ver-usuarios">
+          <span class="material-symbols-outlined">admin_panel_settings</span>
+          Gestionar usuarios
+        </a>
+      </div>
     </section>
 
     <div *ngIf="error" class="alert-banner">
@@ -68,143 +72,191 @@
       {{ error }}
     </div>
 
-    <section class="quick-actions">
-      <button routerLink="/crear-jugador">
-        <span class="material-symbols-outlined">person_add</span>
-        Crear jugador
-      </button>
-      <button routerLink="/crear-equipo">
-        <span class="material-symbols-outlined">group_add</span>
-        Crear equipo
-      </button>
-      <button routerLink="/crear-partido">
-        <span class="material-symbols-outlined">add_circle</span>
-        Crear partido
-      </button>
-      <button routerLink="/crear-entrenamiento">
-        <span class="material-symbols-outlined">fitness_center</span>
-        Crear entrenamiento
-      </button>
-    </section>
-
-    <section class="cards" [class.loading-cards]="loading">
-      <div class="card">
-        <div class="card-icon players">
-          <span class="material-symbols-outlined">person</span>
-        </div>
-        <h3>Total Jugadores</h3>
-        <p class="stat-value">{{ loading ? '-' : totalJugadores }}</p>
-      </div>
-      <div class="card">
-        <div class="card-icon teams">
-          <span class="material-symbols-outlined">group</span>
-        </div>
-        <h3>Total Equipos</h3>
-        <p class="stat-value">{{ loading ? '-' : totalEquipos }}</p>
-      </div>
-      <div class="card">
-        <div class="card-icon matches">
-          <span class="material-symbols-outlined">sports_soccer</span>
-        </div>
-        <h3>Partidos Registrados</h3>
-        <p class="stat-value">{{ loading ? '-' : totalPartidos }}</p>
-        <small>{{ partidosPendientes }} pendientes</small>
-      </div>
-      <div class="card">
-        <div class="card-icon training">
-          <span class="material-symbols-outlined">fitness_center</span>
-        </div>
-        <h3>Entrenamientos</h3>
-        <p class="stat-value">{{ loading ? '-' : totalEntrenamientos }}</p>
-        <small>{{ entrenamientosProgramados }} programados</small>
-      </div>
-    </section>
-
-    <section class="health-grid">
-      <article *ngFor="let item of healthCards" class="health-card">
-        <span class="material-symbols-outlined" [ngClass]="item.tone">{{ item.icon }}</span>
+    <section class="kpi-grid" [class.loading-grid]="loading" aria-label="Indicadores principales">
+      <article class="kpi-card">
+        <span class="material-symbols-outlined kpi-icon players">person</span>
         <div>
-          <strong>{{ item.value }}</strong>
-          <p>{{ item.label }}</p>
+          <p>Jugadores</p>
+          <strong>{{ loading ? '-' : totalJugadores }}</strong>
+          <small>{{ coberturaEquipos }}% cobertura de equipos</small>
+        </div>
+      </article>
+
+      <article class="kpi-card">
+        <span class="material-symbols-outlined kpi-icon teams">groups</span>
+        <div>
+          <p>Equipos</p>
+          <strong>{{ loading ? '-' : totalEquipos }}</strong>
+          <small>{{ promedioJugadores }} jugadores por equipo</small>
+        </div>
+      </article>
+
+      <article class="kpi-card">
+        <span class="material-symbols-outlined kpi-icon training">fitness_center</span>
+        <div>
+          <p>Entrenamientos</p>
+          <strong>{{ loading ? '-' : totalEntrenamientos }}</strong>
+          <small>{{ entrenamientosProgramados }} programados</small>
+        </div>
+      </article>
+
+      <article class="kpi-card">
+        <span class="material-symbols-outlined kpi-icon matches">sports_soccer</span>
+        <div>
+          <p>Partidos</p>
+          <strong>{{ loading ? '-' : totalPartidos }}</strong>
+          <small>{{ partidosPendientes }} pendientes</small>
         </div>
       </article>
     </section>
 
-    <section class="charts">
-      <div class="chart large">
-        <div class="section-title">
-          <h3>Distribucion por posiciones</h3>
-          <a routerLink="/ver-jugadores">Ver jugadores</a>
-        </div>
+    <section class="quick-actions" aria-label="Acciones rapidas">
+      <a *ngFor="let action of adminActions" class="quick-action" [ngClass]="action.tone" [routerLink]="action.route">
+        <span class="material-symbols-outlined">{{ action.icon }}</span>
+        <span>
+          <strong>{{ action.label }}</strong>
+          <small>{{ action.detail }}</small>
+        </span>
+      </a>
+    </section>
 
-        <div class="bars" *ngIf="positionMetrics.length; else noPositions">
-          <div class="bar-row" *ngFor="let position of positionMetrics">
-            <div class="bar-label">
-              <span>{{ position.name }}</span>
-              <strong>{{ position.count }}</strong>
+    <section class="dashboard-grid">
+      <div class="main-column">
+        <article class="panel positions-panel">
+          <div class="panel-header">
+            <div>
+              <span class="section-label">Plantilla</span>
+              <h2>Distribucion por posiciones</h2>
             </div>
-            <div class="bar-track">
-              <div class="bar-fill" [style.width.%]="position.percent"></div>
+            <a routerLink="/ver-jugadores" class="link-button">
+              Ver jugadores
+              <span class="material-symbols-outlined">arrow_forward</span>
+            </a>
+          </div>
+
+          <div class="bars" *ngIf="positionMetrics.length; else noPositions">
+            <div class="bar-row" *ngFor="let position of positionMetrics">
+              <div class="bar-label">
+                <span>{{ position.name }}</span>
+                <strong>{{ position.count }}</strong>
+              </div>
+              <div class="bar-track">
+                <div class="bar-fill" [style.width.%]="position.percent"></div>
+              </div>
             </div>
           </div>
-        </div>
 
-        <ng-template #noPositions>
-          <div class="chart-placeholder">Aun no hay jugadores registrados.</div>
-        </ng-template>
+          <ng-template #noPositions>
+            <div class="empty-panel">
+              <span class="material-symbols-outlined">person_search</span>
+              <p>Aun no hay jugadores registrados.</p>
+            </div>
+          </ng-template>
+        </article>
+
+        <article class="panel">
+          <div class="panel-header">
+            <div>
+              <span class="section-label">Actividad</span>
+              <h2>Actualizaciones recientes</h2>
+            </div>
+            <span class="count-pill">{{ recentActivity.length }} registros</span>
+          </div>
+
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Evento</th>
+                  <th>Objeto</th>
+                  <th>Estado</th>
+                  <th>Fecha</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let activity of recentActivity">
+                  <td>{{ activity.event }}</td>
+                  <td>{{ activity.object }}</td>
+                  <td>
+                    <span class="status-pill" [ngClass]="activity.tone">{{ activity.status }}</span>
+                  </td>
+                  <td>{{ activity.time }}</td>
+                </tr>
+                <tr *ngIf="!loading && recentActivity.length === 0">
+                  <td colspan="4" class="empty-row">No hay actividad reciente para mostrar.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
       </div>
 
-      <div class="chart">
-        <div class="section-title">
-          <h3>Proxima agenda</h3>
-          <a routerLink="/ver-entrenamientos">Ver agenda</a>
-        </div>
+      <aside class="side-column">
+        <article class="panel agenda-panel">
+          <div class="panel-header compact">
+            <div>
+              <span class="section-label">Agenda</span>
+              <h2>Proximos eventos</h2>
+            </div>
+          </div>
 
-        <div class="agenda" *ngIf="upcomingItems.length; else noAgenda">
-          <a *ngFor="let item of upcomingItems" [routerLink]="item.route" class="agenda-item">
-            <span class="agenda-type">{{ item.type }}</span>
-            <strong>{{ item.title }}</strong>
-            <small>{{ formatDate(item.date) }} - {{ item.meta }}</small>
-          </a>
-        </div>
+          <div class="agenda" *ngIf="upcomingItems.length; else noAgenda">
+            <a *ngFor="let item of upcomingItems" [routerLink]="item.route" class="agenda-item">
+              <span class="material-symbols-outlined agenda-icon">{{ getAgendaIcon(item.type) }}</span>
+              <span>
+                <small>{{ item.type }} - {{ formatDate(item.date) }}</small>
+                <strong>{{ item.title }}</strong>
+                <em>{{ item.meta }}</em>
+              </span>
+            </a>
+          </div>
 
-        <ng-template #noAgenda>
-          <div class="chart-placeholder">No hay eventos proximos.</div>
-        </ng-template>
-      </div>
-    </section>
+          <ng-template #noAgenda>
+            <div class="empty-panel compact-empty">
+              <span class="material-symbols-outlined">event_busy</span>
+              <p>No hay eventos proximos.</p>
+            </div>
+          </ng-template>
+        </article>
 
-    <section class="table-section">
-      <div class="section-title">
-        <h3>Actualizaciones recientes</h3>
-        <span>{{ recentActivity.length }} registros</span>
-      </div>
-      <div class="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>Evento</th>
-              <th>Objeto</th>
-              <th>Estado</th>
-              <th>Hora</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let activity of recentActivity">
-              <td>{{ activity.event }}</td>
-              <td>{{ activity.object }}</td>
-              <td>
-                <span class="status-pill" [ngClass]="activity.tone">{{ activity.status }}</span>
-              </td>
-              <td>{{ activity.time }}</td>
-            </tr>
-            <tr *ngIf="!loading && recentActivity.length === 0">
-              <td colspan="4" class="empty-row">No hay actividad reciente para mostrar.</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+        <article class="panel health-panel">
+          <div class="panel-header compact">
+            <div>
+              <span class="section-label">Sistema</span>
+              <h2>Lectura rapida</h2>
+            </div>
+          </div>
+
+          <div class="health-list">
+            <div *ngFor="let item of healthCards" class="health-card">
+              <span class="material-symbols-outlined" [ngClass]="item.tone">{{ item.icon }}</span>
+              <div>
+                <strong>{{ item.value }}</strong>
+                <p>{{ item.label }}</p>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="panel alerts-panel">
+          <div class="panel-header compact">
+            <div>
+              <span class="section-label">Alertas</span>
+              <h2>Prioridades</h2>
+            </div>
+          </div>
+
+          <div class="alerts-list">
+            <div *ngFor="let alert of systemAlerts" class="system-alert" [ngClass]="alert.tone">
+              <span class="material-symbols-outlined">{{ alert.icon }}</span>
+              <div>
+                <strong>{{ alert.title }}</strong>
+                <p>{{ alert.detail }}</p>
+              </div>
+            </div>
+          </div>
+        </article>
+      </aside>
     </section>
   </main>
-
 </div>

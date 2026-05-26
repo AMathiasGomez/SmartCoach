@@ -5,6 +5,7 @@ import { JugadorService } from '../../../services/jugador/jugador-service';
 import { PartidoService } from '../../../services/partido/partido-service';
 import { Jugador } from '../../../models/jugador.model';
 import { AuthService } from '../../../services/auth/auth-service';
+import { environment } from '../../../../environments/environment';
 
 interface RadarAxis {
   key: string;
@@ -32,6 +33,7 @@ export class DetalleJugador implements OnInit, AfterViewInit {
   analytics: any = null;
   analyticsLoading = false;
   private radarDrawn = false;
+  fotoError = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -71,6 +73,7 @@ export class DetalleJugador implements OnInit, AfterViewInit {
     this.jugadorService.getJugador(id).subscribe({
       next: (data) => {
         this.jugador = data as Jugador;
+        this.fotoError = false;
         this.loading = false;
         this.loadEstadisticas(id);
         this.loadAnalytics(id);
@@ -307,6 +310,20 @@ export class DetalleJugador implements OnInit, AfterViewInit {
 
   back(): void { this.router.navigate(['/ver-jugadores-e']); }
   editar(): void { if (this.jugador?.id) this.router.navigate(['/editar-jugador', this.jugador.id]); }
+
+  getFotoUrl(fotoUrl?: string): string {
+    if (!fotoUrl) return '';
+    if (fotoUrl.startsWith('http')) return fotoUrl;
+
+    const baseUrl = environment.apiUrl.replace(/\/api\/?$/, '');
+    const path = fotoUrl.startsWith('/uploads') ? fotoUrl : `/uploads/jugadores/${fotoUrl}`;
+    return `${baseUrl}${path}`;
+  }
+
+  onFotoError(): void {
+    this.fotoError = true;
+    this.cd.detectChanges();
+  }
 
   eliminar(): void {
     if (!this.jugador?.id || !confirm('¿Deseas eliminar este jugador?')) return;

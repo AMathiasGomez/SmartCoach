@@ -153,13 +153,7 @@ export class ClasificacionJugadores implements OnInit {
   }
 
   getScoreWidth(score: number): string {
-    const max = this.maxCombinedScore;
-    return `${Math.min((score / max) * 100, 100)}%`;
-  }
-
-  get maxCombinedScore(): number {
-    const players = this.result?.classification || [];
-    return Math.max(...players.map(p => p.combined_score), 1);
+    return `${Math.min((score / 10) * 100, 100)}%`;
   }
 
   get selectedTeamName(): string {

@@ -60,6 +60,10 @@ function categoryFromScore(score) {
   return { category: 'Malo', color: 'red' };
 }
 
+function hasRegisteredStats(stats) {
+  return Object.values(stats).some(value => number(value) > 0);
+}
+
 function legacyToPositionStats(player) {
   return {
     ataques_positivos: number(player.ataques_positivos ?? player.attacks),
@@ -180,12 +184,21 @@ function compareDiff(diff) {
 }
 
 function addProfiles(players) {
-  if (players.length < 3) {
-    players.forEach(player => { player.cluster_id = 0; player.profile = 'Perfil individual'; });
+  const playersWithStats = players.filter(player => !player.sin_estadisticas);
+
+  players
+    .filter(player => player.sin_estadisticas)
+    .forEach(player => {
+      player.cluster_id = null;
+      player.profile = 'Sin estadisticas';
+    });
+
+  if (playersWithStats.length < 3) {
+    playersWithStats.forEach(player => { player.cluster_id = 0; player.profile = 'Perfil individual'; });
     return;
   }
 
-  const matrix = players.map(p => [
+  const matrix = playersWithStats.map(p => [
     p.metric_scores.ofensiva,
     p.metric_scores.recepcion,
     p.metric_scores.defensa,
@@ -198,7 +211,7 @@ function addProfiles(players) {
   const labels = result.clusters;
   const clusterScores = {};
 
-  players.forEach((player, index) => {
+  playersWithStats.forEach((player, index) => {
     const label = labels[index];
     clusterScores[label] = clusterScores[label] || [];
     clusterScores[label].push(player.score);
@@ -212,7 +225,7 @@ function addProfiles(players) {
   sorted.forEach(({ label }, index) => { remap[label] = index; });
   const profiles = ['Impacto alto', 'Rendimiento estable', 'Necesita atencion'];
 
-  players.forEach((player, index) => {
+  playersWithStats.forEach((player, index) => {
     player.cluster_id = remap[labels[index]];
     player.profile = profiles[Math.min(player.cluster_id, profiles.length - 1)];
   });
@@ -221,6 +234,34 @@ function addProfiles(players) {
 function analyzePlayer(player) {
   const position = normalizePosition(player.position || player.posicion);
   const stats = legacyToPositionStats(player);
+
+  if (!hasRegisteredStats(stats)) {
+    return {
+      player_id: String(player.player_id || ''),
+      name: player.name || 'Jugador',
+      position,
+      score: null,
+      category: 'Sin datos',
+      label: 'Sin datos',
+      color: 'neutral',
+      sin_estadisticas: true,
+      metrics: { total_acciones: 0, total_errores: 0 },
+      metric_scores: {},
+      score_breakdown: {},
+      strengths: [],
+      weaknesses: [],
+      interpretations: ['No se registraron estadisticas para este jugador en el partido.'],
+      recommendations: [],
+      stats: {
+        blocks: 0,
+        attacks: 0,
+        receptions: 0,
+        errors: 0,
+        raw: stats,
+      },
+    };
+  }
+
   const metrics = calculateEfficiencies(stats);
   const { score, breakdown } = calculateScore(position, metrics);
   const { category, color } = categoryFromScore(score);
@@ -262,27 +303,33 @@ function analyzePlayer(player) {
 function analyzeMatchPlayers(matchId, players) {
   const analysis = players.map(analyzePlayer);
   addProfiles(analysis);
+  const playersWithStats = analysis.filter(player => !player.sin_estadisticas);
 
-  const teamAverage = analysis.length
-    ? analysis.reduce((sum, player) => sum + player.score, 0) / analysis.length
+  const teamAverage = playersWithStats.length
+    ? playersWithStats.reduce((sum, player) => sum + player.score, 0) / playersWithStats.length
     : 0;
 
   const bestByPosition = {};
-  analysis.forEach(player => {
+  playersWithStats.forEach(player => {
     bestByPosition[player.position] = Math.max(bestByPosition[player.position] || 0, player.score);
   });
 
   analysis.forEach(player => {
+    if (player.sin_estadisticas) {
+      player.comparisons = null;
+      return;
+    }
+
     player.comparisons = {
       team_average_score: Math.round(teamAverage * 100) / 100,
       vs_team_average: compareDiff(player.score - teamAverage),
-      best_match_score: Math.max(...analysis.map(item => item.score)),
+      best_match_score: Math.max(...playersWithStats.map(item => item.score)),
       best_position_score: bestByPosition[player.position],
       vs_best_same_position: compareDiff(player.score - bestByPosition[player.position]),
     };
   });
 
-  analysis.sort((a, b) => b.score - a.score);
+  analysis.sort((a, b) => (b.score ?? -1) - (a.score ?? -1));
 
   return {
     match_id: matchId,

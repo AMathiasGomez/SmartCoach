@@ -182,8 +182,16 @@
             <div class="posicion-celda" [class.ocupada]="formacion[posicion] !== null" [class.libero]="posicion === 6"
               (click)="abrirSeleccion(posicion)">
               <ng-container *ngIf="formacion[posicion]; else vacia">
-                <span class="jugador-numero">#{{ formacion[posicion].numero }}</span>
-                <span class="jugador-nombre">{{ formacion[posicion].nombre.split(' ')[0] }}</span>
+                <img *ngIf="getFotoJugadorEnFormacion(formacion[posicion])"
+                  [src]="getFotoJugadorEnFormacion(formacion[posicion])"
+                  [alt]="formacion[posicion].nombre"
+                  class="jugador-formacion-foto"
+                  (error)="onImgError($event)" />
+                <div class="jugador-formacion-info"
+                  [class.formacion-fallback-hidden]="getFotoJugadorEnFormacion(formacion[posicion])">
+                  <span class="jugador-numero">#{{ formacion[posicion].numero }}</span>
+                  <span class="jugador-nombre">{{ formacion[posicion].nombre.split(' ')[0] }}</span>
+                </div>
                 <button type="button" class="btn-quitar"
                   (click)="$event.stopPropagation(); quitarJugadorDePosicion(posicion)">✕</button>
               </ng-container>
@@ -249,8 +257,8 @@
               <span class="summary-label">Mejor jugador</span>
               <span class="summary-value">{{ playerAnalysis.summary.top_player.name.split(' ')[0] }}</span>
             </div>
-            <div class="summary-cat" *ngFor="let cat of ['Excelente','Bueno','Regular','Malo']">
-              <span class="cat-dot cat-{{ cat.toLowerCase() }}"></span>
+            <div class="summary-cat" *ngFor="let cat of ['Excelente','Bueno','Regular','Malo','Sin datos']">
+              <span class="cat-dot cat-{{ cat.toLowerCase().replace(' ', '-') }}"></span>
               <span class="summary-label">{{ cat }}</span>
               <span class="summary-value">{{ $any(playerAnalysis).summary.categories[cat] }}</span>
             </div>
@@ -260,7 +268,7 @@
         <!-- GRID DE CARDS ESTILO PANINI/FIFA -->
         <div class="player-cards-grid">
           <div *ngFor="let player of playerAnalysis.analysis"
-            class="player-card-fifa category-{{ player.category.toLowerCase() }}" (click)="abrirModalDetalle(player)">
+            class="player-card-fifa category-{{ getPlayerCardCategoryClass(player) }}" (click)="abrirModalDetalle(player)">
 
             <!-- Fondo decorativo con número dorsal -->
             <div class="card-dorsal-bg">{{ getNumeroJugador(player.player_id) }}</div>
@@ -278,7 +286,10 @@
             </div>
 
             <!-- Score badge -->
-            <div class="card-score-badge">{{ player.score | number:'1.0-0' }}</div>
+            <div class="card-score-badge" *ngIf="tieneEstadisticasRegistradas(player)">{{ player.score | number:'1.0-0' }}</div>
+            <div class="card-score-badge card-score-badge-empty" *ngIf="!tieneEstadisticasRegistradas(player)">
+              <span class="material-symbols-outlined">remove</span>
+            </div>
 
             <!-- Info -->
             <div class="card-info">
@@ -288,8 +299,12 @@
               <div class="card-category-label cat-label-{{ player.color }}">{{ player.category }}</div>
             </div>
 
+            <div class="no-stats-card-message" *ngIf="!tieneEstadisticasRegistradas(player)">
+              No se registraron estadisticas de este jugador.
+            </div>
+
             <!-- Mini stats -->
-            <div class="card-mini-stats">
+            <div class="card-mini-stats" *ngIf="tieneEstadisticasRegistradas(player)">
               <div class="mini-stat" *ngIf="player.position !== 'Libero'">
                 <span class="mini-val">{{ player.stats.attacks }}</span>
                 <span class="mini-key">ATK</span>
@@ -310,7 +325,7 @@
 
             <!-- Botón ver detalle -->
             <button class="card-detail-btn" type="button" (click)="$event.stopPropagation(); abrirModalDetalle(player)">
-              Ver análisis
+              {{ tieneEstadisticasRegistradas(player) ? 'Ver analisis' : 'Ver detalle' }}
             </button>
 
           </div>
@@ -371,13 +386,24 @@
         </div>
 
         <div class="modal-score-circle category-circle-{{ jugadorSeleccionado.color }}">
-          <span class="modal-score-num">{{ jugadorSeleccionado.score | number:'1.0-0' }}</span>
-          <span class="modal-score-label">{{ jugadorSeleccionado.category }}</span>
+          <ng-container *ngIf="tieneEstadisticasRegistradas(jugadorSeleccionado); else modalSinStatsScore">
+            <span class="modal-score-num">{{ jugadorSeleccionado.score | number:'1.0-0' }}</span>
+            <span class="modal-score-label">{{ jugadorSeleccionado.category }}</span>
+          </ng-container>
+          <ng-template #modalSinStatsScore>
+            <span class="modal-score-num">--</span>
+            <span class="modal-score-label">Sin datos</span>
+          </ng-template>
         </div>
       </div>
 
+      <div class="modal-no-stats" *ngIf="!tieneEstadisticasRegistradas(jugadorSeleccionado)">
+        <span class="material-symbols-outlined">info</span>
+        No se registraron estadisticas de este jugador en el partido, por lo que no se calcula rendimiento ni se afecta el promedio del equipo.
+      </div>
+
       <!-- Eficiencias por área -->
-      <div class="modal-section" *ngIf="jugadorSeleccionado.metric_scores">
+      <div class="modal-section" *ngIf="tieneEstadisticasRegistradas(jugadorSeleccionado) && jugadorSeleccionado.metric_scores">
         <h4 class="modal-section-title">Eficiencias por área</h4>
         <div class="efficiency-bars">
           <ng-container *ngFor="let metric of getMetricasRelevantes(jugadorSeleccionado)">
@@ -393,7 +419,7 @@
       </div>
 
       <!-- Fortalezas y debilidades -->
-      <div class="modal-section strengths-weaknesses">
+      <div class="modal-section strengths-weaknesses" *ngIf="tieneEstadisticasRegistradas(jugadorSeleccionado)">
         <div class="sw-col" *ngIf="jugadorSeleccionado.strengths?.length">
           <h4 class="modal-section-title">Fortalezas</h4>
           <div class="sw-tags">
@@ -433,7 +459,7 @@
       </div>
 
       <!-- Comparación con equipo -->
-      <div class="modal-section" *ngIf="jugadorSeleccionado.comparisons">
+      <div class="modal-section" *ngIf="tieneEstadisticasRegistradas(jugadorSeleccionado) && jugadorSeleccionado.comparisons">
         <h4 class="modal-section-title">Comparación</h4>
         <div class="comparison-grid">
           <div class="cmp-item">

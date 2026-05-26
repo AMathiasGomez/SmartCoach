@@ -7,6 +7,7 @@ router.get('/', entrenamientoController.getEntrenamientos)
 router.delete('/:id', entrenamientoController.deleteEntrenamiento)
 router.get('/:id', entrenamientoController.getEntrenamientoById)
 router.put('/:id', entrenamientoController.updateEntrenamiento)
+router.patch('/:id/estado', entrenamientoController.updateEstadoEntrenamiento)
 router.post('/:id/asistencia', entrenamientoController.saveAsistencia)
 
 module.exports = router;

@@ -109,6 +109,10 @@ export class DetallePartido implements OnInit {
 
   private historialPuntos: EstadoPuntos[] = [];
 
+  private get formacionStorageKey(): string {
+    return `smartcoach:partido:${this.partidoId}:formacion`;
+  }
+
   constructor(
     private route: ActivatedRoute,
     private partidoService: PartidoService,
@@ -191,11 +195,13 @@ export class DetallePartido implements OnInit {
     }
 
     this.formacion[this.posicionSeleccionada] = jugador;
+    this.guardarFormacionLocal();
     this.cerrarModal();
   }
 
   quitarJugadorDePosicion(indicePosicion: number): void {
     this.formacion[indicePosicion] = null;
+    this.guardarFormacionLocal();
   }
 
   cerrarModal(): void {
@@ -247,6 +253,7 @@ export class DetallePartido implements OnInit {
         this.jugadoresConvocados = this.completarFotosJugadores(jugadores, todosJugadores);
         this.estadisticas = estadisticas;
         this.construirTabla();
+        this.restaurarFormacionLocal();
         this.cd.detectChanges();
       },
       error: (err) => console.error(err)
@@ -299,17 +306,51 @@ export class DetallePartido implements OnInit {
     });
   }
 
+  guardarFormacionLocal(): void {
+    try {
+      const jugadorIds = this.formacion.map(jugador => jugador?.id ?? null);
+      localStorage.setItem(this.formacionStorageKey, JSON.stringify(jugadorIds));
+    } catch (err) {
+      console.error('No se pudo guardar la formacion:', err);
+    }
+  }
+
+  restaurarFormacionLocal(): void {
+    try {
+      const raw = localStorage.getItem(this.formacionStorageKey);
+      if (!raw) return;
+
+      const jugadorIds = JSON.parse(raw);
+      if (!Array.isArray(jugadorIds)) return;
+
+      this.formacion = jugadorIds
+        .slice(0, 7)
+        .map((jugadorId: any) => {
+          if (jugadorId === null || jugadorId === undefined) return null;
+          return this.jugadoresConvocados.find(jugador => jugador.id?.toString() === jugadorId?.toString()) || null;
+        });
+
+      while (this.formacion.length < 7) {
+        this.formacion.push(null);
+      }
+    } catch (err) {
+      console.error('No se pudo restaurar la formacion:', err);
+    }
+  }
+
   iniciarPartido() {
     if (this.actualizandoEstadoPartido || !this.isFormacionCompleta) return;
 
     const estadoAnterior = this.partido.estado;
     this.actualizandoEstadoPartido = true;
+    this.guardarFormacionLocal();
     this.partido = { ...this.partido, estado: 'en_curso' };
     this.cd.detectChanges();
 
     this.partidoService.updateEstado(this.partidoId, 'en_curso').subscribe({
       next: () => {
         this.actualizandoEstadoPartido = false;
+        this.guardarFormacionLocal();
         this.partido = { ...this.partido, estado: 'en_curso' };
         this.showNotif('Partido iniciado correctamente.');
         this.cd.detectChanges();
@@ -778,6 +819,14 @@ export class DetallePartido implements OnInit {
     this.cd.detectChanges();
   }
 
+  tieneEstadisticasRegistradas(player: any): boolean {
+    return !player?.sin_estadisticas;
+  }
+
+  getPlayerCardCategoryClass(player: any): string {
+    return player?.sin_estadisticas ? 'sin-datos' : String(player?.category || '').toLowerCase();
+  }
+
   cerrarModalDetalle(): void {
     this.modalDetalleAbierto = false;
     this.jugadorSeleccionado = null;
@@ -796,6 +845,21 @@ export class DetallePartido implements OnInit {
     return `${baseUrl}${path}`;
   }
 
+  getFotoJugadorEnFormacion(jugador: any): string | null {
+    if (!jugador) return null;
+
+    const foto = jugador.foto_url || jugador.foto;
+    if (foto) {
+      if (foto.startsWith('http')) return foto;
+
+      const baseUrl = environment.apiUrl.replace(/\/api\/?$/, '');
+      const path = foto.startsWith('/uploads') ? foto : `/uploads/jugadores/${foto}`;
+      return `${baseUrl}${path}`;
+    }
+
+    return this.getFotoJugador(jugador.id?.toString(), jugador.nombre);
+  }
+
   getNumeroJugador(playerId: string): string {
     const jugador = this.jugadoresConvocados.find(j => j.id.toString() === playerId);
     return jugador?.numero?.toString() || '';
@@ -810,7 +874,7 @@ export class DetallePartido implements OnInit {
   }
 
   getMetricasRelevantes(player: any): { label: string; value: number }[] {
-    if (!player.metric_scores) return [];
+    if (!player.metric_scores || player.sin_estadisticas) return [];
 
     const LABEL_MAP: Record<string, string> = {
       ofensiva: 'Ataque',

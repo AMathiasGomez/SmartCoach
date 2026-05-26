@@ -40,6 +40,10 @@ export class EntrenamientoService {
     return this.http.post(`${this.apiUrl}/${entrenamientoId}/asistencia`, { asistencias });
   }
 
+  updateEstado(entrenamientoId: number, estado: string): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/${entrenamientoId}/estado`, { estado });
+  }
+
   // ── Comentarios ─────────────────────────────────────────────────────────────
 
   getComentarios(entrenamientoId: number): Observable<any[]> {

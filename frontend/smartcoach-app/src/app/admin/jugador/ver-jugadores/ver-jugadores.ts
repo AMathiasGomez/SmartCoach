@@ -5,6 +5,7 @@ import { JugadorService } from '../../../services/jugador/jugador-service';
 import { CommonModule } from '@angular/common';
 import { Jugador } from '../../../models/jugador.model';
 import { FormsModule } from '@angular/forms';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-ver-jugadores',
@@ -15,7 +16,7 @@ import { FormsModule } from '@angular/forms';
 })
 export class VerJugadores implements OnInit {
 
-  private apiBaseUrl = 'https://smartcoach-production.up.railway.app';
+  private apiBaseUrl = environment.apiUrl.replace(/\/api\/?$/, '');
   loading = false;
   jugadores: Jugador[] = [];
   filtroNombre = '';
@@ -83,16 +84,18 @@ export class VerJugadores implements OnInit {
     if (fotoUrl.startsWith('http')) {
       return fotoUrl;
     }
-    return this.apiBaseUrl + fotoUrl;
+
+    const path = fotoUrl.startsWith('/uploads') ? fotoUrl : `/uploads/jugadores/${fotoUrl}`;
+    return `${this.apiBaseUrl}${path}`;
   }
 
   hasPhoto(jugador: Jugador): boolean {
-    return !!jugador.foto_url && jugador.foto_url.trim() !== '';
+    return !!jugador.foto_url && jugador.foto_url.trim() !== '' && !(jugador as any).fotoError;
   }
 
-  onImageError(event: Event) {
-    const img = event.target as HTMLImageElement;
-    img.style.display = 'none';
+  onImageError(jugador: Jugador) {
+    (jugador as any).fotoError = true;
+    this.cd.detectChanges();
   }
 
   getInitials(nombre: string): string {

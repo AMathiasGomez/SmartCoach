@@ -73,12 +73,21 @@
                     <div class="value">{{ entrenamiento.descripcion || 'Sin descripción' }}</div>
                 </div>
                 <div class="info-card">
-                    <h3>Estado</h3>
-                    <div class="value badge estado-pendiente">{{ entrenamiento.estado | titlecase }}</div>
+                    <div class="status-card-header">
+                        <h3>Estado</h3>
+                        <div class="value badge" [ngClass]="getEstadoClass()">{{ getEstadoLabel() }}</div>
+                    </div>
+                    <span *ngIf="getEstado() === 'programado'" class="status-note">Pendiente de inicio</span>
+                    <span *ngIf="getEstado() === 'en_curso'" class="status-note">Entrenamiento activo</span>
+                    <span *ngIf="getEstado() === 'completado'" class="status-note">Entrenamiento finalizado</span>
+                    <span *ngIf="getEstado() === 'cancelado'" class="status-note">Entrenamiento cancelado</span>
                 </div>
             </div>
 
-            <div class="asistencia-comentarios-grid">
+            <div *ngIf="success" class="success-message">{{ success }}</div>
+            <div *ngIf="error" class="error">{{ error }}</div>
+
+            <div *ngIf="entrenamientoIniciado()" class="asistencia-comentarios-grid">
 
                 <section class="asistencia-section">
                     <h2 class="stats-title">Lista de Asistencia ({{ getEstadisticas().presentes }} / {{ getEstadisticas().total }})</h2>
@@ -86,21 +95,43 @@
                         <table class="jugadores-table">
                             <thead>
                                 <tr>
-                                    <th style="width: 50px;"></th>
-                                    <th style="width: 60px;">#</th>
-                                    <th>Nombre</th>
-                                    <th>Posición</th>
+                                    <th>Jugador</th>
+                                    <th>Posicion</th>
+                                    <th>Dorsal</th>
+                                    <th class="attendance-col">Asistencia</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr *ngFor="let jugador of jugadores">
                                     <td>
-                                        <input type="checkbox" class="jugador-checkbox"
-                                            [checked]="jugador.presente" (change)="togglePresente(jugador)">
+                                        <div class="attendance-player">
+                                            <img
+                                                *ngIf="jugador.foto_url && !jugador.fotoError; else asistenciaAvatarLetra"
+                                                [src]="getFotoUrl(jugador.foto_url)"
+                                                alt="{{ jugador.nombre }}"
+                                                class="attendance-avatar-img"
+                                                (error)="onJugadorFotoError(jugador)">
+                                            <ng-template #asistenciaAvatarLetra>
+                                                <div class="attendance-avatar">{{ jugador.nombre | slice:0:1 }}</div>
+                                            </ng-template>
+                                            <div class="attendance-player-text">
+                                                <span class="attendance-name">{{ jugador.nombre }}</span>
+                                                <span class="attendance-meta">Jugador convocado</span>
+                                            </div>
+                                        </div>
                                     </td>
-                                    <td>{{ jugador.numero }}</td>
-                                    <td>{{ jugador.nombre }}</td>
-                                    <td>{{ jugador.posicion }}</td>
+                                    <td><span class="attendance-position">{{ jugador.posicion }}</span></td>
+                                    <td class="attendance-number">#{{ jugador.numero }}</td>
+                                    <td class="attendance-col">
+                                        <button
+                                            type="button"
+                                            class="attendance-toggle"
+                                            [class.attendance-toggle--present]="jugador.presente"
+                                            (click)="togglePresente(jugador)">
+                                            <span class="material-symbols-outlined">{{ jugador.presente ? 'check_circle' : 'radio_button_unchecked' }}</span>
+                                            {{ jugador.presente ? 'Presente' : 'Ausente' }}
+                                        </button>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
@@ -197,7 +228,25 @@
             </div>
 
             <div class="action-section">
-                <button class="save-btn" (click)="saveAsistencia()" [disabled]="saving">
+                <button
+                    *ngIf="getEstado() === 'programado'"
+                    class="status-btn status-btn-start status-btn-large"
+                    (click)="iniciarEntrenamiento()"
+                    [disabled]="statusSaving">
+                    <span class="material-symbols-outlined">{{ statusSaving ? 'progress_activity' : 'play_arrow' }}</span>
+                    {{ statusSaving ? 'Iniciando...' : 'Iniciar entrenamiento' }}
+                </button>
+
+                <button
+                    *ngIf="getEstado() === 'en_curso'"
+                    class="status-btn status-btn-finish status-btn-large"
+                    (click)="finalizarEntrenamiento()"
+                    [disabled]="statusSaving || saving">
+                    <span class="material-symbols-outlined">{{ statusSaving ? 'progress_activity' : 'stop_circle' }}</span>
+                    {{ statusSaving ? 'Finalizando...' : 'Finalizar entrenamiento' }}
+                </button>
+
+                <button *ngIf="entrenamientoIniciado()" class="save-btn" (click)="saveAsistencia()" [disabled]="saving || statusSaving || getEstado() === 'completado'">
                     <span *ngIf="saving" class="material-symbols-outlined">schedule</span>
                     <span *ngIf="!saving" class="material-symbols-outlined">save</span>
                     {{ saving ? 'Guardando...' : 'Guardar Asistencia' }}

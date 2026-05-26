@@ -256,6 +256,7 @@
 
 .jugadores-table {
   width: 100%;
+  border-collapse: collapse;
 }
 
 .jugadores-table th {
@@ -268,11 +269,20 @@
   position: sticky; 
   top: 0;
   z-index: 10;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .jugadores-table td {
-  padding: 1.2rem 1.5rem;
+  padding: 1rem 1.5rem;
   border-bottom: 1px solid #f1f5f9;
+  color: #1e293b;
+  vertical-align: middle;
+}
+
+.jugadores-table tr:hover td {
+  background: #f8fafc;
 }
 
 .jugador-checkbox {
@@ -282,8 +292,117 @@
   cursor: pointer;
 }
 
+.attendance-player {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 220px;
+}
+
+.attendance-avatar-img,
+.attendance-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 2px solid #e2e8f0;
+  flex-shrink: 0;
+}
+
+.attendance-avatar-img {
+  object-fit: cover;
+  background: #f8fafc;
+  box-shadow: 0 2px 4px rgba(15, 23, 42, 0.06);
+}
+
+.attendance-avatar {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.95rem;
+  text-transform: uppercase;
+}
+
+.attendance-player-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.attendance-name {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #1e293b;
+}
+
+.attendance-meta {
+  font-size: 0.78rem;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.attendance-position {
+  background: #eff6ff;
+  color: #2563eb;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.attendance-number {
+  color: #64748b;
+  font-size: 0.9rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.attendance-col {
+  text-align: right !important;
+}
+
+.attendance-toggle {
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  color: #64748b;
+  border-radius: 999px;
+  padding: 0.55rem 0.9rem;
+  font-size: 0.82rem;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, color 0.2s, transform 0.2s;
+  min-width: 118px;
+}
+
+.attendance-toggle .material-symbols-outlined {
+  font-size: 18px;
+}
+
+.attendance-toggle:hover {
+  transform: translateY(-1px);
+  border-color: #bfdbfe;
+  color: #1d4ed8;
+}
+
+.attendance-toggle--present {
+  background: #dcfce7;
+  border-color: #bbf7d0;
+  color: #166534;
+}
+
 .action-section {
-  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
   padding: 2rem;
 }
 
@@ -342,9 +461,100 @@
   border: 1px solid #a7f3d0;
 }
 
+.status-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.status-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.status-btn {
+  border: none;
+  border-radius: 12px;
+  padding: 0.75rem 1.1rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+}
+
+.status-btn-large {
+  min-width: 220px;
+  padding: 1rem 2.2rem;
+  border-radius: 16px;
+  font-size: 1.05rem;
+}
+
+.status-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+.status-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.status-btn-start {
+  background: #16a34a;
+  color: white;
+  box-shadow: 0 10px 20px rgba(22, 163, 74, 0.22);
+}
+
+.status-btn-finish {
+  background: #dc2626;
+  color: white;
+  box-shadow: 0 10px 20px rgba(220, 38, 38, 0.22);
+}
+
+.status-note {
+  color: #64748b;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.estado-programado,
 .estado-pendiente {
   background: #fef3c7;
   color: #d97706;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.estado-en-curso {
+  background: #dbeafe;
+  color: #1d4ed8;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.estado-completado {
+  background: #d1fae5;
+  color: #047857;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.estado-cancelado {
+  background: #fee2e2;
+  color: #dc2626;
   padding: 4px 12px;
   border-radius: 20px;
   font-size: 0.85rem;

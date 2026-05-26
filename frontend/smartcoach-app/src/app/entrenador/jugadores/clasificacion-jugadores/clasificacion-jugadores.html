@@ -42,7 +42,7 @@
       <div class="cg-header__inner">
         <div class="cg-header__tag">Analisis general · Historial completo</div>
         <h1 class="cg-header__title">Clasificacion de rendimiento</h1>
-        <p class="cg-header__sub">Score historico + promedios de estadisticas por jugador</p>
+        <p class="cg-header__sub">Score posicional historico + promedios de estadisticas por jugador</p>
 
         <div class="cg-team-selector">
           <label class="cg-team-selector__label" for="teamSelect">Equipo</label>
@@ -141,7 +141,7 @@
             <div class="cg-breakdown">
               <div class="cg-breakdown__item cg-breakdown__item--hs">
                 <span class="cg-breakdown__val">{{ player.breakdown.score_historico | number:'1.2-2' }}</span>
-                <span class="cg-breakdown__key">Score historico</span>
+                <span class="cg-breakdown__key">Score posicional</span>
               </div>
               <div class="cg-breakdown__item">
                 <span class="cg-breakdown__val">{{ player.breakdown.ataques_prom | number:'1.1-1' }}</span>

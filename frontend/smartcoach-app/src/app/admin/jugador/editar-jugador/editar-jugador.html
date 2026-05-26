@@ -83,9 +83,17 @@
 
 <!-- Current Photo -->
           <div *ngIf="hasExistingImage() && !fotoPreview" class="existing-photo-container">
-            <img [src]="getFotoUrl(fotoActual)" alt="Foto actual del jugador">
+            <img [src]="getFotoUrl(fotoActual)" alt="Foto actual del jugador" (error)="onFotoActualError()">
             <div class="existing-photo-info">
               <p>Foto actual</p>
+              <strong>{{ jugadorNombre }}</strong>
+            </div>
+          </div>
+
+          <div *ngIf="fotoActualError && !fotoPreview" class="existing-photo-container">
+            <div class="existing-photo-avatar">{{ getInitials(jugadorNombre) }}</div>
+            <div class="existing-photo-info">
+              <p>No se pudo cargar la foto actual</p>
               <strong>{{ jugadorNombre }}</strong>
             </div>
           </div>

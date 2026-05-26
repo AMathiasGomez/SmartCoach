@@ -6,6 +6,7 @@
     [attr.aria-label]="isDarkMode ? 'Activar modo claro' : 'Activar modo oscuro'"
     [title]="isDarkMode ? 'Modo claro' : 'Modo oscuro'">
     <span class="material-symbols-outlined">{{ isDarkMode ? 'light_mode' : 'dark_mode' }}</span>
+    <span class="theme-toggle-label">{{ isDarkMode ? 'Modo claro' : 'Modo oscuro' }}</span>
   </button>
 
   <router-outlet></router-outlet>
