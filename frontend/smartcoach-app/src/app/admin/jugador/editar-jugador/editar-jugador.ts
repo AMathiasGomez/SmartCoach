@@ -87,7 +87,7 @@ export class EditarJugador implements OnInit {
 
         this.formJugador.patchValue({
           nombre: res.nombre,
-          fecha_nacimiento: res.fecha_nacimiento,
+          fecha_nacimiento: this.formatearFechaParaInput(res.fecha_nacimiento),
           posicion: res.posicion,
           numero: res.numero,
           equipo_id: res.equipo_id
@@ -106,6 +106,18 @@ export class EditarJugador implements OnInit {
         this.router.navigate(['/ver-jugadores']);
       }
     });
+  }
+
+  private formatearFechaParaInput(fecha: string | Date | null | undefined): string {
+    if (!fecha) return '';
+
+    if (fecha instanceof Date) {
+      return fecha.toISOString().split('T')[0];
+    }
+
+    const valor = String(fecha).trim();
+    const fechaInput = valor.match(/^\d{4}-\d{2}-\d{2}/);
+    return fechaInput ? fechaInput[0] : valor;
   }
 
   onFotoSeleccionada(event: Event) {

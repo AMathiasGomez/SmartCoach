@@ -70,7 +70,7 @@ export class EditarEntrenamiento implements OnInit {
           equipo_id: data.equipo_id,
           fecha: this.formatearFecha(data.fecha),
           hora: data.hora,
-          tipo: data.tipo,
+          tipo: this.normalizarTipoEntrenamiento(data.tipo),
           duracion: data.duracion,
           estado: data.estado || 'programado',
           descripcion: data.descripcion || '',
@@ -128,6 +128,22 @@ export class EditarEntrenamiento implements OnInit {
 
   formatearFecha(fecha: string): string {
     return fecha ? fecha.split('T')[0] : '';
+  }
+
+  normalizarTipoEntrenamiento(tipo: string | null | undefined): string {
+    const valor = (tipo || '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .trim();
+
+    const tipos: Record<string, string> = {
+      tactico: 'tactico',
+      fisico: 'fisico',
+      tecnico: 'tecnico',
+    };
+
+    return tipos[valor] || '';
   }
 
   logout(): void {

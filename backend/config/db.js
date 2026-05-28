@@ -13,6 +13,7 @@ const db = mysql.createPool({
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
   timezone: dbTimeZone,
+  dateStrings: true,
 });
 
 db.on('connection', (connection) => {

@@ -363,10 +363,6 @@ export class DashboardDirectivo implements OnInit {
     URL.revokeObjectURL(url);
   }
 
-  printReport() {
-    window.print();
-  }
-
   showSection(sectionId: DirectivoSection) {
     this.activeSection = sectionId;
     this.closeSidebar();

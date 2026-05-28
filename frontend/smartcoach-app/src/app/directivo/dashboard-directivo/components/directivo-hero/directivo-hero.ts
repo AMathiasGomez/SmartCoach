@@ -19,7 +19,6 @@ export class DirectivoHeroComponent {
   @Input() actividadesPendientes = 0;
   @Input() alertasAbiertas = 0;
 
-  @Output() print = new EventEmitter<void>();
   @Output() download = new EventEmitter<void>();
 
   sectionLabels: Record<DirectivoSection, string> = {

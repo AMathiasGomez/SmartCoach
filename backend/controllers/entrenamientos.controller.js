@@ -1,6 +1,23 @@
 const db = require('../config/db');
 
 const ESTADOS_ENTRENAMIENTO = ['programado', 'en_curso', 'completado', 'cancelado'];
+const APP_TIME_ZONE = process.env.APP_TIME_ZONE || 'America/Bogota';
+
+function getFechaHoraLocal() {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: APP_TIME_ZONE,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+  }).formatToParts(new Date());
+
+  const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+  return `${values.year}-${values.month}-${values.day} ${values.hour}:${values.minute}:${values.second}`;
+}
 
 exports.createEntrenamiento = async (req, res) => {
   try {
@@ -237,11 +254,12 @@ exports.saveAsistencia = async (req, res) => {
     // Delete existing
     await db.query('DELETE FROM asistencias WHERE entrenamiento_id = ?', [id]);
 
-    // Insert new
-    const values = asistencias.map(a => [id, a.jugador_id, a.presente ? 'presente' : 'ausente']);
+    // Insert new with the app's local time instead of relying on server/DB defaults.
+    const fechaRegistro = getFechaHoraLocal();
+    const values = asistencias.map(a => [id, a.jugador_id, a.presente ? 'presente' : 'ausente', fechaRegistro]);
     if (values.length > 0) {
       await db.query(`
-        INSERT INTO asistencias (entrenamiento_id, jugador_id, estado) VALUES ?
+        INSERT INTO asistencias (entrenamiento_id, jugador_id, estado, created_at) VALUES ?
       `, [values]);
     }
 
