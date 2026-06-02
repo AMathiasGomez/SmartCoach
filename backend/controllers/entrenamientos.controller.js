@@ -57,6 +57,7 @@ exports.getEntrenamientos = async (req, res) => {
     const sql = `
       SELECT 
         entrenamiento.id,
+        entrenamiento.equipo_id,
         entrenamiento.fecha,
         entrenamiento.hora,
         entrenamiento.duracion,
@@ -76,6 +77,41 @@ exports.getEntrenamientos = async (req, res) => {
     console.error('ERROR SQL (getEntrenamientos):', error);
     res.status(500).json({
       message: 'Error al obtener entrenamientos'
+    });
+  }
+};
+
+exports.getReporteAsistencias = async (req, res) => {
+  try {
+    const sql = `
+      SELECT
+        e.id AS entrenamiento_id,
+        e.fecha,
+        e.hora,
+        e.tipo,
+        e.estado AS estado_entrenamiento,
+        eq.id AS equipo_id,
+        eq.nombre AS equipo_nombre,
+        j.id AS jugador_id,
+        j.nombre AS jugador_nombre,
+        j.numero AS jugador_numero,
+        j.posicion AS jugador_posicion,
+        COALESCE(a.estado, 'sin registrar') AS estado_asistencia
+      FROM entrenamientos e
+      LEFT JOIN equipos eq ON e.equipo_id = eq.id
+      LEFT JOIN jugadores j ON j.equipo_id = e.equipo_id
+      LEFT JOIN asistencias a
+        ON a.entrenamiento_id = e.id
+        AND a.jugador_id = j.id
+      ORDER BY e.fecha DESC, e.hora DESC, eq.nombre ASC, j.nombre ASC
+    `;
+
+    const [rows] = await db.query(sql);
+    res.status(200).json(rows);
+  } catch (error) {
+    console.error('ERROR SQL (getReporteAsistencias):', error);
+    res.status(500).json({
+      message: 'Error al obtener reporte de asistencias'
     });
   }
 };
