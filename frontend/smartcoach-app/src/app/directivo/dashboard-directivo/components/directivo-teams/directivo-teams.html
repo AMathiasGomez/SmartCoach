@@ -36,7 +36,14 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let equipo of equiposResumen">
+          <tr
+            *ngFor="let equipo of equiposResumen; trackBy: trackByEquipoId"
+            class="selectable-row"
+            [class.selected]="equipoSeleccionado?.id === equipo.id"
+            (click)="seleccionarEquipo(equipo)"
+            (keyup.enter)="seleccionarEquipo(equipo)"
+            tabindex="0"
+          >
             <td class="strong">{{ equipo.nombre }}</td>
             <td>{{ equipo.categoria || 'Sin categoria' }}</td>
             <td>{{ equipo.jugadores }}</td>
@@ -70,6 +77,98 @@
     </div>
     <div class="empty" *ngIf="distribucionCategorias.length === 0">
       Sin categorias registradas.
+    </div>
+  </article>
+</section>
+
+<section class="team-report-grid" *ngIf="equipoSeleccionado as equipo">
+  <article class="panel performance-panel">
+    <div class="panel-header">
+      <div>
+        <p class="eyebrow">Informe general del equipo</p>
+        <h2>{{ equipo.nombre }}</h2>
+      </div>
+      <span class="pill">{{ equipo.salud }}% salud</span>
+    </div>
+
+    <div class="bar-chart">
+      <div class="bar-row" *ngFor="let item of equipo.tendencia">
+        <div class="bar-label">
+          <strong>{{ item.label }}</strong>
+          <span>{{ item.detail }}</span>
+        </div>
+        <div class="bar-track">
+          <div class="bar-fill" [ngClass]="item.color" [style.width.%]="item.value"></div>
+        </div>
+        <b>{{ item.value }}%</b>
+      </div>
+    </div>
+  </article>
+
+  <aside class="panel team-report-card">
+    <div class="best-header">
+      <p class="eyebrow">Lectura directiva</p>
+      <span class="material-symbols-outlined">assessment</span>
+    </div>
+    <h2>{{ equipo.categoria || 'Sin categoria' }}</h2>
+    <div class="best-stats">
+      <span><b>{{ equipo.jugadores }}</b> jugadores</span>
+      <span><b>{{ equipo.entrenamientos }}</b> entrenamientos</span>
+      <span><b>{{ equipo.partidosFinalizados }}/{{ equipo.partidos }}</b> partidos cerrados</span>
+    </div>
+    <div class="team-report-meta">
+      <span>{{ equipo.winRate }}% efectividad</span>
+      <span>{{ equipo.promedioEntrenamientosPorJugador }} entrenamientos/jugador</span>
+      <span>{{ equipo.score }} puntos de indice</span>
+    </div>
+  </aside>
+</section>
+
+<section class="split-grid team-detail-grid" *ngIf="equipoSeleccionado as equipo">
+  <article class="panel">
+    <div class="panel-header">
+      <div>
+        <p class="eyebrow">Gestion</p>
+        <h2>Prioridades del equipo</h2>
+      </div>
+    </div>
+
+    <div class="empty" *ngIf="equipo.alertas.length === 0">
+      No hay alertas pendientes para este equipo con la informacion actual.
+    </div>
+
+    <ul class="alerts" *ngIf="equipo.alertas.length > 0">
+      <li *ngFor="let alerta of equipo.alertas">
+        <span class="material-symbols-outlined">priority_high</span>
+        {{ alerta }}
+      </li>
+    </ul>
+  </article>
+
+  <article class="panel">
+    <div class="panel-header">
+      <div>
+        <p class="eyebrow">Indicadores</p>
+        <h2>Resumen operativo</h2>
+      </div>
+    </div>
+
+    <div class="score-row">
+      <div class="score-card">
+        <span>Plantilla</span>
+        <strong>{{ equipo.jugadores }}</strong>
+        <div class="progress-bar"><div class="fill blue" [style.width.%]="equipo.tendencia[0].value"></div></div>
+      </div>
+      <div class="score-card">
+        <span>Entrenamiento</span>
+        <strong>{{ equipo.entrenamientos }}</strong>
+        <div class="progress-bar"><div class="fill green" [style.width.%]="equipo.tendencia[1].value"></div></div>
+      </div>
+      <div class="score-card">
+        <span>Competencia</span>
+        <strong>{{ equipo.partidos }}</strong>
+        <div class="progress-bar"><div class="fill amber" [style.width.%]="equipo.tendencia[2].value"></div></div>
+      </div>
     </div>
   </article>
 </section>

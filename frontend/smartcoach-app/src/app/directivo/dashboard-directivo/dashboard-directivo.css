@@ -571,6 +571,47 @@
     white;
 }
 
+.team-report-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1.15rem;
+}
+
+.team-report-card {
+  background:
+    linear-gradient(155deg, #0f172a, #115e59 76%, #0f766e);
+  color: white;
+}
+
+.team-report-card h2,
+.team-report-card .eyebrow {
+  color: white;
+}
+
+.team-report-card .best-header .material-symbols-outlined {
+  background: rgba(255, 255, 255, 0.14);
+  color: #99f6e4;
+}
+
+.team-report-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  margin-top: 1rem;
+}
+
+.team-report-meta span {
+  padding: 0.7rem 0.8rem;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #ccfbf1;
+  font-weight: 800;
+}
+
+.team-detail-grid {
+  align-items: start;
+}
+
 .agenda-strip {
   grid-template-columns: 1fr 280px;
 }
@@ -1100,6 +1141,26 @@ th {
   color: #1d4ed8;
 }
 
+.selectable-row {
+  cursor: pointer;
+  transition: background 0.18s ease, box-shadow 0.18s ease;
+}
+
+.selectable-row:hover,
+.selectable-row:focus {
+  background: #f0fdfa;
+  outline: none;
+}
+
+.selectable-row.selected {
+  background: #ecfdf5;
+  box-shadow: inset 4px 0 0 #0f766e;
+}
+
+.selectable-row.selected .strong {
+  color: #0f766e;
+}
+
 .index-pill {
   background: #eef2ff;
   color: #4338ca;
@@ -1160,6 +1221,7 @@ th {
   .welcome,
   .executive-grid,
   .split-grid,
+  .team-report-grid,
   .reports-console,
   .teams-command,
   .agenda-strip {

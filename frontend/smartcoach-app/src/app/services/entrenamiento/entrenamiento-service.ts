@@ -24,6 +24,10 @@ export class EntrenamientoService {
     return this.http.get<any[]>(this.apiUrl);
   }
 
+  getReporteAsistencias(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/asistencias/reporte`);
+  }
+
   deleteEntrenamiento(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`);
   }

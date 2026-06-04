@@ -28,11 +28,13 @@ import { DetalleJugador } from './entrenador/jugadores/detalle-jugador/detalle-j
 import { VerEquiposE } from './entrenador/equipos/ver-equipos-e/ver-equipos-e';
 import { DetalleEquipo } from './entrenador/equipos/detalle-equipo/detalle-equipo';
 import { ClasificacionJugadores } from './entrenador/jugadores/clasificacion-jugadores/clasificacion-jugadores';
+import { AccesoDenegado } from './shared/acceso-denegado/acceso-denegado';
 
 export const routes: Routes = [
   // AUTENTICACION
   { path: 'login', component: Login},
   { path: 'register', component: Register},
+  { path: 'acceso-denegado', component: AccesoDenegado },
   { path: '', redirectTo: 'login', pathMatch: 'full'},
 
   // EQUIPOS

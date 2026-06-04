@@ -1,10 +1,9 @@
-import { HttpClient } from '@angular/common/http';
-import { Component, NgModule } from '@angular/core';
+import { Component } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth/auth-service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-
+import { finalize, timeout } from 'rxjs';
 
 @Component({
   selector: 'app-login',
@@ -19,6 +18,7 @@ export class Login {
   showPassword = false;
   loading = false;
   errorMessage = '';
+  submitted = false;
 
   constructor(
     private authService: AuthService,
@@ -35,66 +35,68 @@ export class Login {
   }
 
   login() {
-    this.errorMessage = '';
+    if (this.loading) return;
 
-    if (!this.email || !this.password) {
+    this.errorMessage = '';
+    this.submitted = true;
+
+    const email = this.email.trim().toLowerCase();
+    const password = this.password.trim();
+
+    if (!email || !password) {
       this.errorMessage = 'Todos los campos son obligatorios';
       return;
     }
 
-    if (!this.isValidEmail(this.email)) {
-      this.errorMessage = 'El correo no tiene un formato válido';
+    if (!this.isValidEmail(email)) {
+      this.errorMessage = 'El correo no tiene un formato valido';
       return;
     }
 
     this.loading = true;
 
-    const data = {
-      email: this.email,
-      password: this.password
-    };
-
-    console.log('Enviando login:', data);
-
-    this.authService.login(data).subscribe({
+    this.authService.login({ email, password }).pipe(
+      timeout(10000),
+      finalize(() => this.loading = false)
+    ).subscribe({
       next: (res: any) => {
-        console.log('Login exitoso', res);
-        this.loading = false;
+        if (!res?.token || !res?.user) {
+          this.errorMessage = 'La respuesta del servidor no es valida';
+          return;
+        }
 
         localStorage.setItem('token', res.token);
         this.authService.setUser(res.user);
 
         const rol = this.authService.getRol();
-
-        console.log('ROL DESDE TOKEN:', rol);
-
-        const rutas: any = {
+        const rutas: Record<string, string> = {
           administrador: '/dashboard-admin',
           directivo: '/dashboard-directivo',
           entrenador: '/dashboard-entrenador',
           usuario: '/dashboard-usuario'
-        }
+        };
 
-        const ruta = rutas[rol!];
-
-        console.log('RUTA:', ruta);
+        const ruta = rol ? rutas[rol] : null;
 
         if (ruta) {
           this.router.navigate([ruta]);
         } else {
-          console.log('Rol no válido:', rol);
+          this.errorMessage = 'Tu usuario no tiene un rol valido para ingresar';
         }
       },
       error: (err) => {
         console.error('Error login', err);
-        this.loading = false;
 
-        if (err.status === 401) {
+        if (err.name === 'TimeoutError') {
+          this.errorMessage = 'El servidor no respondio. Intenta de nuevo.';
+        } else if (err.status === 401) {
           this.errorMessage = 'Credenciales incorrectas';
+        } else if (err.status === 400) {
+          this.errorMessage = err.error?.error || 'Revisa el correo y la contrasena';
         } else if (err.status === 0) {
-          this.errorMessage = 'No hay conexión con el servidor';
+          this.errorMessage = 'No hay conexion con el servidor';
         } else {
-          this.errorMessage = 'Error en el servidor';
+          this.errorMessage = err.error?.error || 'Error en el servidor';
         }
       }
     });

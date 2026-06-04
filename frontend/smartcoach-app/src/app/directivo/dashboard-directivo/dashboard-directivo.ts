@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, forkJoin, of } from 'rxjs';
 import { AuthService } from '../../services/auth/auth-service';
@@ -73,6 +73,7 @@ export class DashboardDirectivo implements OnInit {
   equipos: any[] = [];
   partidos: any[] = [];
   entrenamientos: any[] = [];
+  asistenciasEntrenamientos: any[] = [];
 
   reportes: ExecutiveReport[] = [];
   insights: Insight[] = [];
@@ -96,10 +97,12 @@ export class DashboardDirectivo implements OnInit {
     private jugadorService: JugadorService,
     private equipoService: EquipoService,
     private entrenamientoService: EntrenamientoService,
-    private partidoService: PartidoService
+    private partidoService: PartidoService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
+    this.activeSection = 'resumen';
     this.loadDashboardData();
   }
 
@@ -111,19 +114,23 @@ export class DashboardDirectivo implements OnInit {
       jugadores: this.jugadorService.getJugadores().pipe(catchError(() => of([]))),
       equipos: this.equipoService.getEquipos().pipe(catchError(() => of([]))),
       entrenamientos: this.entrenamientoService.getEntrenamientos().pipe(catchError(() => of([]))),
+      asistenciasEntrenamientos: this.entrenamientoService.getReporteAsistencias().pipe(catchError(() => of([]))),
       partidos: this.partidoService.getPartidos().pipe(catchError(() => of([]))),
     }).subscribe({
-      next: ({ jugadores, equipos, entrenamientos, partidos }) => {
+      next: ({ jugadores, equipos, entrenamientos, asistenciasEntrenamientos, partidos }) => {
         this.jugadores = jugadores;
         this.equipos = equipos;
         this.entrenamientos = entrenamientos;
+        this.asistenciasEntrenamientos = asistenciasEntrenamientos;
         this.partidos = partidos;
         this.buildExecutiveSummary();
         this.loading = false;
+        this.cdr.detectChanges();
       },
       error: () => {
         this.error = 'No se pudo cargar la informacion directiva.';
         this.loading = false;
+        this.cdr.detectChanges();
       },
     });
   }
@@ -144,16 +151,57 @@ export class DashboardDirectivo implements OnInit {
     this.equiposResumen = this.equipos.map((equipo) => {
       const jugadoresEquipo = this.jugadores.filter((jugador) => Number(jugador.equipo_id) === Number(equipo.id));
       const partidosEquipo = this.partidos.filter((partido) => Number(partido.equipo_id) === Number(equipo.id));
-      const entrenamientosEquipo = this.entrenamientos.filter((entrenamiento) => Number(entrenamiento.equipo_id) === Number(equipo.id));
+      const entrenamientosEquipo = this.entrenamientos.filter((entrenamiento) => this.belongsToTeam(entrenamiento, equipo));
+      const partidosFinalizadosEquipo = partidosEquipo.filter((partido) => this.isFinalizado(partido)).length;
       const victoriasEquipo = partidosEquipo.filter((partido) => this.isVictoria(partido)).length;
+      const winRateEquipo = partidosFinalizadosEquipo > 0 ? Math.round((victoriasEquipo / partidosFinalizadosEquipo) * 100) : 0;
+      const saludEquipo = this.getTeamHealth(
+        jugadoresEquipo.length,
+        entrenamientosEquipo.length,
+        partidosEquipo.length,
+        partidosFinalizadosEquipo,
+        winRateEquipo
+      );
       const score = jugadoresEquipo.length * 2 + entrenamientosEquipo.length * 3 + victoriasEquipo * 5 + partidosEquipo.length;
 
       return {
         ...equipo,
         jugadores: jugadoresEquipo.length,
         partidos: partidosEquipo.length,
+        partidosFinalizados: partidosFinalizadosEquipo,
+        victorias: victoriasEquipo,
+        winRate: winRateEquipo,
         entrenamientos: entrenamientosEquipo.length,
         score,
+        salud: saludEquipo,
+        promedioEntrenamientosPorJugador: jugadoresEquipo.length > 0 ? Math.round((entrenamientosEquipo.length / jugadoresEquipo.length) * 10) / 10 : 0,
+        tendencia: [
+          {
+            label: 'Plantilla',
+            value: jugadoresEquipo.length > 0 ? Math.min(100, Math.round((jugadoresEquipo.length / 12) * 100)) : 0,
+            detail: `${jugadoresEquipo.length} jugadores`,
+            color: 'blue',
+          },
+          {
+            label: 'Entrenamiento',
+            value: entrenamientosEquipo.length > 0 ? Math.min(100, entrenamientosEquipo.length * 20) : 0,
+            detail: `${entrenamientosEquipo.length} sesiones`,
+            color: 'green',
+          },
+          {
+            label: 'Competencia',
+            value: partidosEquipo.length > 0 ? Math.min(100, Math.round((partidosFinalizadosEquipo / partidosEquipo.length) * 100)) : 0,
+            detail: `${partidosFinalizadosEquipo}/${partidosEquipo.length} cerrados`,
+            color: 'amber',
+          },
+          {
+            label: 'Resultados',
+            value: winRateEquipo,
+            detail: `${winRateEquipo}% efectividad`,
+            color: 'purple',
+          },
+        ],
+        alertas: this.getTeamAlerts(jugadoresEquipo.length, entrenamientosEquipo.length, partidosEquipo.length, partidosFinalizadosEquipo),
       };
     }).sort((a, b) => b.score - a.score);
 
@@ -340,7 +388,43 @@ export class DashboardDirectivo implements OnInit {
     return Math.min(100, base + training + competition + results + risk);
   }
 
+  getTeamHealth(
+    jugadores: number,
+    entrenamientos: number,
+    partidos: number,
+    partidosFinalizados: number,
+    winRate: number
+  ) {
+    const base = jugadores > 0 ? 25 : 0;
+    const training = Math.min(25, entrenamientos * 5);
+    const competition = partidos > 0 ? 20 : 0;
+    const closure = partidos > 0 ? Math.min(15, Math.round((partidosFinalizados / partidos) * 15)) : 0;
+    const results = Math.min(15, Math.round(winRate / 7));
+
+    return Math.min(100, base + training + competition + closure + results);
+  }
+
+  getTeamAlerts(jugadores: number, entrenamientos: number, partidos: number, partidosFinalizados: number): string[] {
+    const alerts: string[] = [];
+
+    if (jugadores === 0) alerts.push('El equipo no tiene jugadores vinculados.');
+    if (entrenamientos === 0) alerts.push('No registra entrenamientos para seguimiento operativo.');
+    if (partidos > 0 && partidosFinalizados === 0) alerts.push('Tiene partidos registrados sin cierre deportivo.');
+    if (partidos === 0) alerts.push('No registra actividad competitiva.');
+
+    return alerts.slice(0, 3);
+  }
+
   downloadReport(report?: ExecutiveReport) {
+    if (report?.title === 'Informe institucional del club') return this.downloadInstitutionalReport();
+    if (report?.title === 'Reporte competitivo') return this.downloadCompetitiveReport();
+    if (report?.title === 'Seguimiento de entrenamientos') return this.downloadTrainingAttendanceReport();
+    if (report?.title === 'Riesgos y prioridades') return this.downloadRiskReport();
+
+    this.downloadExecutiveSummaryReport();
+  }
+
+  downloadExecutiveSummaryReport() {
     const rows = [
       ['Indicador', 'Valor'],
       ['Jugadores', String(this.totalJugadores)],
@@ -350,17 +434,154 @@ export class DashboardDirectivo implements OnInit {
       ['Entrenamientos', String(this.totalEntrenamientos)],
       ['Win rate', `${this.winRate}%`],
       ['Cobertura entrenamientos', `${this.coberturaEntrenamiento}%`],
-      ['Reporte', report?.title || 'Informe ejecutivo general'],
+      ['Salud institucional', `${this.saludInstitucional}%`],
+      ['Alertas abiertas', String(this.alertas.length)],
+      ['Reporte', 'Informe ejecutivo general'],
     ];
 
-    const csv = rows.map((row) => row.map((value) => `"${value.replace(/"/g, '""')}"`).join(',')).join('\n');
+    this.downloadCsv(rows, `smartcoach-reporte-directivo-${new Date().toISOString().slice(0, 10)}.csv`);
+  }
+
+  downloadInstitutionalReport() {
+    const rows = [
+      ['Resumen institucional', 'Valor'],
+      ['Equipos registrados', this.totalEquipos],
+      ['Jugadores registrados', this.totalJugadores],
+      ['Promedio jugadores por equipo', this.promedioJugadoresPorEquipo],
+      ['Entrenamientos registrados', this.totalEntrenamientos],
+      ['Partidos registrados', this.totalPartidos],
+      ['Salud institucional', `${this.saludInstitucional}%`],
+      [],
+      ['Equipo', 'Categoria', 'Jugadores', 'Entrenamientos', 'Partidos', 'Salud', 'Indice'],
+      ...this.equiposResumen.map((equipo) => [
+        equipo.nombre,
+        equipo.categoria || 'Sin categoria',
+        equipo.jugadores,
+        equipo.entrenamientos,
+        equipo.partidos,
+        `${equipo.salud}%`,
+        equipo.score,
+      ]),
+    ];
+
+    if (this.equiposResumen.length === 0) {
+      rows.push(['Sin equipos registrados', '', '', '', '', '', '']);
+    }
+
+    this.downloadCsv(rows, `smartcoach-informe-institucional-${new Date().toISOString().slice(0, 10)}.csv`);
+  }
+
+  downloadCompetitiveReport() {
+    const rows = [
+      ['Resumen competitivo', 'Valor'],
+      ['Partidos registrados', this.totalPartidos],
+      ['Partidos finalizados', this.partidosFinalizados],
+      ['Victorias detectadas', this.partidos.filter((partido) => this.isVictoria(partido)).length],
+      ['Efectividad general', `${this.winRate}%`],
+      [],
+      ['Equipo', 'Partido', 'Rival', 'Fecha', 'Ubicacion', 'Estado', 'Ganador', 'Resultado'],
+      ...this.partidos.map((partido) => [
+        partido.equipo_nombre || this.getTeamName(partido.equipo_id),
+        partido.nombre || 'Partido',
+        partido.rival || '',
+        this.formatDateForReport(partido.fecha),
+        partido.ubicacion || '',
+        partido.estado || '',
+        partido.ganador || '',
+        partido.resultado || '',
+      ]),
+    ];
+
+    if (this.partidos.length === 0) {
+      rows.push(['Sin partidos registrados', '', '', '', '', '', '', '']);
+    }
+
+    this.downloadCsv(rows, `smartcoach-reporte-competitivo-${new Date().toISOString().slice(0, 10)}.csv`);
+  }
+
+  downloadTrainingAttendanceReport() {
+    const rows = [
+      ['Resumen de entrenamientos', 'Valor'],
+      ['Entrenamientos registrados', this.totalEntrenamientos],
+      ['Cobertura entrenamientos', `${this.coberturaEntrenamiento}%`],
+      ['Registros de asistencia', this.asistenciasEntrenamientos.length],
+      [],
+      [
+        'Equipo',
+        'Entrenamiento',
+        'Fecha',
+        'Hora',
+        'Estado entrenamiento',
+        'Jugador',
+        'Numero',
+        'Posicion',
+        'Asistencia',
+      ],
+      ...this.asistenciasEntrenamientos.map((asistencia) => [
+        asistencia.equipo_nombre || 'Sin equipo',
+        asistencia.tipo || 'Entrenamiento',
+        this.formatDateForReport(asistencia.fecha),
+        asistencia.hora || '',
+        asistencia.estado_entrenamiento || '',
+        asistencia.jugador_nombre || 'Sin jugadores registrados',
+        asistencia.jugador_numero ?? '',
+        asistencia.jugador_posicion || '',
+        asistencia.estado_asistencia || 'sin registrar',
+      ]),
+    ];
+
+    if (this.asistenciasEntrenamientos.length === 0) {
+      rows.push(['Sin datos', 'No hay asistencias registradas para entrenamientos', '', '', '', '', '', '', '']);
+    }
+
+    this.downloadCsv(rows, `smartcoach-asistencias-entrenamientos-${new Date().toISOString().slice(0, 10)}.csv`);
+  }
+
+  downloadRiskReport() {
+    const teamRisks = this.equiposResumen.flatMap((equipo) =>
+      (equipo.alertas || []).map((alerta: string) => [
+        'Equipo',
+        equipo.nombre,
+        equipo.categoria || 'Sin categoria',
+        alerta,
+        `${equipo.salud}% salud`,
+      ])
+    );
+
+    const rows = [
+      ['Resumen de riesgos', 'Valor'],
+      ['Alertas institucionales', this.alertas.length],
+      ['Equipos sin jugadores', this.equiposResumen.filter((equipo) => equipo.jugadores === 0).length],
+      ['Equipos sin entrenamientos', this.equiposResumen.filter((equipo) => equipo.entrenamientos === 0).length],
+      ['Cobertura entrenamientos', `${this.coberturaEntrenamiento}%`],
+      [],
+      ['Tipo', 'Origen', 'Categoria', 'Alerta', 'Indicador'],
+      ...this.alertas.map((alerta) => ['Institucional', 'Club', 'General', alerta, `${this.saludInstitucional}% salud institucional`]),
+      ...teamRisks,
+    ];
+
+    if (this.alertas.length === 0 && teamRisks.length === 0) {
+      rows.push(['Sin riesgos', 'Club', 'General', 'No se detectan alertas con la informacion actual', `${this.saludInstitucional}% salud institucional`]);
+    }
+
+    this.downloadCsv(rows, `smartcoach-riesgos-prioridades-${new Date().toISOString().slice(0, 10)}.csv`);
+  }
+
+  downloadCsv(rows: any[][], filename: string) {
+    const csv = rows.map((row) => row.map((value) => `"${String(value ?? '').replace(/"/g, '""')}"`).join(',')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `smartcoach-reporte-directivo-${new Date().toISOString().slice(0, 10)}.csv`;
+    link.download = filename;
     link.click();
     URL.revokeObjectURL(url);
+  }
+
+  formatDateForReport(value: any) {
+    if (!value) return '';
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? String(value) : date.toISOString().slice(0, 10);
   }
 
   showSection(sectionId: DirectivoSection) {
@@ -383,6 +604,22 @@ export class DashboardDirectivo implements OnInit {
   isVictoria(partido: any) {
     const ganador = String(partido.ganador || partido.resultado || '').toLowerCase();
     return ganador === 'equipo' || ganador === 'victoria' || ganador === 'ganado';
+  }
+
+  belongsToTeam(item: any, equipo: any) {
+    if (item?.equipo_id !== undefined && item?.equipo_id !== null) {
+      return Number(item.equipo_id) === Number(equipo.id);
+    }
+
+    return this.normalizeText(item?.equipo_nombre) === this.normalizeText(equipo?.nombre);
+  }
+
+  normalizeText(value: any) {
+    return String(value || '').trim().toLowerCase();
+  }
+
+  getTeamName(equipoId: any) {
+    return this.equipos.find((equipo) => Number(equipo.id) === Number(equipoId))?.nombre || 'Sin equipo';
   }
 
   toggleSidebar() {

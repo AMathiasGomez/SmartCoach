@@ -279,6 +279,27 @@ export class DetalleEquipo implements OnInit, AfterViewInit {
     return `${this.baseUrl}${fotoUrl}`;
   }
 
+  getJugadorFotoUrl(fotoUrl: string | undefined | null): string {
+    if (!fotoUrl) return '';
+    if (fotoUrl.startsWith('http')) return fotoUrl;
+    const path = fotoUrl.startsWith('/uploads') ? fotoUrl : `/uploads/jugadores/${fotoUrl}`;
+    return `${this.baseUrl}${path}`;
+  }
+
+  hasPhoto(jugador: Jugador): boolean {
+    return !!jugador.foto_url && jugador.foto_url.trim() !== '' && !(jugador as any).fotoError;
+  }
+
+  onImageError(jugador: Jugador): void {
+    (jugador as any).fotoError = true;
+    this.cd.detectChanges();
+  }
+
+  getInitials(nombre: string): string {
+    if (!nombre) return '?';
+    return nombre.charAt(0).toUpperCase();
+  }
+
   back(): void { this.router.navigate(['/ver-equipos-e']); }
   editar(): void { if (this.equipo?.id) this.router.navigate(['/editar-equipo', this.equipo.id]); }
   eliminar(): void {
