@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth/auth-service';
 import { FormsModule } from '@angular/forms';
@@ -23,6 +23,7 @@ export class Login {
   constructor(
     private authService: AuthService,
     public router: Router,
+    private changeDetector: ChangeDetectorRef,
   ) { }
 
   isValidEmail(email: string): boolean {
@@ -32,6 +33,11 @@ export class Login {
 
   togglePassword() {
     this.showPassword = !this.showPassword;
+  }
+
+  private setError(message: string) {
+    this.errorMessage = message;
+    this.changeDetector.detectChanges();
   }
 
   login() {
@@ -44,12 +50,12 @@ export class Login {
     const password = this.password.trim();
 
     if (!email || !password) {
-      this.errorMessage = 'Todos los campos son obligatorios';
+      this.setError('Todos los campos son obligatorios');
       return;
     }
 
     if (!this.isValidEmail(email)) {
-      this.errorMessage = 'El correo no tiene un formato valido';
+      this.setError('El correo no tiene un formato valido');
       return;
     }
 
@@ -57,11 +63,14 @@ export class Login {
 
     this.authService.login({ email, password }).pipe(
       timeout(10000),
-      finalize(() => this.loading = false)
+      finalize(() => {
+        this.loading = false;
+        this.changeDetector.detectChanges();
+      })
     ).subscribe({
       next: (res: any) => {
         if (!res?.token || !res?.user) {
-          this.errorMessage = 'La respuesta del servidor no es valida';
+          this.setError('La respuesta del servidor no es valida');
           return;
         }
 
@@ -81,22 +90,22 @@ export class Login {
         if (ruta) {
           this.router.navigate([ruta]);
         } else {
-          this.errorMessage = 'Tu usuario no tiene un rol valido para ingresar';
+          this.setError('Tu usuario no tiene un rol valido para ingresar');
         }
       },
       error: (err) => {
         console.error('Error login', err);
 
         if (err.name === 'TimeoutError') {
-          this.errorMessage = 'El servidor no respondio. Intenta de nuevo.';
+          this.setError('El servidor no respondio. Intenta de nuevo.');
         } else if (err.status === 401) {
-          this.errorMessage = 'Credenciales incorrectas';
+          this.setError('Credenciales incorrectas');
         } else if (err.status === 400) {
-          this.errorMessage = err.error?.error || 'Revisa el correo y la contrasena';
+          this.setError(err.error?.error || 'Revisa el correo y la contrasena');
         } else if (err.status === 0) {
-          this.errorMessage = 'No hay conexion con el servidor';
+          this.setError('No hay conexion con el servidor');
         } else {
-          this.errorMessage = err.error?.error || 'Error en el servidor';
+          this.setError(err.error?.error || 'Error en el servidor');
         }
       }
     });

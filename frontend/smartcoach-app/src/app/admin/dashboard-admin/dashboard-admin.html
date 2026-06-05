@@ -9,27 +9,27 @@
     </div>
 
     <nav aria-label="Menu administrador">
-      <a class="active" routerLink="/dashboard-admin" (click)="closeSidebar()">
+      <a class="active" routerLink="/dashboard-admin" (click)="closeSidebar()" id="panel">
         <span class="material-symbols-outlined">space_dashboard</span>
         <span class="nav-label">Panel</span>
       </a>
-      <a routerLink="/ver-equipos" (click)="closeSidebar()">
+      <a routerLink="/ver-equipos" (click)="closeSidebar()" id="equipos">
         <span class="material-symbols-outlined">group</span>
         <span class="nav-label">Equipos</span>
       </a>
-      <a routerLink="/ver-jugadores" (click)="closeSidebar()">
+      <a routerLink="/ver-jugadores" (click)="closeSidebar()" id="jugadores">
         <span class="material-symbols-outlined">person</span>
         <span class="nav-label">Jugadores</span>
       </a>
-      <a routerLink="/ver-entrenamientos" (click)="closeSidebar()">
+      <a routerLink="/ver-entrenamientos" (click)="closeSidebar()" id="entrenamientos">
         <span class="material-symbols-outlined">fitness_center</span>
         <span class="nav-label">Entrenamientos</span>
       </a>
-      <a routerLink="/ver-partidos" (click)="closeSidebar()">
+      <a routerLink="/ver-partidos" (click)="closeSidebar()" id="partidos">
         <span class="material-symbols-outlined">sports_soccer</span>
         <span class="nav-label">Partidos</span>
       </a>
-      <a routerLink="/ver-usuarios" (click)="closeSidebar()">
+      <a routerLink="/ver-usuarios" (click)="closeSidebar()" id="usuarios">
         <span class="material-symbols-outlined">manage_accounts</span>
         <span class="nav-label">Usuarios</span>
       </a>
@@ -50,7 +50,7 @@
 
     <section class="hero-panel">
       <div class="hero-copy">
-        <p class="eyebrow">Panel administrativo</p>
+        <p class="dashboard-title">Panel administrativo</p>
         <h1>Hola, {{ adminName }}</h1>
         <p>Controla la operacion deportiva desde un solo tablero: plantilla, agenda, usuarios y actividad reciente.</p>
       </div>

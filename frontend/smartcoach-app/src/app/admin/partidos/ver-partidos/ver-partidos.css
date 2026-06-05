@@ -359,6 +359,16 @@ tr:hover td {
   background: #fcd34d;
 }
 
+.btn-icon:disabled,
+.btn-icon:disabled:hover {
+  background: #e2e8f0;
+  color: #94a3b8;
+  cursor: not-allowed;
+  opacity: 0.75;
+  transform: none;
+  box-shadow: none;
+}
+
 .btn-delete {
   background: #fee2e2;
   color: #dc2626;

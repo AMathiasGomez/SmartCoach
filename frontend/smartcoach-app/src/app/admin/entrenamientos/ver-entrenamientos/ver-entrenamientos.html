@@ -162,9 +162,9 @@
 
                   <button
                     class="btn-icon btn-edit"
-                    [routerLink]="['/editar-entrenamiento', entrenamiento.id]"
-                    [disabled]="entrenamiento.estado === 'completado'"
-                    [title]="entrenamiento.estado === 'completado' ? 'No se puede editar un entrenamiento completado' : ''"
+                    (click)="editar(entrenamiento.id!)"
+                    [disabled]="esEntrenamientoCompletado(entrenamiento)"
+                    [title]="esEntrenamientoCompletado(entrenamiento) ? 'No se puede editar un entrenamiento completado' : 'Editar'"
                   >
                     <span class="material-symbols-outlined">edit</span>
                   </button>

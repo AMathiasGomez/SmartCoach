@@ -113,6 +113,10 @@ export class VerPartidos {
     this.router.navigate(['/editar-partido', id]);
   }
 
+  esPartidoFinalizado(partido: any): boolean {
+    return String(partido?.estado || '').trim().toLowerCase() === 'finalizado';
+  }
+
   getEstado(estado: string) {
     switch (estado) {
       case 'pendiente': return 'badge pendiente';

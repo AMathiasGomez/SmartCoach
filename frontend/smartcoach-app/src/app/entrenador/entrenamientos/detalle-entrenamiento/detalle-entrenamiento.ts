@@ -5,6 +5,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { EntrenamientoService } from '../../../services/entrenamiento/entrenamiento-service';
 import { AuthService } from '../../../services/auth/auth-service';
 import { environment } from '../../../../environments/environment';
+import { finalize } from 'rxjs';
 
 interface Comentario {
   id: number;
@@ -83,15 +84,18 @@ export class DetalleEntrenamiento implements OnInit {
 
     const asistencias = this.buildAsistenciasPayload();
 
-    this.entrenamientoService.saveAsistencia(this.id, asistencias).subscribe({
+    this.entrenamientoService.saveAsistencia(this.id, asistencias).pipe(
+      finalize(() => {
+        this.saving = false;
+        this.cd.detectChanges();
+      })
+    ).subscribe({
       next: () => {
         this.success = 'Asistencia guardada correctamente';
-        this.saving = false;
       },
       error: (err: any) => {
         this.error = 'Error al guardar asistencia';
         console.error(err);
-        this.saving = false;
       }
     });
   }

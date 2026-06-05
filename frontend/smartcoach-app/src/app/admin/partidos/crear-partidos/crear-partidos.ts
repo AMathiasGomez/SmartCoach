@@ -8,6 +8,7 @@ import { PartidoService } from '../../../services/partido/partido-service';
 import { HttpClient } from '@angular/common/http';
 import { EquipoService } from '../../../services/equipo/equipo-service';
 import { environment } from '../../../../environments/environment.prod';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-crear-partidos',
@@ -70,6 +71,7 @@ export class CrearPartidos implements OnInit {
   crearPartido() {
     if (this.partidoForm.invalid) {
       this.partidoForm.markAllAsTouched();
+      this.cd.detectChanges();
       return;
     }
 
@@ -88,7 +90,12 @@ export class CrearPartidos implements OnInit {
 
     console.log('DATA ENVIADA:', data);
 
-    this.partidoService.createPartido(data).subscribe({
+    this.partidoService.createPartido(data).pipe(
+      finalize(() => {
+        this.loading = false;
+        this.cd.detectChanges();
+      })
+    ).subscribe({
       next: (res) => {
         alert('Partido creado correctamente');
         this.router.navigate(['/ver-partidos']);
@@ -103,6 +110,11 @@ export class CrearPartidos implements OnInit {
         }
       }
     });
+  }
+
+  campoInvalido(campo: string): boolean {
+    const control = this.partidoForm.get(campo);
+    return !!control && control.invalid && control.touched;
   }
 
   onEquipoChange() {

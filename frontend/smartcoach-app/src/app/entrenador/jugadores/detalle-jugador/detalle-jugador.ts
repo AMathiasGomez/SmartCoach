@@ -62,14 +62,31 @@ export class DetalleJugador implements OnInit, AfterViewInit {
     }
   }
 
+  private setError(message: string): void {
+    this.error = message;
+    this.loading = false;
+    this.statsLoading = false;
+    this.analyticsLoading = false;
+    this.jugador = null;
+    this.stats = null;
+    this.analytics = null;
+    this.cd.detectChanges();
+  }
+
   loadJugador(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
     if (!id) {
-      this.error = 'ID de jugador no valido';
+      this.setError('ID de jugador no valido');
       return;
     }
 
     this.loading = true;
+    this.error = '';
+    this.jugador = null;
+    this.stats = null;
+    this.analytics = null;
+    this.fotoError = false;
+
     this.jugadorService.getJugador(id).subscribe({
       next: (data) => {
         this.jugador = data as Jugador;
@@ -79,9 +96,13 @@ export class DetalleJugador implements OnInit, AfterViewInit {
         this.loadAnalytics(id);
         this.cd.detectChanges();
       },
-      error: () => {
-        this.error = 'Error al cargar el jugador';
-        this.loading = false;
+      error: (err) => {
+        if (err.status === 404) {
+          this.setError('No se encontro ningun jugador con ese ID');
+          return;
+        }
+
+        this.setError(err.error?.message || 'Error al cargar el jugador');
       }
     });
   }
@@ -97,6 +118,7 @@ export class DetalleJugador implements OnInit, AfterViewInit {
       error: () => {
         this.stats = null;
         this.statsLoading = false;
+        this.cd.detectChanges();
       }
     });
   }
@@ -114,6 +136,7 @@ export class DetalleJugador implements OnInit, AfterViewInit {
       error: () => {
         this.analytics = null;
         this.analyticsLoading = false;
+        this.cd.detectChanges();
       }
     });
   }
