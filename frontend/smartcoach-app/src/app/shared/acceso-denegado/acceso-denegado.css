@@ -1,0 +1,88 @@
+.access-denied {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background:
+    linear-gradient(135deg, rgba(12, 92, 70, 0.1), rgba(210, 52, 52, 0.12)),
+    #f7f9fb;
+  color: #17212b;
+}
+
+.access-denied__panel {
+  width: min(100%, 520px);
+  padding: 34px;
+  border: 1px solid rgba(23, 33, 43, 0.1);
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 18px 45px rgba(23, 33, 43, 0.12);
+  text-align: center;
+}
+
+.access-denied__icon {
+  display: inline-grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  margin-bottom: 16px;
+  border-radius: 50%;
+  background: #ffe9e9;
+  color: #b42318;
+  font-size: 32px;
+}
+
+.access-denied__eyebrow {
+  margin: 0 0 8px;
+  color: #b42318;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.access-denied h1 {
+  margin: 0;
+  font-size: clamp(1.7rem, 3vw, 2.2rem);
+  line-height: 1.15;
+}
+
+.access-denied p {
+  margin: 16px 0 0;
+  color: #536170;
+  line-height: 1.6;
+}
+
+.access-denied__action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  margin-top: 24px;
+  padding: 0 18px;
+  border-radius: 6px;
+  background: #0c5c46;
+  color: #ffffff;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.access-denied__action:hover {
+  background: #084737;
+}
+
+body.dark-theme .access-denied {
+  background:
+    linear-gradient(135deg, rgba(25, 128, 97, 0.16), rgba(226, 74, 74, 0.14)),
+    #111820;
+  color: #f5f7fa;
+}
+
+body.dark-theme .access-denied__panel {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: #18212b;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.28);
+}
+
+body.dark-theme .access-denied p {
+  color: #b8c2cc;
+}

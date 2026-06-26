@@ -177,6 +177,10 @@ export class VerEntrenamientos implements OnInit {
     this.router.navigate(['/editar-entrenamiento', id]);
   }
 
+  esEntrenamientoCompletado(entrenamiento: any): boolean {
+    return String(entrenamiento?.estado || '').trim().toLowerCase() === 'completado';
+  }
+
   eliminar(id: number) {
 
     if (confirm('¿Deseas eliminar este entrenamiento?')) {

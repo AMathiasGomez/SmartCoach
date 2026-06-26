@@ -4,46 +4,71 @@
   </header>
 
   <div class="ingresa page-left">
-
     <div class="form-overlay">
       <section class="py-5">
         <div class="container">
           <div class="form-card animate_animated animate_fadeIn mx-auto" style="max-width: 650px; height: 100vh;">
             <div class="text-center mb-3">
               <span class="icon"><i class="bi bi-person"></i></span>
-              <h3>¡Bienvenido de nuevo!</h3>
+              <h3 id="titulo">Bienvenido de nuevo</h3>
               <p class="text-mute">Ingresa a Smart Coach y sigue mejorando tu juego.</p>
             </div>
-            <form (ngSubmit)="login()">
+
+            <form (ngSubmit)="login()" #loginForm="ngForm" novalidate>
               <div class="mb-3">
-                <label for="email" class="form-label">Correo electrónico</label>
-                <input type="email" class="form-control" [(ngModel)]="email" name="email" #emailInput="ngModel" required email placeholder="Ingresa tu email" />
-                <div *ngIf="emailInput.invalid && emailInput.touched" class="error-message">
+                <label for="email" class="form-label">Correo electronico</label>
+                <input
+                  id="email"
+                  type="email"
+                  class="form-control"
+                  [(ngModel)]="email"
+                  name="email"
+                  #emailInput="ngModel"
+                  required
+                  email
+                  autocomplete="email"
+                  placeholder="Ingresa tu email" />
+                <div *ngIf="emailInput.invalid && (emailInput.touched || submitted)" class="error-message">
                   <small *ngIf="emailInput.errors?.['required']">El correo es obligatorio</small>
-                  <small *ngIf="emailInput.errors?.['email']">Formato de correo inválido</small>
+                  <small *ngIf="emailInput.errors?.['email']">Formato de correo invalido</small>
                 </div>
               </div>
+
               <div class="mb-3">
-                <label for="password" class="form-label">Contraseña</label>
+                <label for="password" class="form-label">Contrasena</label>
                 <div class="password-wrapper">
-                  <input [type]="showPassword ? 'text' : 'password'" class="form-control" [(ngModel)]="password" name="password" required
-                    placeholder="Ingresa tu contraseña" />
-                  <button type="button" class="password-toggle" (click)="togglePassword()">
+                  <input
+                    id="password"
+                    [type]="showPassword ? 'text' : 'password'"
+                    class="form-control"
+                    [(ngModel)]="password"
+                    name="password"
+                    #passwordInput="ngModel"
+                    required
+                    autocomplete="current-password"
+                    placeholder="Ingresa tu contrasena" />
+                  <button type="button" class="password-toggle" (click)="togglePassword()" aria-label="Mostrar u ocultar contrasena">
                     <i class="bi" [class.bi-eye]="!showPassword" [class.bi-eye-slash]="showPassword"></i>
                   </button>
                 </div>
+                <div *ngIf="passwordInput.invalid && (passwordInput.touched || submitted)" class="error-message">
+                  <small *ngIf="passwordInput.errors?.['required']">La contrasena es obligatoria</small>
+                </div>
               </div>
-              <div *ngIf="errorMessage" class="error-message alert-error">
+
+              <div *ngIf="errorMessage" class="error-message alert-error" role="alert">
                 <small>{{ errorMessage }}</small>
               </div>
+
               <button type="submit" class="btn btn-dark mt-2" [disabled]="loading">
-                <span *ngIf="!loading">Iniciar Sesión</span>
+                <span *ngIf="!loading">Iniciar sesion</span>
                 <span *ngIf="loading" class="loading-spinner"></span>
               </button>
             </form>
+
             <div class="text-center mt-3">
-              <span class="text-mute">¿Todavia no tienes cuenta? <a routerLink="/register"
-                  class="text-primary">Regístrate aquí</a></span>
+              <span class="text-mute">Todavia no tienes cuenta? <a routerLink="/register"
+                  class="text-primary">Registrate aqui</a></span>
             </div>
           </div>
         </div>

@@ -80,9 +80,9 @@
               <input type="text"
                      placeholder="Ej. Amistoso vs. Club Voleibol"
                      formControlName="nombre"
-                     [class.input-error]="partidoForm.get('nombre')?.invalid && partidoForm.get('nombre')?.touched">
+                     [class.input-error]="campoInvalido('nombre')">
             </div>
-            <div *ngIf="partidoForm.get('nombre')?.invalid && partidoForm.get('nombre')?.touched" class="error-message">
+            <div *ngIf="campoInvalido('nombre')" class="error-message">
               <span class="material-symbols-outlined">error</span>
               El nombre es obligatorio
             </div>
@@ -95,12 +95,16 @@
               <span class="material-symbols-outlined icon">groups</span>
               <select formControlName="equipo_id"
                       (change)="onEquipoChange()"
-                      [class.input-error]="partidoForm.get('equipo_id')?.invalid && partidoForm.get('equipo_id')?.touched">
-                <option [ngValue]="0" disabled>Selecciona un equipo</option>
+                      [class.input-error]="campoInvalido('equipo_id')">
+                <option value="" disabled>Selecciona un equipo</option>
                 <option *ngFor="let equipo of equipos" [ngValue]="equipo.id">
                   {{ equipo.nombre }}
                 </option>
               </select>
+            </div>
+            <div *ngIf="campoInvalido('equipo_id')" class="error-message">
+              <span class="material-symbols-outlined">error</span>
+              Selecciona un equipo
             </div>
           </div>
 
@@ -111,7 +115,12 @@
               <span class="material-symbols-outlined icon">sports</span>
               <input type="text"
                      placeholder="Ej. Club Voleibol Madrid"
-                     formControlName="rival">
+                     formControlName="rival"
+                     [class.input-error]="campoInvalido('rival')">
+            </div>
+            <div *ngIf="campoInvalido('rival')" class="error-message">
+              <span class="material-symbols-outlined">error</span>
+              El rival es obligatorio
             </div>
           </div>
 
@@ -122,7 +131,12 @@
               <span class="material-symbols-outlined icon">event</span>
               <input type="date"
                      formControlName="fecha"
-                     [min]="minFecha">
+                     [min]="minFecha"
+                     [class.input-error]="campoInvalido('fecha')">
+            </div>
+            <div *ngIf="campoInvalido('fecha')" class="error-message">
+              <span class="material-symbols-outlined">error</span>
+              La fecha es obligatoria
             </div>
           </div>
 
@@ -133,7 +147,12 @@
               <span class="material-symbols-outlined icon">location_on</span>
               <input type="text"
                      placeholder="Ej. Polideportivo Municipal"
-                     formControlName="ubicacion">
+                     formControlName="ubicacion"
+                     [class.input-error]="campoInvalido('ubicacion')">
+            </div>
+            <div *ngIf="campoInvalido('ubicacion')" class="error-message">
+              <span class="material-symbols-outlined">error</span>
+              La ubicacion es obligatoria
             </div>
           </div>
 
@@ -142,11 +161,16 @@
             <label>Tipo de Partido</label>
             <div class="input-container">
               <span class="material-symbols-outlined icon">category</span>
-              <select formControlName="tipo">
+              <select formControlName="tipo"
+                      [class.input-error]="campoInvalido('tipo')">
                 <option value="">Selecciona</option>
                 <option value="amistoso">Amistoso</option>
                 <option value="competencia">Competencia</option>
               </select>
+            </div>
+            <div *ngIf="campoInvalido('tipo')" class="error-message">
+              <span class="material-symbols-outlined">error</span>
+              Selecciona el tipo de partido
             </div>
           </div>
 
@@ -178,9 +202,9 @@
             Cancelar
           </button>
 
-          <button type="submit" class="btn-primary" [disabled]="partidoForm.invalid">
+          <button type="submit" class="btn-primary" [disabled]="loading">
             <span class="material-symbols-outlined">save</span>
-            Guardar Partido
+            {{ loading ? 'Guardando...' : 'Guardar Partido' }}
           </button>
         </div>
 

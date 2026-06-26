@@ -253,39 +253,40 @@
           <span class="material-symbols-outlined">person</span>
           Jugadores ({{ jugadores.length }})
         </h2>
-        <table class="players-table" *ngIf="jugadores.length > 0">
-          <thead>
-            <tr><th>Foto</th><th>Nombre</th><th>Posicion</th><th>Dorsal</th></tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let jugador of jugadores">
-              <td>
-                <img *ngIf="jugador.foto_url"
-                  [src]="getFotoUrl(jugador.foto_url)"
-                  alt="{{ jugador.nombre }}" class="user-avatar-img" style="width:40px;height:40px;">
-                <div *ngIf="!jugador.foto_url" class="user-avatar" style="width:40px;height:40px;font-size:0.8rem;">
-                  {{ jugador.nombre | slice:0:1 | uppercase }}
-                </div>
-              </td>
-              <td>{{ jugador.nombre }}</td>
-              <td>{{ jugador.posicion }}</td>
-              <td>{{ jugador.numero }}</td>
-            </tr>
-          </tbody>
-        </table>
+        <div class="players-table-wrap" *ngIf="jugadores.length > 0">
+          <table class="players-table">
+            <thead>
+              <tr><th>Nombre</th><th>Posicion</th><th>Dorsal</th></tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let jugador of jugadores">
+                <td>
+                  <div class="user-info">
+                    <ng-container *ngIf="hasPhoto(jugador); else avatarLetra">
+                      <img
+                        [src]="getJugadorFotoUrl(jugador.foto_url)"
+                        alt="{{ jugador.nombre }}"
+                        class="user-avatar-img"
+                        (error)="onImageError(jugador)">
+                    </ng-container>
+
+                    <ng-template #avatarLetra>
+                      <div class="user-avatar">{{ getInitials(jugador.nombre) }}</div>
+                    </ng-template>
+
+                    <span class="font-bold">{{ jugador.nombre }}</span>
+                  </div>
+                </td>
+                <td><span class="badge">{{ jugador.posicion }}</span></td>
+                <td class="text-muted">#{{ jugador.numero }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
         <p *ngIf="jugadores.length === 0" class="text-muted" style="text-align:center;padding:2rem;">
           No hay jugadores en este equipo
         </p>
       </section>
-
-      <div class="action-section">
-        <button class="btn-edit-detail" (click)="editar()">
-          <span class="material-symbols-outlined">edit</span>Editar Equipo
-        </button>
-        <button class="btn-delete-detail" (click)="eliminar()">
-          <span class="material-symbols-outlined">delete</span>Eliminar Equipo
-        </button>
-      </div>
 
     </div>
   </main>

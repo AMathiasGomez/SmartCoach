@@ -77,12 +77,17 @@
             <label>Equipo</label>
             <div class="input-container">
               <span class="material-symbols-outlined icon">groups</span>
-              <select formControlName="equipo_id">
-                <option [ngValue]="0">Selecciona un equipo</option>
+              <select formControlName="equipo_id"
+                      [class.input-error]="campoInvalido('equipo_id')">
+                <option [ngValue]="null" disabled>Selecciona un equipo</option>
                 <option *ngFor="let equipo of equipos" [ngValue]="equipo.id">
                   {{ equipo.nombre }}
                 </option>
               </select>
+            </div>
+            <div *ngIf="campoInvalido('equipo_id')" class="error-message">
+              <span class="material-symbols-outlined">error</span>
+              Selecciona un equipo
             </div>
           </div>
 
@@ -91,7 +96,14 @@
             <label>Fecha</label>
             <div class="input-container">
               <span class="material-symbols-outlined icon">event</span>
-              <input type="date" formControlName="fecha" [min]="minFecha">
+              <input type="date"
+                     formControlName="fecha"
+                     [min]="minFecha"
+                     [class.input-error]="campoInvalido('fecha')">
+            </div>
+            <div *ngIf="campoInvalido('fecha')" class="error-message">
+              <span class="material-symbols-outlined">error</span>
+              La fecha es obligatoria
             </div>
           </div>
 
@@ -100,7 +112,13 @@
             <label>Hora</label>
             <div class="input-container">
               <span class="material-symbols-outlined icon">schedule</span>
-              <input type="time" formControlName="hora">
+              <input type="time"
+                     formControlName="hora"
+                     [class.input-error]="campoInvalido('hora')">
+            </div>
+            <div *ngIf="campoInvalido('hora')" class="error-message">
+              <span class="material-symbols-outlined">error</span>
+              La hora es obligatoria
             </div>
           </div>
 
@@ -109,12 +127,17 @@
             <label>Tipo de entrenamiento</label>
             <div class="input-container">
               <span class="material-symbols-outlined icon">category</span>
-              <select formControlName="tipo">
+              <select formControlName="tipo"
+                      [class.input-error]="campoInvalido('tipo')">
                 <option value="">Selecciona</option>
                 <option value="Táctico">Táctico</option>
                 <option value="Físico">Físico</option>
                 <option value="Técnico">Técnico</option>
               </select>
+            </div>
+            <div *ngIf="campoInvalido('tipo')" class="error-message">
+              <span class="material-symbols-outlined">error</span>
+              Selecciona el tipo de entrenamiento
             </div>
           </div>
 
@@ -125,7 +148,14 @@
               <span class="material-symbols-outlined icon">timer</span>
               <input type="number"
                      placeholder="Ej. 90"
-                     formControlName="duracion">
+                     formControlName="duracion"
+                     [class.input-error]="campoInvalido('duracion')">
+            </div>
+            <div *ngIf="campoInvalido('duracion')" class="error-message">
+              <span class="material-symbols-outlined">error</span>
+              <span *ngIf="formEntrenamiento.get('duracion')?.errors?.['required']">La duracion es obligatoria</span>
+              <span *ngIf="formEntrenamiento.get('duracion')?.errors?.['min']">La duracion minima es de 10 minutos</span>
+              <span *ngIf="formEntrenamiento.get('duracion')?.errors?.['max']">La duracion maxima es de 180 minutos</span>
             </div>
           </div>
 
@@ -138,9 +168,9 @@
             Cancelar
           </button>
 
-          <button type="submit" class="btn-primary">
+          <button type="submit" class="btn-primary" [disabled]="loading">
             <span class="material-symbols-outlined">save</span>
-            Guardar Entrenamiento
+            {{ loading ? 'Guardando...' : 'Guardar Entrenamiento' }}
           </button>
         </div>
 

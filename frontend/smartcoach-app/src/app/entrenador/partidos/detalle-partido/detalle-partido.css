@@ -983,24 +983,24 @@ button {
 
 .position-tabs button {
   padding: 0.5rem 1.2rem;
-  border: 2px solid var(--border);
-  background: var(--surface);
+  border: 2px solid var(--border, #cbd5e1);
+  background: var(--surface, #f8fafc);
   border-radius: 20px;
   font-size: 0.85rem;
   font-weight: 600;
-  color: var(--text-muted);
+  color: var(--text-muted, #334155);
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .position-tabs button:hover {
-  border-color: var(--navy);
-  color: var(--navy);
+  border-color: var(--navy, #1e3a8a);
+  color: var(--navy, #1e3a8a);
 }
 
 .position-tabs button.active {
-  background: var(--navy);
-  border-color: var(--navy);
+  background: var(--navy, #1e3a8a);
+  border-color: var(--navy, #1e3a8a);
   color: white;
 }
 

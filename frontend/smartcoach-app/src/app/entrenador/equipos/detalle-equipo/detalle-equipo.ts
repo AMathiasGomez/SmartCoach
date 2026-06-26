@@ -54,14 +54,29 @@ export class DetalleEquipo implements OnInit, AfterViewInit {
     }
   }
 
+  private setError(message: string): void {
+    this.error = message;
+    this.loading = false;
+    this.analyticsLoading = false;
+    this.equipo = null;
+    this.jugadores = [];
+    this.analytics = null;
+    this.cd.detectChanges();
+  }
+
   loadEquipo(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
     if (!id) {
-      this.error = 'ID de equipo no valido';
+      this.setError('ID de equipo no valido');
       return;
     }
 
     this.loading = true;
+    this.error = '';
+    this.equipo = null;
+    this.jugadores = [];
+    this.analytics = null;
+
     forkJoin({
       equipo: this.equipoService.getEquipo(id),
       jugadores: this.jugadorService.getJugadoresByEquipo(id)
@@ -73,9 +88,13 @@ export class DetalleEquipo implements OnInit, AfterViewInit {
         this.loadAnalytics(id);
         this.cd.detectChanges();
       },
-      error: () => {
-        this.error = 'Error al cargar el equipo';
-        this.loading = false;
+      error: (err) => {
+        if (err.status === 404) {
+          this.setError('No se encontro ningun equipo con ese ID');
+          return;
+        }
+
+        this.setError(err.error?.message || 'Error al cargar el equipo');
       }
     });
   }
@@ -93,6 +112,7 @@ export class DetalleEquipo implements OnInit, AfterViewInit {
       error: () => {
         this.analytics = null;
         this.analyticsLoading = false;
+        this.cd.detectChanges();
       }
     });
   }
@@ -277,6 +297,27 @@ export class DetalleEquipo implements OnInit, AfterViewInit {
     if (!fotoUrl) return '';
     if (fotoUrl.startsWith('http')) return fotoUrl;
     return `${this.baseUrl}${fotoUrl}`;
+  }
+
+  getJugadorFotoUrl(fotoUrl: string | undefined | null): string {
+    if (!fotoUrl) return '';
+    if (fotoUrl.startsWith('http')) return fotoUrl;
+    const path = fotoUrl.startsWith('/uploads') ? fotoUrl : `/uploads/jugadores/${fotoUrl}`;
+    return `${this.baseUrl}${path}`;
+  }
+
+  hasPhoto(jugador: Jugador): boolean {
+    return !!jugador.foto_url && jugador.foto_url.trim() !== '' && !(jugador as any).fotoError;
+  }
+
+  onImageError(jugador: Jugador): void {
+    (jugador as any).fotoError = true;
+    this.cd.detectChanges();
+  }
+
+  getInitials(nombre: string): string {
+    if (!nombre) return '?';
+    return nombre.charAt(0).toUpperCase();
   }
 
   back(): void { this.router.navigate(['/ver-equipos-e']); }

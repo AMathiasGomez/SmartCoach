@@ -149,8 +149,8 @@
                 <button
                   class="btn-icon btn-edit"
                   (click)="editar(partido.id!)"
-                  [disabled]="partido.estado === 'finalizado'"
-                  [title]="partido.estado === 'finalizado' ? 'No se puede editar un partido finalizado' : ''"
+                  [disabled]="esPartidoFinalizado(partido)"
+                  [title]="esPartidoFinalizado(partido) ? 'No se puede editar un partido finalizado' : 'Editar'"
                 >
                   <span class="material-symbols-outlined">edit</span>
                 </button>

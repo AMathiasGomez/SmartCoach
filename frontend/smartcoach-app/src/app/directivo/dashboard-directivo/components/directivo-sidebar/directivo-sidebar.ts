@@ -1,13 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { RouterLink } from '@angular/router';
 
 type DirectivoSection = 'resumen' | 'reportes' | 'equipos' | 'agenda';
 
 @Component({
   selector: 'app-directivo-sidebar',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule],
   templateUrl: './directivo-sidebar.html',
 })
 export class DirectivoSidebarComponent {

@@ -1,6 +1,23 @@
 const db = require('../config/db');
 
 const ESTADOS_ENTRENAMIENTO = ['programado', 'en_curso', 'completado', 'cancelado'];
+const APP_TIME_ZONE = process.env.APP_TIME_ZONE || 'America/Bogota';
+
+function getFechaHoraLocal() {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: APP_TIME_ZONE,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+  }).formatToParts(new Date());
+
+  const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+  return `${values.year}-${values.month}-${values.day} ${values.hour}:${values.minute}:${values.second}`;
+}
 
 exports.createEntrenamiento = async (req, res) => {
   try {
@@ -40,6 +57,7 @@ exports.getEntrenamientos = async (req, res) => {
     const sql = `
       SELECT 
         entrenamiento.id,
+        entrenamiento.equipo_id,
         entrenamiento.fecha,
         entrenamiento.hora,
         entrenamiento.duracion,
@@ -59,6 +77,41 @@ exports.getEntrenamientos = async (req, res) => {
     console.error('ERROR SQL (getEntrenamientos):', error);
     res.status(500).json({
       message: 'Error al obtener entrenamientos'
+    });
+  }
+};
+
+exports.getReporteAsistencias = async (req, res) => {
+  try {
+    const sql = `
+      SELECT
+        e.id AS entrenamiento_id,
+        e.fecha,
+        e.hora,
+        e.tipo,
+        e.estado AS estado_entrenamiento,
+        eq.id AS equipo_id,
+        eq.nombre AS equipo_nombre,
+        j.id AS jugador_id,
+        j.nombre AS jugador_nombre,
+        j.numero AS jugador_numero,
+        j.posicion AS jugador_posicion,
+        COALESCE(a.estado, 'sin registrar') AS estado_asistencia
+      FROM entrenamientos e
+      LEFT JOIN equipos eq ON e.equipo_id = eq.id
+      LEFT JOIN jugadores j ON j.equipo_id = e.equipo_id
+      LEFT JOIN asistencias a
+        ON a.entrenamiento_id = e.id
+        AND a.jugador_id = j.id
+      ORDER BY e.fecha DESC, e.hora DESC, eq.nombre ASC, j.nombre ASC
+    `;
+
+    const [rows] = await db.query(sql);
+    res.status(200).json(rows);
+  } catch (error) {
+    console.error('ERROR SQL (getReporteAsistencias):', error);
+    res.status(500).json({
+      message: 'Error al obtener reporte de asistencias'
     });
   }
 };
@@ -237,11 +290,12 @@ exports.saveAsistencia = async (req, res) => {
     // Delete existing
     await db.query('DELETE FROM asistencias WHERE entrenamiento_id = ?', [id]);
 
-    // Insert new
-    const values = asistencias.map(a => [id, a.jugador_id, a.presente ? 'presente' : 'ausente']);
+    // Insert new with the app's local time instead of relying on server/DB defaults.
+    const fechaRegistro = getFechaHoraLocal();
+    const values = asistencias.map(a => [id, a.jugador_id, a.presente ? 'presente' : 'ausente', fechaRegistro]);
     if (values.length > 0) {
       await db.query(`
-        INSERT INTO asistencias (entrenamiento_id, jugador_id, estado) VALUES ?
+        INSERT INTO asistencias (entrenamiento_id, jugador_id, estado, created_at) VALUES ?
       `, [values]);
     }
 

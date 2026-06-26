@@ -1,48 +1,94 @@
 <div class="content">
-    <header class="hero-image min-h-screen">
-        <img src="../../../assets/images/image.jpeg" alt="Login image" class="bg-image w-full h-full object-cover" />
-    </header>
-    <div class="page-transition">
-        <div class="form-overlay">
-            <div class="form-card animate_animated animate_fadeIn">
-                <div class="titulo">
-                    <span class="icon"><i class="bi bi-person-plus"></i></span>
-                    <h2>¡Crea tu cuenta!</h2>
-                    <p class="text-muted">Únete a Smart Coach y lleva tu juego al siguiente nivel.</p>
-                </div>
-                <form (ngSubmit)="register()">
-                    <div class="mb-2">
-                        <label for="nombre" class="form-label">Nombre completo</label>
-                        <input type="text" class="form-control" [(ngModel)]="nombre" name="nombre" required
-                            placeholder="Ej: Juan Pérez">
-                    </div>
-                    <div class="mb-2">
-                        <label for="email" class="form-label">Correo electrónico</label>
-                        <input type="email" class="form-control" [(ngModel)]="email" name="email" #emailInput="ngModel"
-                            required email placeholder="Ej: correo@ejemplo.com">
-                    </div>
-                    <div class="mb-2">
-                        <label for="password" class="form-label">Contraseña</label>
-                        <input type="password" class="form-control" [(ngModel)]="password" name="password" required
-                            placeholder="Mínimo 6 caracteres">
-                    </div>
-                    <button type="submit" class="btn btn-dark mt-2 ">Registrarme</button>
-                </form>
-                <div class="text-center mt-3">
-                    <span class="text-muted">¿Ya tienes cuenta? <a routerLink="/login" class="text-primary">Ingresa
-                            aquí</a></span>
-                </div>
-            </div>
+  <header class="hero-image min-h-screen">
+    <img src="../../../assets/images/image.jpeg" alt="Register image" class="bg-image w-full h-full object-cover" />
+  </header>
 
-            <div *ngIf="emailInput.invalid && emailInput.touched">
-                <small *ngIf="emailInput.errors?.['required']">
-                    El correo es obligatorio
-                </small>
-                <small *ngIf="emailInput.errors?.['email']">
-                    Formato de correo inválido
-                </small>
-            </div>
-
+  <div class="page-transition">
+    <div class="form-overlay">
+      <div class="form-card animate_animated animate_fadeIn">
+        <div class="titulo">
+          <span class="icon"><i class="bi bi-person-plus"></i></span>
+          <h2>Crea tu cuenta</h2>
+          <p class="text-muted">Unete a Smart Coach y lleva tu juego al siguiente nivel.</p>
         </div>
+
+        <form (ngSubmit)="register()" #registerForm="ngForm" novalidate>
+          <div class="mb-2">
+            <label for="nombre" class="form-label">Nombre completo</label>
+            <input
+              id="nombre"
+              type="text"
+              class="form-control"
+              [(ngModel)]="nombre"
+              name="nombre"
+              #nombreInput="ngModel"
+              required
+              minlength="3"
+              autocomplete="name"
+              placeholder="Ej: Juan Perez">
+            <div *ngIf="nombreInput.invalid && (nombreInput.touched || submitted)" class="error-message">
+              <small *ngIf="nombreInput.errors?.['required']">El nombre es obligatorio</small>
+              <small *ngIf="nombreInput.errors?.['minlength']">El nombre debe tener al menos 3 caracteres</small>
+            </div>
+          </div>
+
+          <div class="mb-2">
+            <label for="email" class="form-label">Correo electronico</label>
+            <input
+              id="email"
+              type="email"
+              class="form-control"
+              [(ngModel)]="email"
+              name="email"
+              #emailInput="ngModel"
+              required
+              email
+              autocomplete="email"
+              placeholder="Ej: correo@ejemplo.com">
+            <div *ngIf="emailInput.invalid && (emailInput.touched || submitted)" class="error-message">
+              <small *ngIf="emailInput.errors?.['required']">El correo es obligatorio</small>
+              <small *ngIf="emailInput.errors?.['email']">Formato de correo invalido</small>
+            </div>
+          </div>
+
+          <div class="mb-2">
+            <label for="password" class="form-label">Contraseña</label>
+            <div class="password-wrapper">
+              <input
+                id="password"
+                [type]="showPassword ? 'text' : 'password'"
+                class="form-control"
+                [(ngModel)]="password"
+                name="password"
+                #passwordInput="ngModel"
+                required
+                minlength="6"
+                autocomplete="new-password"
+                placeholder="Minimo 6 caracteres">
+              <button type="button" class="password-toggle" (click)="togglePassword()" aria-label="Mostrar u ocultar contrasena">
+                <i class="bi" [class.bi-eye]="!showPassword" [class.bi-eye-slash]="showPassword"></i>
+              </button>
+            </div>
+            <div *ngIf="passwordInput.invalid && (passwordInput.touched || submitted)" class="error-message">
+              <small *ngIf="passwordInput.errors?.['required']">La contrasena es obligatoria</small>
+              <small *ngIf="passwordInput.errors?.['minlength']">La contrasena debe tener al menos 6 caracteres</small>
+            </div>
+          </div>
+
+          <div *ngIf="errorMessage" class="error-message alert-error" role="alert">
+            <small>{{ errorMessage }}</small>
+          </div>
+
+          <button type="submit" class="btn btn-dark mt-2" [disabled]="loading">
+            <span *ngIf="!loading">Registrarme</span>
+            <span *ngIf="loading" class="loading-spinner"></span>
+          </button>
+        </form>
+
+        <div class="text-center mt-3">
+          <span class="text-muted">Ya tienes cuenta? <a routerLink="/login" class="text-primary">Ingresa aqui</a></span>
+        </div>
+      </div>
     </div>
+  </div>
 </div>

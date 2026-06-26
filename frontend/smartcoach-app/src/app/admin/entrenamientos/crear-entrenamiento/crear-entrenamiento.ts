@@ -6,6 +6,7 @@ import { EquipoService } from '../../../services/equipo/equipo-service';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../services/auth/auth-service';
 import { CommonModule } from '@angular/common';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-crear-entrenamiento',
@@ -16,6 +17,8 @@ import { CommonModule } from '@angular/common';
 export class CrearEntrenamiento implements OnInit {
   formEntrenamiento!: FormGroup;
   equipos: any[] = [];
+  loading = false;
+  submitted = false;
 
   constructor(
     private fb: FormBuilder,
@@ -49,10 +52,16 @@ export class CrearEntrenamiento implements OnInit {
   }
 
   crearEntrenamiento() {
+    this.submitted = true;
+
     if (this.formEntrenamiento.invalid) {
       this.formEntrenamiento.markAllAsTouched();
+      this.formEntrenamiento.markAsDirty();
+      this.cd.detectChanges();
       return;
     }
+
+    this.loading = true;
 
     const data = {
       equipo_id: this.formEntrenamiento.value.equipo_id,
@@ -64,16 +73,26 @@ export class CrearEntrenamiento implements OnInit {
       descripcion: null
     };
 
-    this.entrenamientoService.crearEntrenamiento(data)
+    this.entrenamientoService.crearEntrenamiento(data).pipe(
+      finalize(() => {
+        this.loading = false;
+        this.cd.detectChanges();
+      })
+    )
       .subscribe({
         next: (res) => {
-          alert('Partido creado correctamente');
+          alert('Entrenamiento creado correctamente');
           this.router.navigate(['/ver-entrenamientos']);
         },
         error: (err) => {
           console.error('Error: ', err);
         }
       });
+  }
+
+  campoInvalido(campo: string): boolean {
+    const control = this.formEntrenamiento.get(campo);
+    return !!control && control.invalid && (control.touched || this.submitted);
   }
 
   minFecha = new Date().toISOString().split('T')[0];
