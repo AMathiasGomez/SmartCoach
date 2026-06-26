@@ -1,5 +1,8 @@
 {
   "deploy": {
     "startCommand": "npm run start"
+  },
+  "build": {
+    "secrets": []
   }
 }
