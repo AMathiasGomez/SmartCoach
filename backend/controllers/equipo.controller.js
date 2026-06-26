@@ -16,7 +16,7 @@ exports.createEquipo = async (req, res) => {
     }
 
     // 2. Manejo de la URL de la foto
-    const foto_url = req.file ? `/uploads/equipos/${req.file.filename}` : null;
+    const foto_url = req.file ? req.file.path : null;
 
     // 3. Inserción en la base de datos
     // Nota: Usamos db.query directamente como en tu ejemplo original
@@ -79,7 +79,7 @@ exports.updateEquipo = async (req, res) => {
       return res.status(404).json({ message: 'Equipo no encontrado' });
     }
 
-    const foto_url = req.file ? `/uploads/equipos/${req.file.filename}` : undefined;
+    const foto_url = req.file ? req.file.path : undefined;
     const campos = ['nombre = ?', 'categoria = ?', 'ano_fundacion = ?', 'descripcion = ?'];
     const valores = [nombre, categoria, ano_fundacion, descripcion];
 

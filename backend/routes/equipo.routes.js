@@ -1,38 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
 const controller = require('../controllers/equipo.controller');
 
-if (!fs.existsSync('uploads/equipos')) {
-  fs.mkdirSync('uploads/equipos', { recursive: true });
-}
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, 'uploads/equipos/'),
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    cb(null, `equipo_${Date.now()}${ext}`);
-  }
-});
-
-const fileFilter = (req, file, cb) => {
-  const tiposPermitidos = ['image/jpeg', 'image/png', 'image/webp'];
-
-  if (tiposPermitidos.includes(file.mimetype)) {
-    cb(null, true);
-    return;
-  }
-
-  cb(new Error('Solo se permiten imagenes JPG, PNG o WEBP.'));
-};
-
-const upload = multer({
-  storage,
-  fileFilter,
-  limits: { fileSize: 5 * 1024 * 1024 }
-});
+const multer = require('multer');
+const { equipoStorage } = require('../config/cloudinary');
+const upload = multer({ storage: equipoStorage });
 
 router.get('/', controller.getEquipos);
 router.post('/', upload.single('foto'), controller.createEquipo); 

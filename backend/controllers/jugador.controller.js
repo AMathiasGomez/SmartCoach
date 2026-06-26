@@ -59,7 +59,7 @@ exports.createJugador = async (req, res) => {
       return res.status(400).json({ message: 'El equipo no existe' });
     }
 
-    const foto_url = req.file ? `/uploads/jugadores/${req.file.filename}` : null;
+    const foto_url = req.file ? req.file.path : null;
 
     const [result] = await db.query(`
       INSERT INTO jugadores 
@@ -169,7 +169,7 @@ exports.updateJugadorFoto = async (req, res) => {
     equipo_id = Number(equipo_id);
     const fechaFormateada = new Date(fecha_nacimiento).toISOString().split('T')[0];
 
-    const foto_url = req.file ? `/uploads/jugadores/${req.file.filename}` : undefined;
+    const foto_url = req.file ? req.file.path : undefined;
 
     const campos = ['nombre = ?', 'fecha_nacimiento = ?', 'posicion = ?', 'numero = ?', 'equipo_id = ?'];
     const valores = [nombre, fechaFormateada, posicion, numero, equipo_id];

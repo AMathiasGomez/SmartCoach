@@ -1,26 +1,14 @@
 const express = require('express');
 const router = express.Router();
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
 const jugadorController = require('../controllers/jugador.controller');
 const equipoController = require('../controllers/equipo.controller');
 const { analyzePlayer } = require('../services/jugadorAnalyticsService');
 const db = require('../config/db')
 
-if (!fs.existsSync('uploads/jugadores')) {
-  fs.mkdirSync('uploads/jugadores', { recursive: true });
-}
+const multer = require('multer');
+const { jugadorStorage } = require('../config/cloudinary');
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, 'uploads/jugadores/'),
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    cb(null, `jugador_${Date.now()}${ext}`);
-  }
-});
-
-const upload = multer({ storage });
+const upload = multer({ storage: jugadorStorage });
 
 router.get('/', jugadorController.getJugadores);
 router.post('/', upload.single('foto'), jugadorController.createJugador);
