@@ -1,5 +1,5 @@
 <div class="app-container">
-  <aside class="sidebar" [class.open]="sidebarOpen">
+  <aside class="sidebar">
     <div class="logo">
       <div class="logo-icon">SC</div>
       <div class="logo-text-wrapper">
@@ -8,46 +8,40 @@
       </div>
     </div>
 
-    <nav aria-label="Menu administrador">
-      <a class="active" routerLink="/dashboard-admin" (click)="closeSidebar()">
+    <nav>
+      <a class="active" routerLink="/dashboard-admin">
         <span class="material-symbols-outlined">space_dashboard</span>
-        <span class="nav-label">Panel</span>
+        <span>Panel de Control</span>
       </a>
-      <a routerLink="/ver-equipos" (click)="closeSidebar()">
+      <a routerLink="/ver-equipos">
         <span class="material-symbols-outlined">group</span>
-        <span class="nav-label">Equipos</span>
+        <span>Equipos</span>
       </a>
-      <a routerLink="/ver-jugadores" (click)="closeSidebar()">
+      <a routerLink="/ver-jugadores">
         <span class="material-symbols-outlined">person</span>
-        <span class="nav-label">Jugadores</span>
+        <span>Jugadores</span>
       </a>
-      <a routerLink="/ver-entrenamientos" (click)="closeSidebar()">
+      <a routerLink="/ver-entrenamientos">
         <span class="material-symbols-outlined">fitness_center</span>
-        <span class="nav-label">Entrenamientos</span>
+        <span>Entrenamientos</span>
       </a>
-      <a routerLink="/ver-partidos" (click)="closeSidebar()">
+      <a routerLink="/ver-partidos">
         <span class="material-symbols-outlined">sports_soccer</span>
-        <span class="nav-label">Partidos</span>
+        <span>Partidos</span>
       </a>
-      <a routerLink="/ver-usuarios" (click)="closeSidebar()">
-        <span class="material-symbols-outlined">manage_accounts</span>
-        <span class="nav-label">Usuarios</span>
+      <a routerLink="/ver-usuarios">
+        <span class="material-symbols-outlined">emoji_people</span>
+        <span>Usuarios</span>
       </a>
     </nav>
 
     <button class="logout" type="button" (click)="logout()">
       <span class="material-symbols-outlined">logout</span>
-      <span class="nav-label">Cerrar sesion</span>
+      Cerrar sesion
     </button>
   </aside>
 
-  <div class="sidebar-overlay" [class.visible]="sidebarOpen" (click)="closeSidebar()"></div>
-
   <main class="main">
-    <button class="hamburger" type="button" (click)="toggleSidebar()" aria-label="Abrir menu">
-      <span class="material-symbols-outlined">menu</span>
-    </button>
-
     <section class="hero-panel">
       <div class="hero-copy">
         <p class="eyebrow">Panel administrativo</p>

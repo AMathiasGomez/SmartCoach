@@ -1,13 +1,67 @@
 <div class="app-wrapper">
-  <button
-    type="button"
-    class="theme-toggle"
-    (click)="toggleTheme()"
-    [attr.aria-label]="isDarkMode ? 'Activar modo claro' : 'Activar modo oscuro'"
-    [title]="isDarkMode ? 'Modo claro' : 'Modo oscuro'">
-    <span class="material-symbols-outlined">{{ isDarkMode ? 'light_mode' : 'dark_mode' }}</span>
-    <span class="theme-toggle-label">{{ isDarkMode ? 'Modo claro' : 'Modo oscuro' }}</span>
-  </button>
+  <section class="notification-stack" aria-live="polite" aria-label="Notificaciones">
+    <article
+      *ngFor="let notification of notificationService.notifications()"
+      class="notification-toast"
+      [class.success]="notification.tone === 'success'"
+      [class.error]="notification.tone === 'error'"
+      [class.warning]="notification.tone === 'warning'">
+      <div class="notification-icon">
+        <span class="material-symbols-outlined">
+          {{
+            notification.tone === 'success'
+              ? 'check_circle'
+              : notification.tone === 'error'
+                ? 'error'
+                : 'warning'
+          }}
+        </span>
+      </div>
+
+      <p>{{ notification.message }}</p>
+
+      <button
+        type="button"
+        class="notification-close"
+        (click)="notificationService.dismiss(notification.id)"
+        aria-label="Cerrar notificacion"
+        title="Cerrar notificacion">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </article>
+  </section>
+
+  <section class="sidebar-session" *ngIf="showSidebarSession" aria-label="Sesion actual">
+    <div class="session-user">
+      <div class="session-avatar">{{ sessionInitials }}</div>
+      <div class="session-copy">
+        <strong>{{ sessionName }}</strong>
+        <span>{{ sessionDetail }}</span>
+      </div>
+    </div>
+
+    <div class="session-actions">
+      <button
+        type="button"
+        class="session-action theme-toggle"
+        (click)="toggleTheme()"
+        [attr.aria-label]="isDarkMode ? 'Activar modo claro' : 'Activar modo oscuro'"
+        [title]="isDarkMode ? 'Modo claro' : 'Modo oscuro'">
+        <span class="material-symbols-outlined">{{ isDarkMode ? 'light_mode' : 'dark_mode' }}</span>
+        <span>{{ isDarkMode ? 'Claro' : 'Oscuro' }}</span>
+      </button>
+
+      <button
+        type="button"
+        class="session-action logout-action"
+        (click)="logout()"
+        aria-label="Cerrar sesion"
+        title="Cerrar sesion">
+        <span class="material-symbols-outlined">logout</span>
+        <span>Salir</span>
+      </button>
+    </div>
+  </section>
 
   <router-outlet></router-outlet>
 </div>

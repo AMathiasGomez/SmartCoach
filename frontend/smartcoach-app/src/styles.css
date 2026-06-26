@@ -20,6 +20,14 @@ body {
   overflow-x: hidden;
 }
 
+.sidebar {
+  padding-bottom: 11.5rem !important;
+}
+
+.sidebar > .logout {
+  display: none !important;
+}
+
 /* Mobile First - Sidebar as Overlay */
 .sidebar {
   position: fixed;
@@ -212,6 +220,7 @@ button, .btn {
     transform: translateX(-100%) !important;
     position: fixed !important;
     z-index: 1000 !important;
+    padding-bottom: 1.5rem !important;
   }
   
   /* Show hamburger */
@@ -233,6 +242,18 @@ button, .btn {
   .action-section button {
     width: 100% !important;
     margin-bottom: 0.5rem !important;
+  }
+
+  .sidebar button,
+  .sidebar .btn,
+  .sidebar nav a,
+  .sidebar-session button {
+    width: auto !important;
+    margin-bottom: 0 !important;
+  }
+
+  .sidebar nav a {
+    display: flex !important;
   }
   
   /* Table scrolling */

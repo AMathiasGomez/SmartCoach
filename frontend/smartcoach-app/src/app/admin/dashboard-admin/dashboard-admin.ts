@@ -174,16 +174,6 @@ export class DashboardAdmin implements OnInit {
     });
   }
 
-  sidebarOpen = false;
-
-  toggleSidebar() {
-    this.sidebarOpen = !this.sidebarOpen;
-  }
-
-  closeSidebar() {
-    this.sidebarOpen = false;
-  }
-
   logout() {
     this.authService.logOut();
     this.router.navigate(['/login']);

@@ -5,6 +5,117 @@
   }
 }
 
+.notification-stack {
+  position: fixed;
+  right: 1.25rem;
+  bottom: 1.25rem;
+  z-index: 2100;
+  width: min(360px, calc(100vw - 2rem));
+  display: grid;
+  gap: 0.75rem;
+  pointer-events: none;
+}
+
+.notification-toast {
+  border-radius: 14px;
+  border: 1px solid transparent;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 0.75rem;
+  align-items: start;
+  padding: 0.9rem 0.95rem;
+  box-shadow: 0 18px 36px rgba(15, 23, 42, 0.18);
+  pointer-events: auto;
+  animation: notification-enter 0.22s ease;
+}
+
+.notification-toast p {
+  margin: 0;
+  line-height: 1.4;
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.notification-toast.success {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+  color: #166534;
+}
+
+.notification-toast.error {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #b91c1c;
+}
+
+.notification-toast.warning {
+  background: #fffbeb;
+  border-color: #fde68a;
+  color: #a16207;
+}
+
+.notification-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.notification-toast.success .notification-icon {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.notification-toast.error .notification-icon {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.notification-toast.warning .notification-icon {
+  background: #fef3c7;
+  color: #ca8a04;
+}
+
+.notification-close {
+  width: 30px;
+  height: 30px;
+  min-width: 30px;
+  min-height: 30px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: currentColor;
+  cursor: pointer;
+  opacity: 0.72;
+}
+
+.notification-close:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.notification-close .material-symbols-outlined {
+  font-size: 1rem;
+}
+
+@keyframes notification-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* Table Container for Horizontal Scroll */
 .table-container {
   overflow-x: auto;
@@ -87,65 +198,164 @@
   }
 }
 
-.theme-toggle {
+.sidebar-session {
   position: fixed;
   left: 1.5rem;
-  bottom: 5.25rem;
-  width: 232px;
-  min-width: 0;
-  min-height: 46px;
-  padding: 0 1rem;
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.08);
-  color: #cbd5e1;
-  box-shadow: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 12px;
-  cursor: pointer;
+  bottom: 1.25rem;
   z-index: 1200;
-  transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  width: 232px;
+  padding: 0.85rem;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 14px;
+  background: rgba(15, 23, 42, 0.96);
+  color: #f8fafc;
+  box-shadow: 0 12px 24px rgba(2, 6, 23, 0.22);
 }
 
-.theme-toggle:hover {
-  background: rgba(255, 255, 255, 0.14);
+.session-user {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 0.65rem;
+  align-items: center;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.session-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  background: #2563eb;
   color: #ffffff;
-  transform: translateY(-1px);
+  font-size: 0.78rem;
+  font-weight: 900;
 }
 
-.theme-toggle-label {
-  font-weight: 700;
+.session-copy {
+  min-width: 0;
+}
+
+.session-copy strong,
+.session-copy span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-:host-context(body.dark-theme) .theme-toggle {
-  background: rgba(96, 165, 250, 0.14);
-  color: #f8fafc;
-  border-color: rgba(96, 165, 250, 0.28);
-  box-shadow: none;
+.session-copy strong {
+  font-size: 0.88rem;
+  line-height: 1.2;
+}
+
+.session-copy span {
+  margin-top: 0.15rem;
+  color: #94a3b8;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.session-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.45rem;
+  margin-top: 0.75rem;
+}
+
+.session-action {
+  min-width: 0;
+  min-height: 34px;
+  padding: 0 0.55rem;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  background: rgba(255, 255, 255, 0.08);
+  color: #cbd5e1;
+  cursor: pointer;
+  font-size: 0.76rem;
+  font-weight: 800;
+  line-height: 1;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.session-action .material-symbols-outlined {
+  font-size: 1.05rem;
+}
+
+.session-action:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+}
+
+.theme-toggle {
+  border-color: rgba(96, 165, 250, 0.16);
+}
+
+.logout-action {
+  background: rgba(239, 68, 68, 0.12);
+  color: #fca5a5;
+}
+
+.logout-action:hover {
+  background: rgba(239, 68, 68, 0.22);
+  color: #ffffff;
+}
+
+:host-context(body.dark-theme) .sidebar-session {
+  background: rgba(2, 6, 23, 0.98);
+  border-color: rgba(96, 165, 250, 0.2);
 }
 
 @media (max-width: 1024px) and (min-width: 769px) {
-  .theme-toggle {
+  .sidebar-session {
     left: 0.75rem;
     width: 52px;
-    padding: 0;
-    justify-content: center;
+    padding: 0.45rem;
   }
 
-  .theme-toggle-label {
+  .session-user {
+    display: flex;
+    justify-content: center;
+    padding-bottom: 0.45rem;
+  }
+
+  .session-avatar {
+    width: 32px;
+    height: 32px;
+  }
+
+  .session-copy,
+  .session-action span:not(.material-symbols-outlined) {
     display: none;
+  }
+
+  .session-actions {
+    grid-template-columns: 1fr;
+    gap: 0.35rem;
+    margin-top: 0.45rem;
+  }
+
+  .session-action {
+    width: 34px;
+    min-width: 34px;
+    padding: 0;
   }
 }
 
 @media (max-width: 768px) {
-  .theme-toggle {
-    left: 1.5rem;
-    bottom: 5.25rem;
-    width: min(232px, calc(86vw - 3rem)) !important;
-    min-height: 46px !important;
-    margin-bottom: 0 !important;
+  .notification-stack {
+    right: 1rem;
+    bottom: 1rem;
+    width: min(360px, calc(100vw - 2rem));
+  }
+
+  .sidebar-session {
+    display: none;
   }
 }

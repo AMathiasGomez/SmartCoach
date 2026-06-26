@@ -106,6 +106,7 @@
             <th>Correo Electrónico</th>
             <th>Fecha de Registro</th>
             <th>Rol</th>
+            <th class="text-right">Acciones</th>
           </tr>
         </thead>
 
@@ -143,6 +144,19 @@
 
                 <span class="loader" *ngIf="user.cargando"></span>
 
+              </div>
+            </td>
+
+            <td class="text-right">
+              <div class="action-buttons">
+                <button
+                  class="btn-icon btn-delete"
+                  title="Eliminar"
+                  (click)="eliminar(user)"
+                  [disabled]="user.cargando"
+                >
+                  <span class="material-symbols-outlined">delete</span>
+                </button>
               </div>
             </td>
 

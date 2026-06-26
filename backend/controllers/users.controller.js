@@ -27,3 +27,19 @@ exports.updateRol = async (req, res) => {
     res.status(500).json({ error: 'Error al actualizar rol' });
   }
 };
+
+exports.deleteUsuario = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const [result] = await Usuario.delete(id);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+
+    res.json({ message: 'Usuario eliminado' });
+  } catch (error) {
+    res.status(500).json({ error: 'Error al eliminar usuario' });
+  }
+};

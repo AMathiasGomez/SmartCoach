@@ -132,6 +132,10 @@ td {
   text-align: center;
 }
 
+.text-right {
+  text-align: right;
+}
+
 tr {
   height: 3rem;
 }
@@ -240,6 +244,39 @@ select.usuario {
   font-weight: bold;
   font-size: 0.8rem;
   text-transform: uppercase;
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.btn-icon {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-icon:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.btn-delete {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.btn-delete:hover:not(:disabled) {
+  background: #fecaca;
 }
 
 select:hover:not(:disabled) {

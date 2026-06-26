@@ -136,6 +136,36 @@ export class VerUsuarios implements OnInit {
     });
   }
 
+  eliminar(user: Usuario & { cargando?: boolean }): void {
+    const currentUser = this.authService.getUser();
+
+    if (currentUser?.id === user.id) {
+      alert('No puedes eliminar tu propio usuario mientras tienes la sesion activa.');
+      return;
+    }
+
+    if (!confirm(`¿Deseas eliminar el usuario "${user.nombre}"?`)) {
+      return;
+    }
+
+    user.cargando = true;
+
+    this.usuarioService.eliminarUsuario(user.id).subscribe({
+      next: () => {
+        this.usuarios = this.usuarios.filter(u => u.id !== user.id);
+        this.aplicarFiltros();
+        user.cargando = false;
+        this.cd.detectChanges();
+        alert('Usuario eliminado');
+      },
+      error: () => {
+        user.cargando = false;
+        this.cd.detectChanges();
+        alert('Error al eliminar usuario');
+      }
+    });
+  }
+
   logout() {
     this.authService.logOut();
     this.router.navigate(['/login']);

@@ -6,9 +6,11 @@ const express = require("express");
 const router  = express.Router();
 const { spawn } = require("child_process");
 const path    = require("path");
+const axios = require("axios");
 const db      = require("../config/db");
 
 const GENERAL_CLASSIFIER = path.join(__dirname, "../analytics/models/performanceClassifier.py");
+const ANALYTICS_SERVICE_URL = (process.env.ANALYTICS_SERVICE_URL || "").replace(/\/$/, "");
 
 const POSITION_ALIASES = {
   punta: "Punta",
@@ -160,6 +162,20 @@ function runClassifier(payload) {
   });
 }
 
+async function runRemoteClassifier(payload) {
+  if (!ANALYTICS_SERVICE_URL) {
+    throw new Error("ANALYTICS_SERVICE_URL no configurado");
+  }
+
+  const response = await axios.post(
+    `${ANALYTICS_SERVICE_URL}/analyze/classify-performance`,
+    payload,
+    { timeout: 30000 }
+  );
+
+  return response.data;
+}
+
 function runGeneralClassifier(payload) {
   return new Promise((resolve, reject) => {
     const py = spawn("python", [GENERAL_CLASSIFIER]);
@@ -184,6 +200,20 @@ function runGeneralClassifier(payload) {
     py.stdin.write(JSON.stringify(payload));
     py.stdin.end();
   });
+}
+
+async function runRemoteGeneralClassifier(payload) {
+  if (!ANALYTICS_SERVICE_URL) {
+    throw new Error("ANALYTICS_SERVICE_URL no configurado");
+  }
+
+  const response = await axios.post(
+    `${ANALYTICS_SERVICE_URL}/analyze/classify-general`,
+    payload,
+    { timeout: 30000 }
+  );
+
+  return response.data;
 }
 
 router.get("/classify-general", async (req, res) => {
@@ -324,7 +354,9 @@ router.get("/classify-general", async (req, res) => {
       }))
     };
 
-    const result = await runGeneralClassifier(payload);
+    const result = ANALYTICS_SERVICE_URL
+      ? await runRemoteGeneralClassifier(payload)
+      : await runGeneralClassifier(payload);
 
     if (result.error) {
       return res.status(500).json({ success: false, error: result.error });
@@ -402,7 +434,9 @@ router.post("/classify-performance", async (req, res) => {
     }
 
     // ── Ejecutar clasificador Python ─────────────────────────────────────────
-    const result = await runClassifier({ match_analysis, team_analysis });
+    const result = ANALYTICS_SERVICE_URL
+      ? await runRemoteClassifier({ match_analysis, team_analysis })
+      : await runClassifier({ match_analysis, team_analysis });
 
     if (result.error) {
       return res.status(500).json({ success: false, error: result.error });

@@ -14,7 +14,10 @@ export class UserService {
   }
 
   updateRol(id: number, rol: string) {
-return this.http.put(`${environment.apiUrl}/usuarios/${id}/rol`, { rol });
+    return this.http.put(`${environment.apiUrl}/usuarios/${id}/rol`, { rol });
   }
-  
+
+  eliminarUsuario(id: number) {
+    return this.http.delete(`${environment.apiUrl}/usuarios/${id}`);
+  }
 }

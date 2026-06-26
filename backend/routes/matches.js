@@ -1,4 +1,5 @@
 const express = require('express');
+const axios = require('axios');
 const { spawn } = require('child_process');
 const path = require('path');
 const { analyzeMatchPlayers } = require('../services/analyticsService');
@@ -6,6 +7,21 @@ const { analyzeMatchPlayers } = require('../services/analyticsService');
 const router = express.Router();
 const PYTHON_SCRIPT = path.join(__dirname, '..', 'analytics', 'models', 'positionPerformance.py');
 const PYTHON_BINARIES = [process.env.PYTHON_BIN, 'python3', 'python', 'py'].filter(Boolean);
+const ANALYTICS_SERVICE_URL = (process.env.ANALYTICS_SERVICE_URL || '').replace(/\/$/, '');
+
+async function runRemotePositionPerformanceAnalysis(payload) {
+  if (!ANALYTICS_SERVICE_URL) {
+    throw new Error('ANALYTICS_SERVICE_URL no configurado');
+  }
+
+  const response = await axios.post(
+    `${ANALYTICS_SERVICE_URL}/analyze/players`,
+    payload,
+    { timeout: 30000 }
+  );
+
+  return response.data;
+}
 
 function runPositionPerformanceAnalysis(payload) {
   return new Promise((resolve, reject) => {
@@ -84,10 +100,14 @@ router.post('/:id/analytics', async (req, res) => {
 
     let result;
     try {
-      result = await runPositionPerformanceAnalysis({
+      const payload = {
         match_id: req.params.id,
         players: playersData
-      });
+      };
+
+      result = ANALYTICS_SERVICE_URL
+        ? await runRemotePositionPerformanceAnalysis(payload)
+        : await runPositionPerformanceAnalysis(payload);
     } catch (pythonError) {
       console.warn('Python analytics no disponible, usando fallback JS:', pythonError.message);
       result = analyzeMatchPlayers(req.params.id, playersData);

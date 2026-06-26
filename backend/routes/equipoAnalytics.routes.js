@@ -2,9 +2,12 @@ const express = require('express');
 const router  = express.Router();
 const path    = require('path');
 const { spawn } = require('child_process');
+const axios = require('axios');
 const db      = require('../config/db');
 
 const PYTHON_SCRIPT = path.join(__dirname, '..', 'analytics', 'models', 'teamAnalytics.py');
+const PYTHON_BINARIES = [process.env.PYTHON_BIN, 'python3', 'python', 'py'].filter(Boolean);
+const ANALYTICS_SERVICE_URL = (process.env.ANALYTICS_SERVICE_URL || '').replace(/\/$/, '');
 const DETAILED_COLUMNS = [
   'ataques_positivos',
   'errores_ataque',
@@ -26,7 +29,21 @@ function detailedSumSelect(alias) {
     .join(',\n             ');
 }
 
-function runPython(input) {
+async function runRemotePython(payload) {
+  if (!ANALYTICS_SERVICE_URL) {
+    throw new Error('ANALYTICS_SERVICE_URL no configurado');
+  }
+
+  const response = await axios.post(
+    `${ANALYTICS_SERVICE_URL}/analyze/team`,
+    payload,
+    { timeout: 30000 }
+  );
+
+  return response.data;
+}
+
+function runLocalPython(input) {
   return new Promise((resolve, reject) => {
     const py = spawn('python', [PYTHON_SCRIPT]);
     let out = '', err = '';
@@ -152,8 +169,10 @@ router.get('/:id/analytics', async (req, res) => {
       errores: Number(s.errores) || 0,
     }));
 
-    const payload  = JSON.stringify({ equipo_id: equipoId, jugadores: conDatos, sets });
-    const analysis = await runPython(payload);
+    const payload = { equipo_id: equipoId, jugadores: conDatos, sets };
+    const analysis = ANALYTICS_SERVICE_URL
+      ? await runRemotePython(payload)
+      : await runLocalPython(JSON.stringify(payload));
 
     console.log('>>> ANÁLISIS EQUIPO:', JSON.stringify(analysis, null, 2));
 
