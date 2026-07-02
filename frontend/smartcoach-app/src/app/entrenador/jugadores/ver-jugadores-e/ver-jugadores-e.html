@@ -99,64 +99,88 @@
       Mostrando {{ jugadoresFiltrados.length }} de {{ jugadores.length }} jugadores
     </p>
 
-    <section class="card table-container">
-      <table>
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Posicion</th>
-            <th>Dorsal</th>
-            <th>Equipo</th>
-            <th>Rendimiento</th>
-            <th class="text-right">Acciones</th>
-          </tr>
-        </thead>
+    <section class="card">
+      <div *ngIf="loading" class="loading-container">
+        <div class="loading-spinner"></div>
+        <p>Cargando jugadores...</p>
+      </div>
 
-        <tbody>
-          <tr *ngFor="let jugador of jugadoresFiltrados">
-            <td>
-              <div class="user-info">
-                <img
-                  *ngIf="jugador.foto_url; else avatarLetra"
-                  [src]="getFotoUrl(jugador.foto_url)"
-                  alt="{{ jugador.nombre }}"
-                  class="user-avatar-img">
+      <div *ngIf="!loading" class="table-scroll">
+        <table class="players-table">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Posicion</th>
+              <th>Edad</th>
+              <th>Rendimiento promedio</th>
+              <th class="text-right">Acciones</th>
+            </tr>
+          </thead>
 
-                <ng-template #avatarLetra>
-                  <div class="user-avatar font-bold text-blue">{{ jugador.nombre | slice:0:1 }}</div>
-                </ng-template>
+          <tbody>
+            <tr *ngFor="let jugador of jugadoresFiltrados">
+              <td>
+                <div class="user-info player-cell">
+                  <ng-container *ngIf="hasPhoto(jugador); else avatarLetra">
+                    <img
+                      [src]="getFotoUrl(jugador.foto_url)"
+                      [alt]="jugador.nombre"
+                      class="user-avatar-img"
+                      (error)="onImageError(jugador)">
+                  </ng-container>
 
-                <span class="font-bold">{{ jugador.nombre }}</span>
-              </div>
-            </td>
+                  <ng-template #avatarLetra>
+                    <div class="user-avatar">{{ getInitials(jugador.nombre) }}</div>
+                  </ng-template>
 
-            <td><span class="badge">{{ jugador.posicion }}</span></td>
-            <td class="text-muted">{{ jugador.numero }}</td>
-            <td class="font-bold">{{ jugador.equipo_nombre }}</td>
-            <td>
-              <span class="performance-badge" [ngClass]="getNivelClass(jugador)">
-                <span class="material-symbols-outlined">leaderboard</span>
-                {{ getJugadorNivel(jugador) }}
-                <small *ngIf="getJugadorScore(jugador) !== null">{{ getJugadorScore(jugador) | number:'1.1-1' }}</small>
-              </span>
-            </td>
+                  <div>
+                    <p class="player-name">{{ jugador.nombre }}</p>
+                    <p class="player-code">ID: #SP-{{ jugador.id || '0000' }}</p>
+                  </div>
+                </div>
+              </td>
 
-            <td class="text-right">
-              <div class="action-buttons">
-                <a class="btn-icon" title="Detalle" [routerLink]="['/detalle-jugador', jugador.id!]">
-                  <span class="material-symbols-outlined">visibility</span>
-                </a>
-              </div>
-            </td>
-          </tr>
+              <td>
+                <span class="position-pill" [ngClass]="getPositionClass(jugador.posicion)">
+                  {{ jugador.posicion || 'Sin posicion' }}
+                </span>
+              </td>
 
-          <tr *ngIf="jugadoresFiltrados.length === 0">
-            <td colspan="6" class="text-center text-muted">
-              No hay jugadores que coincidan con los filtros.
-            </td>
-          </tr>
-        </tbody>
-      </table>
+              <td class="age-cell">{{ getJugadorEdad(jugador) }}</td>
+
+              <td>
+                <div class="performance-cell">
+                  <div class="performance-track">
+                    <span
+                      class="performance-fill"
+                      [ngClass]="getNivelClass(jugador)"
+                      [style.width.%]="getJugadorScorePercent(jugador)">
+                    </span>
+                  </div>
+                  <strong>{{ getJugadorScorePercent(jugador) }}%</strong>
+                  <span class="material-symbols-outlined trend-icon" [ngClass]="getNivelClass(jugador)">
+                    {{ getPerformanceTrendIcon(jugador) }}
+                  </span>
+                </div>
+              </td>
+
+              <td class="text-right">
+                <div class="action-buttons">
+                  <a class="btn-icon btn-view" title="Detalle" [routerLink]="['/detalle-jugador', jugador.id!]">
+                    <span class="material-symbols-outlined">visibility</span>
+                  </a>
+                </div>
+              </td>
+            </tr>
+
+            <tr *ngIf="jugadoresFiltrados.length === 0">
+              <td colspan="5" class="text-center text-muted">
+                No hay jugadores que coincidan con los filtros.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </section>
   </main>
 </div>

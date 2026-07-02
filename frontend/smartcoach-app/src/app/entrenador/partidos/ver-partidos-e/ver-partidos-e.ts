@@ -24,6 +24,30 @@ export class VerPartidosE implements OnInit {
   filtroEstado = '';
   filtroResultado = '';
 
+  get partidosFinalizados(): number {
+    return this.partidos.filter((partido) => partido.estado === 'finalizado').length;
+  }
+
+  get partidosPendientes(): number {
+    return this.partidos.filter((partido) => partido.estado !== 'finalizado').length;
+  }
+
+  get victoriasMes(): number {
+    const hoy = new Date();
+
+    return this.partidos.filter((partido) => {
+      const fecha = partido.fecha ? new Date(partido.fecha) : null;
+
+      return (
+        partido.estado === 'finalizado' &&
+        partido.ganador === 'equipo' &&
+        fecha &&
+        fecha.getMonth() === hoy.getMonth() &&
+        fecha.getFullYear() === hoy.getFullYear()
+      );
+    }).length;
+  }
+
   constructor(
     public router: Router,
     private cd: ChangeDetectorRef,
@@ -141,6 +165,54 @@ export class VerPartidosE implements OnInit {
       default:
         return 'badge';
     }
+  }
+
+  getEstadoClass(estado: string): string {
+    switch (estado) {
+      case 'pendiente':
+        return 'match-pending';
+      case 'en_curso':
+        return 'match-live';
+      case 'finalizado':
+        return 'match-finished';
+      default:
+        return 'match-default';
+    }
+  }
+
+  getEstadoLabel(estado: string): string {
+    switch (estado) {
+      case 'pendiente':
+        return 'Pendiente';
+      case 'en_curso':
+        return 'En curso';
+      case 'finalizado':
+        return 'Finalizado';
+      default:
+        return 'Sin estado';
+    }
+  }
+
+  getScoreLabel(partido: any): string {
+    if (partido.estado !== 'finalizado') {
+      return 'VS';
+    }
+
+    return partido.ganador === 'equipo' ? 'W' : 'L';
+  }
+
+  getResultadoLabel(partido: any): string {
+    if (partido.estado === 'finalizado') {
+      return partido.ganador === 'equipo'
+        ? 'Análisis de rendimiento completado'
+        : 'Revisión táctica disponible';
+    }
+
+    if (partido.estado === 'en_curso') {
+      return 'Preparación en curso';
+    }
+
+    return 'Encuentro por gestionar';
   }
 
   logout() {

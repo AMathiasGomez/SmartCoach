@@ -172,6 +172,20 @@ export class VerJugadoresE implements OnInit {
     return `${this.baseUrl}${path}`;
   }
 
+  hasPhoto(jugador: Jugador): boolean {
+    return !!jugador.foto_url && jugador.foto_url.trim() !== '' && !(jugador as any).fotoError;
+  }
+
+  onImageError(jugador: Jugador): void {
+    (jugador as any).fotoError = true;
+    this.cd.detectChanges();
+  }
+
+  getInitials(nombre: string): string {
+    if (!nombre) return '?';
+    return nombre.charAt(0).toUpperCase();
+  }
+
   getJugadorNivel(jugador: Jugador): 'Alto' | 'Medio' | 'Bajo' | 'Sin datos' {
     if (!jugador.id) return 'Sin datos';
     return this.clasificacionPorJugador[String(jugador.id)]?.nivel || 'Sin datos';
@@ -182,8 +196,53 @@ export class VerJugadoresE implements OnInit {
     return this.clasificacionPorJugador[String(jugador.id)]?.combined_score ?? null;
   }
 
+  getJugadorScorePercent(jugador: Jugador): number {
+    const score = this.getJugadorScore(jugador);
+
+    if (score === null) return 0;
+
+    const normalizedScore = score <= 1 ? score * 100 : score;
+    return Math.max(0, Math.min(100, Math.round(normalizedScore)));
+  }
+
+  getJugadorEdad(jugador: Jugador): number | string {
+    if (!jugador.fecha_nacimiento) return '-';
+
+    const birthDate = new Date(jugador.fecha_nacimiento);
+
+    if (Number.isNaN(birthDate.getTime())) return '-';
+
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDifference = today.getMonth() - birthDate.getMonth();
+
+    if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+
+    return age;
+  }
+
+  getPerformanceTrendIcon(jugador: Jugador): string {
+    const nivel = this.getJugadorNivel(jugador);
+
+    if (nivel === 'Bajo') return 'trending_flat';
+    if (nivel === 'Sin datos') return 'remove';
+    return 'trending_up';
+  }
+
   getNivelClass(jugador: Jugador): string {
     return `nivel-${this.getJugadorNivel(jugador).toLowerCase().replace(' ', '-')}`;
+  }
+
+  getPositionClass(posicion?: string): string {
+    const normalizedPosition = (posicion || '').toLowerCase();
+
+    if (normalizedPosition.includes('port')) return 'position-portero';
+    if (normalizedPosition.includes('del')) return 'position-delantero';
+    if (normalizedPosition.includes('def')) return 'position-defensa';
+    if (normalizedPosition.includes('medio') || normalizedPosition.includes('centro')) return 'position-mediocentro';
+    return 'position-default';
   }
 
   logout() {

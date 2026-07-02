@@ -53,10 +53,8 @@
             </div>
         </header>
 
-        <!-- FILTROS (MISMO ESTILO ENTRENAMIENTOS) -->
         <section class="filters-bar">
 
-            <!-- Nombre -->
             <div class="filter-group">
                 <span class="material-symbols-outlined">search</span>
                 <input
@@ -67,7 +65,6 @@
                 />
             </div>
 
-            <!-- Equipo -->
             <div class="filter-group">
                 <span class="material-symbols-outlined">group</span>
                 <input
@@ -78,7 +75,6 @@
                 />
             </div>
 
-            <!-- Estado -->
             <div class="filter-group">
                 <span class="material-symbols-outlined">flag</span>
                 <select
@@ -92,7 +88,6 @@
                 </select>
             </div>
 
-            <!-- Resultado -->
             <div class="filter-group">
                 <span class="material-symbols-outlined">emoji_events</span>
                 <select
@@ -105,7 +100,6 @@
                 </select>
             </div>
 
-            <!-- RESET -->
             <button
                 class="btn-reset"
                 (click)="limpiarFiltros()"
@@ -117,7 +111,6 @@
 
         </section>
 
-        <!-- CONTADOR -->
         <p
             class="results-count"
             *ngIf="partidosFiltrados.length !== partidos.length"
@@ -125,88 +118,73 @@
             Mostrando {{ partidosFiltrados.length }} de {{ partidos.length }} partidos
         </p>
 
-        <!-- LOADING / EMPTY -->
-        <div *ngIf="loading">
+        <div class="loading-container" *ngIf="loading">
+            <div class="loading-spinner"></div>
             Cargando partidos...
         </div>
 
-        <div *ngIf="!loading && partidosFiltrados.length === 0">
-            No hay partidos registrados
+        <div class="empty-state" *ngIf="!loading && partidosFiltrados.length === 0">
+            <span class="material-symbols-outlined">sports_soccer</span>
+            <h3>No hay partidos registrados</h3>
+            <p>Cuando tengas encuentros, aparecerán aquí con su estado y acceso al detalle.</p>
         </div>
 
-        <!-- TABLA -->
         <section
-            class="card table-container"
+            class="matches-list"
             *ngIf="!loading && partidosFiltrados.length > 0"
         >
 
-            <table>
+            <article
+                class="match-card"
+                *ngFor="let partido of partidosFiltrados"
+                [ngClass]="getEstadoClass(partido.estado)"
+            >
+                <div class="match-main">
+                    <div class="match-icon">
+                        <span class="material-symbols-outlined">sports_volleyball</span>
+                    </div>
 
-                <thead>
-                    <tr>
-                        <th>Nombre</th>
-                        <th>Equipo</th>
-                        <th>Rival</th>
-                        <th>Fecha</th>
-                        <th>Estado</th>
-                        <th>Resultado</th>
-                        <th class="text-right">Acción</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-
-                    <tr *ngFor="let partido of partidosFiltrados">
-
-                        <td class="font-bold text-blue">
-                            {{ partido.nombre }}
-                        </td>
-
-                        <td>{{ partido.equipo_nombre }}</td>
-
-                        <td>{{ partido.rival }}</td>
-
-                        <td>{{ partido.fecha | date:'shortDate' }}</td>
-
-                        <td>
+                    <div class="match-info">
+                        <div class="match-topline">
+                            <span class="match-team">{{ partido.equipo_nombre || 'Equipo por asignar' }}</span>
                             <span class="badge" [ngClass]="{
                                 'pendiente': partido.estado === 'pendiente',
                                 'curso': partido.estado === 'en_curso',
                                 'finalizado': partido.estado === 'finalizado'
                             }">
-                                {{ partido.estado }}
+                                {{ getEstadoLabel(partido.estado) }}
                             </span>
-                        </td>
+                        </div>
 
-                        <td>
-                            <span *ngIf="partido.estado === 'finalizado'">
-                                {{
-                                    partido.ganador === 'equipo'
-                                    ? 'Victoria'
-                                    : 'Derrota'
-                                }}
+                        <h2>{{ partido.nombre }}</h2>
+
+                        <div class="match-details">
+                            <span>
+                                <span class="material-symbols-outlined">groups</span>
+                                vs {{ partido.rival || 'Rival por confirmar' }}
                             </span>
-                            <span *ngIf="partido.estado !== 'finalizado'">—</span>
-                        </td>
+                            <span>
+                                <span class="material-symbols-outlined">calendar_month</span>
+                                {{ partido.fecha | date:'shortDate' }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
 
-                        <td class="text-right">
-                            <div class="action-buttons">
-                                <button
-                                    class="btn-icon btn-primary"
-                                    (click)="irDetalle(partido.id)"
-                                >
-                                    <span class="material-symbols-outlined">
-                                        visibility
-                                    </span>
-                                </button>
-                            </div>
-                        </td>
+                <div class="match-result">
+                    <span class="result-label">Resultado</span>
+                    <strong>{{ getScoreLabel(partido) }}</strong>
+                    <small>{{ getResultadoLabel(partido) }}</small>
+                </div>
 
-                    </tr>
-
-                </tbody>
-
-            </table>
+                <button
+                    class="btn-details"
+                    (click)="irDetalle(partido.id)"
+                >
+                    <span class="material-symbols-outlined">visibility</span>
+                    Ver detalles
+                </button>
+            </article>
 
         </section>
 

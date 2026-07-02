@@ -7,7 +7,7 @@
   --sidebar-width: 280px;
   --sidebar-mobile-width: 320px;
   --primary: #2563eb;
-  --sidebar-bg: #0f172a;
+  --sidebar-bg:   ;
 }
 
 * {
@@ -351,7 +351,7 @@ body.dark-theme .main-content,
 body.dark-theme main[class*="main"],
 body.dark-theme .dashboard,
 body.dark-theme .page,
-body.dark-theme .content {
+body.dark-theme .content:not(.login-content):not(.register-content)  {
   background: #0b1120 !important;
   color: #e5e7eb !important;
 }
