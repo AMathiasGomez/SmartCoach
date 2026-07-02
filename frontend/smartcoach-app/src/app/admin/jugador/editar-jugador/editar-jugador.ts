@@ -22,6 +22,7 @@ export class EditarJugador implements OnInit {
   formJugador!: FormGroup;
   id!: number;
   cargando = true;
+  sidebarOpen = false;
 
   equipos: Equipo[] = [];
 
@@ -238,5 +239,13 @@ export class EditarJugador implements OnInit {
   logout() {
     this.authService.logOut();
     this.router.navigate(['/login']);
+  }
+
+  toggleSidebar(): void {
+    this.sidebarOpen = !this.sidebarOpen;
+  }
+
+  closeSidebar(): void {
+    this.sidebarOpen = false;
   }
 }

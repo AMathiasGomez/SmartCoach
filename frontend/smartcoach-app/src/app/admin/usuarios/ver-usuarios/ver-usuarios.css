@@ -114,10 +114,16 @@
   margin-top: 20px;
 }
 
+.table-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 15px;
+  min-width: 640px;
 }
 
 th {
@@ -368,4 +374,24 @@ td {
   font-size: 13px;
   color: #64748b;
   margin-bottom: 12px;
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    padding: 1.5rem;
+    padding-top: 4.5rem;
+  }
+
+  .filters-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filter-group {
+    min-width: 0;
+  }
+
+  .btn-reset {
+    align-self: flex-start;
+  }
 }

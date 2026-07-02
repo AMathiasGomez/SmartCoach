@@ -21,6 +21,7 @@ export class CrearPartidos implements OnInit {
   partidoForm!: FormGroup;
   equipos: Equipo[] = [];
   loading = false;
+  sidebarOpen = false;
 
   jugadores: any[] = [];
   convocados: number[] = [];
@@ -148,5 +149,13 @@ export class CrearPartidos implements OnInit {
   logout() {
     this.authService.logOut();
     this.router.navigate(['/login']);
+  }
+
+  toggleSidebar(): void {
+    this.sidebarOpen = !this.sidebarOpen;
+  }
+
+  closeSidebar(): void {
+    this.sidebarOpen = false;
   }
 }

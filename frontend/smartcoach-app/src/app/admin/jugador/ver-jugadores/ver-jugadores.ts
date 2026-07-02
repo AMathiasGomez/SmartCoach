@@ -18,6 +18,7 @@ export class VerJugadores implements OnInit {
 
   private apiBaseUrl = environment.apiUrl.replace(/\/api\/?$/, '');
   loading = false;
+  sidebarOpen = false;
   jugadores: Jugador[] = [];
   filtroNombre = '';
   filtroPosicion = '';
@@ -129,5 +130,13 @@ export class VerJugadores implements OnInit {
   logout() {
     this.authService.logOut();
     this.router.navigate(['/login']);
+  }
+
+  toggleSidebar(): void {
+    this.sidebarOpen = !this.sidebarOpen;
+  }
+
+  closeSidebar(): void {
+    this.sidebarOpen = false;
   }
 }

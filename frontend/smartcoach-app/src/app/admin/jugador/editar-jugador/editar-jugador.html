@@ -1,7 +1,13 @@
 <div class="app-container">
 
+  <button class="hamburger" type="button" (click)="toggleSidebar()" aria-label="Abrir menu" [attr.aria-expanded]="sidebarOpen">
+    <span class="material-symbols-outlined">menu</span>
+  </button>
+
+  <div class="sidebar-overlay" [class.active]="sidebarOpen" (click)="closeSidebar()" aria-hidden="true"></div>
+
   <!-- SIDEBAR -->
-  <aside class="sidebar">
+  <aside class="sidebar" [class.active]="sidebarOpen">
     <div class="logo">
       <div class="logo-icon">SC</div>
       <div class="logo-text-wrapper">
@@ -11,27 +17,27 @@
     </div>
 
     <nav>
-      <a routerLink="/dashboard-admin">
+      <a routerLink="/dashboard-admin" (click)="closeSidebar()">
         <span class="material-symbols-outlined">space_dashboard</span>
         <span>Panel de Control</span>
       </a>
-      <a routerLink="/ver-equipos">
+      <a routerLink="/ver-equipos" (click)="closeSidebar()">
         <span class="material-symbols-outlined">group</span>
         <span>Equipos</span>
       </a>
-      <a class="active" routerLink="/ver-jugadores">
+      <a class="active" routerLink="/ver-jugadores" (click)="closeSidebar()">
         <span class="material-symbols-outlined">person</span>
         <span>Jugadores</span>
       </a>
-      <a routerLink="/ver-entrenamientos">
+      <a routerLink="/ver-entrenamientos" (click)="closeSidebar()">
         <span class="material-symbols-outlined">fitness_center</span>
         <span>Entrenamientos</span>
       </a>
-      <a routerLink="/ver-partidos">
+      <a routerLink="/ver-partidos" (click)="closeSidebar()">
         <span class="material-symbols-outlined">sports_soccer</span>
         <span>Partidos</span>
       </a>
-      <a routerLink="/ver-usuarios">
+      <a routerLink="/ver-usuarios" (click)="closeSidebar()">
         <span class="material-symbols-outlined">emoji_people</span>
         <span>Usuarios</span>
       </a>

@@ -1,9 +1,9 @@
 <div class="app-container">
-  <button class="mobile-menu-button" type="button" (click)="toggleSidebar()" aria-label="Abrir menu">
+  <button class="hamburger" type="button" (click)="toggleSidebar()" aria-label="Abrir menu" [attr.aria-expanded]="sidebarOpen">
     <span class="material-symbols-outlined">menu</span>
   </button>
 
-  <div class="sidebar-overlay" [class.active]="sidebarOpen" (click)="closeSidebar()"></div>
+  <div class="sidebar-overlay" [class.active]="sidebarOpen" (click)="closeSidebar()" aria-hidden="true"></div>
 
   <aside class="sidebar" [class.active]="sidebarOpen">
     <div class="logo">

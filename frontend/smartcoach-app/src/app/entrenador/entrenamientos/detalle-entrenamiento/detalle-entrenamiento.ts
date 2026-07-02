@@ -34,6 +34,7 @@ export class DetalleEntrenamiento implements OnInit {
   error = '';
   success = '';
   id!: number;
+  sidebarOpen = false;
 
   // ── Comentarios ─────────────────────────────────────────────────────────────
   comentarios: Comentario[] = [];
@@ -282,5 +283,13 @@ export class DetalleEntrenamiento implements OnInit {
 
   back() {
     this.router.navigate(['/ver-entrenamientos-e']);
+  }
+
+  toggleSidebar(): void {
+    this.sidebarOpen = !this.sidebarOpen;
+  }
+
+  closeSidebar(): void {
+    this.sidebarOpen = false;
   }
 }

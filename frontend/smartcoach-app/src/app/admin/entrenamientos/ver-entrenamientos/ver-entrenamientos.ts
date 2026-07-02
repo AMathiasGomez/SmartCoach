@@ -25,6 +25,7 @@ import { EquipoService } from '../../../services/equipo/equipo-service';
 export class VerEntrenamientos implements OnInit {
 
   loading = false;
+  sidebarOpen = false;
 
   entrenamientos: any[] = [];
   entrenamientosFiltrados: any[] = [];
@@ -207,5 +208,13 @@ export class VerEntrenamientos implements OnInit {
     this.authService.logOut();
 
     this.router.navigate(['/login']);
+  }
+
+  toggleSidebar(): void {
+    this.sidebarOpen = !this.sidebarOpen;
+  }
+
+  closeSidebar(): void {
+    this.sidebarOpen = false;
   }
 }

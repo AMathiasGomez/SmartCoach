@@ -23,6 +23,7 @@ export class EditarPartido implements OnInit {
   partidoForm!: FormGroup;
   partidoId!: number;
   partido: any;
+  sidebarOpen = false;
 
   constructor(
     private fb: FormBuilder,
@@ -162,5 +163,13 @@ export class EditarPartido implements OnInit {
   logout() {
     this.authService.logOut();
     this.router.navigate(['/login']);
+  }
+
+  toggleSidebar(): void {
+    this.sidebarOpen = !this.sidebarOpen;
+  }
+
+  closeSidebar(): void {
+    this.sidebarOpen = false;
   }
 }

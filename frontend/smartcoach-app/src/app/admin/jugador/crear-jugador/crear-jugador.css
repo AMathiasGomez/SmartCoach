@@ -510,14 +510,10 @@ select {
 
 /* Mobile Responsive */
 @media (max-width: 768px) {
-  .sidebar {
-    display: none;
-  }
-
   .main-content {
     margin-left: 0;
     padding: 1rem;
-    padding-top: 4rem;
+    padding-top: 4.5rem;
   }
 
   .card {

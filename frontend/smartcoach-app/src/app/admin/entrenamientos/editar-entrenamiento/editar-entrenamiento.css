@@ -334,13 +334,10 @@ select {
 }
 
 @media (max-width: 768px) {
-  .sidebar {
-    display: none;
-  }
-
   .main-content {
     margin-left: 0;
     padding: 1rem;
+    padding-top: 4.5rem;
   }
 
   .grid-2 {

@@ -18,6 +18,7 @@ export class VerPartidos {
   partidosFiltrados: any[] = [];
   equipos: string[] = [];
   loading = true;
+  sidebarOpen = false;
 
   filtroNombre = '';
   filtroEquipo = '';
@@ -147,5 +148,13 @@ export class VerPartidos {
   logout() {
     this.authService.logOut();
     this.router.navigate(['/login']);
+  }
+
+  toggleSidebar(): void {
+    this.sidebarOpen = !this.sidebarOpen;
+  }
+
+  closeSidebar(): void {
+    this.sidebarOpen = false;
   }
 }

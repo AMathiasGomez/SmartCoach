@@ -17,6 +17,7 @@ import { Equipo } from '../../../models/equipo.model';
 export class CrearJugador implements OnInit {
 
   equipos: Equipo[] = [];
+  sidebarOpen = false;
 
   formJugador!: FormGroup;
   errorMessage: string = '';
@@ -138,5 +139,13 @@ export class CrearJugador implements OnInit {
   logout() {
     this.authService.logOut();
     this.router.navigate(['/login']);
+  }
+
+  toggleSidebar(): void {
+    this.sidebarOpen = !this.sidebarOpen;
+  }
+
+  closeSidebar(): void {
+    this.sidebarOpen = false;
   }
 }

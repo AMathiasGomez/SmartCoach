@@ -8,7 +8,7 @@
   ></app-directivo-sidebar>
 
   <main class="main-content">
-    <button class="hamburger" (click)="toggleSidebar()" aria-label="Abrir menu">
+    <button class="hamburger" type="button" (click)="toggleSidebar()" aria-label="Abrir menu" [attr.aria-expanded]="sidebarOpen">
       <span class="material-symbols-outlined">menu</span>
     </button>
 

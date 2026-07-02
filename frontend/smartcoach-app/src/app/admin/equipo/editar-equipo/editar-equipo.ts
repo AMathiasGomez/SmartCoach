@@ -20,6 +20,7 @@ export class EditarEquipo implements OnInit {
   form!: FormGroup;
   id!: number;
   cargando = true;
+  sidebarOpen = false;
 
   // Photo handling
   fotoArchivo: File | null = null;
@@ -183,5 +184,13 @@ export class EditarEquipo implements OnInit {
   logout() {
     this.authService.logOut();
     this.router.navigate(['/login']);
+  }
+
+  toggleSidebar(): void {
+    this.sidebarOpen = !this.sidebarOpen;
+  }
+
+  closeSidebar(): void {
+    this.sidebarOpen = false;
   }
 }

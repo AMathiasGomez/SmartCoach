@@ -19,6 +19,7 @@ export class EditarEntrenamiento implements OnInit {
   equipos: any[] = [];
   loading = true;
   saving = false;
+  sidebarOpen = false;
 
   constructor(
     private fb: FormBuilder,
@@ -149,5 +150,13 @@ export class EditarEntrenamiento implements OnInit {
   logout(): void {
     this.authService.logOut();
     this.router.navigate(['/login']);
+  }
+
+  toggleSidebar(): void {
+    this.sidebarOpen = !this.sidebarOpen;
+  }
+
+  closeSidebar(): void {
+    this.sidebarOpen = false;
   }
 }

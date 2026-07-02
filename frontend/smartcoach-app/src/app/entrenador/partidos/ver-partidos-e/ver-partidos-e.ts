@@ -17,6 +17,7 @@ export class VerPartidosE implements OnInit {
   partidosFiltrados: any[] = [];
 
   loading = true;
+  sidebarOpen = false;
 
   // FILTROS (igual estilo entrenamientos)
   filtroNombre = '';
@@ -218,5 +219,13 @@ export class VerPartidosE implements OnInit {
   logout() {
     this.authService.logOut();
     this.router.navigate(['/login']);
+  }
+
+  toggleSidebar(): void {
+    this.sidebarOpen = !this.sidebarOpen;
+  }
+
+  closeSidebar(): void {
+    this.sidebarOpen = false;
   }
 }

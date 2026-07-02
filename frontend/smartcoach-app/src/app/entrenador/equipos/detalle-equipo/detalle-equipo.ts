@@ -29,6 +29,7 @@ export class DetalleEquipo implements OnInit, AfterViewInit {
   jugadores: Jugador[] = [];
   loading = false;
   error = '';
+  sidebarOpen = false;
 
   analytics: any = null;
   analyticsLoading = false;
@@ -330,4 +331,7 @@ export class DetalleEquipo implements OnInit, AfterViewInit {
     });
   }
   logout(): void { this.authService.logOut(); this.router.navigate(['/login']); }
+
+  toggleSidebar(): void { this.sidebarOpen = !this.sidebarOpen; }
+  closeSidebar(): void { this.sidebarOpen = false; }
 }

@@ -369,13 +369,45 @@
 }
 
 @media (max-width: 768px) {
+  .main-content {
+    padding: 1.5rem;
+    padding-top: 4.5rem;
+  }
+
   .info-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .team-avatar-large {
     width: 100px;
     height: 100px;
+  }
+
+  .team-name {
+    font-size: 1.8rem;
+  }
+
+  .hero-section {
+    padding: 1.5rem 1rem;
+  }
+
+  .page-header-detail {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .action-section {
+    justify-content: stretch;
+  }
+
+  .action-section button {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .players-table {
+    min-width: 480px;
   }
 }
 

@@ -68,6 +68,7 @@ export class DashboardAdmin implements OnInit {
   loading = true;
   error = '';
   adminName = 'Administrador';
+  sidebarOpen = false;
 
   recentActivity: DashboardActivity[] = [];
   positionMetrics: PositionMetric[] = [];
@@ -177,6 +178,14 @@ export class DashboardAdmin implements OnInit {
   logout() {
     this.authService.logOut();
     this.router.navigate(['/login']);
+  }
+
+  toggleSidebar(): void {
+    this.sidebarOpen = !this.sidebarOpen;
+  }
+
+  closeSidebar(): void {
+    this.sidebarOpen = false;
   }
 
   private withFallback(label: string, err: any, fallback: any[]) {

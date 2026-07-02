@@ -50,6 +50,7 @@ export class DashboardEntrenador implements OnInit {
 
   loading = true;
   error = '';
+  sidebarOpen = false;
   todayLabel = new Date().toLocaleDateString('es-CO', {
     weekday: 'long',
     day: 'numeric',
@@ -279,5 +280,13 @@ export class DashboardEntrenador implements OnInit {
   logout() {
     this.authService.logOut();
     this.router.navigate(['/login']);
+  }
+
+  toggleSidebar(): void {
+    this.sidebarOpen = !this.sidebarOpen;
+  }
+
+  closeSidebar(): void {
+    this.sidebarOpen = false;
   }
 }

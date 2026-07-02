@@ -354,10 +354,30 @@ td .user-info span {
 
   .main-content {
     padding: 1.5rem;
+    padding-top: 4.5rem;
   }
 
   th, td {
     padding: 12px 16px;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .filters-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filter-group {
+    min-width: 0;
+  }
+
+  .btn-reset {
+    align-self: flex-start;
   }
 }
 
@@ -418,11 +438,6 @@ td .user-info span {
   font-size: 13px;
   color: #64748b;
   margin-bottom: 12px;
-}
-
-.mobile-menu-button,
-.sidebar-overlay {
-  display: none;
 }
 
 .loading-container {

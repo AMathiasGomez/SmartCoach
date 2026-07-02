@@ -445,12 +445,9 @@ td .user-info span {
 
 /* --- MOBILE --- */
 @media (max-width: 768px) {
-  .sidebar {
-    display: none;
-  }
-
   .main-content {
     padding: 1.5rem;
+    padding-top: 4.5rem;
     margin-left: 0;
   }
 

@@ -18,6 +18,7 @@ export class VerEntrenamientosE implements OnInit {
   entrenamientosFiltrados: any[] = [];
 
   loading = true;
+  sidebarOpen = false;
 
   tiposEntrenamiento: string[] = [];
 
@@ -123,5 +124,13 @@ export class VerEntrenamientosE implements OnInit {
   logout() {
     this.authService.logOut();
     this.router.navigate(['/login']);
+  }
+
+  toggleSidebar(): void {
+    this.sidebarOpen = !this.sidebarOpen;
+  }
+
+  closeSidebar(): void {
+    this.sidebarOpen = false;
   }
 }

@@ -16,6 +16,7 @@ import { environment } from '../../../../environments/environment';
 export class VerEquiposE {
 
   loading = false;
+  sidebarOpen = false;
   equipos: Equipo[] = [];
   filtroNombre = '';
   filtroCategoria = '';
@@ -108,6 +109,14 @@ export class VerEquiposE {
   logout(): void {
     this.authService.logOut();
     this.router.navigate(['/login']);
+  }
+
+  toggleSidebar(): void {
+    this.sidebarOpen = !this.sidebarOpen;
+  }
+
+  closeSidebar(): void {
+    this.sidebarOpen = false;
   }
 
 }

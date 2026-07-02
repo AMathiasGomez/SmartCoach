@@ -354,8 +354,4 @@
     bottom: 1rem;
     width: min(360px, calc(100vw - 2rem));
   }
-
-  .sidebar-session {
-    display: none;
-  }
 }

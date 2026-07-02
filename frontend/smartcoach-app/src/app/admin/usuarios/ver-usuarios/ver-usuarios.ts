@@ -20,6 +20,7 @@ export class VerUsuarios implements OnInit {
 
   cargando = false;
   error = '';
+  sidebarOpen = false;
 
   filtroUsuario = '';
   filtroRol = '';
@@ -169,5 +170,13 @@ export class VerUsuarios implements OnInit {
   logout() {
     this.authService.logOut();
     this.router.navigate(['/login']);
+  }
+
+  toggleSidebar(): void {
+    this.sidebarOpen = !this.sidebarOpen;
+  }
+
+  closeSidebar(): void {
+    this.sidebarOpen = false;
   }
 }

@@ -1,4 +1,4 @@
-<aside class="sidebar" [class.open]="open">
+<aside class="sidebar" [class.open]="open" [class.active]="open">
   <div class="logo">
     <div class="logo-icon">SC</div>
     <div class="logo-text-wrapper">
@@ -32,4 +32,4 @@
   </button>
 </aside>
 
-<div class="sidebar-overlay" [class.visible]="open" (click)="close.emit()"></div>
+<div class="sidebar-overlay" [class.visible]="open" [class.active]="open" (click)="close.emit()" aria-hidden="true"></div>

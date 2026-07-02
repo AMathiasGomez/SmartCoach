@@ -16,6 +16,7 @@ import { environment } from '../../../../environments/environment';
 })
 export class VerEquipos implements OnInit {
   loading = false;
+  sidebarOpen = false;
   equipos: Equipo[] = [];
   filtroNombre = '';
   filtroCategoria = '';
@@ -109,5 +110,13 @@ export class VerEquipos implements OnInit {
   logout(): void {
     this.authService.logOut();
     this.router.navigate(['/login']);
+  }
+
+  toggleSidebar(): void {
+    this.sidebarOpen = !this.sidebarOpen;
+  }
+
+  closeSidebar(): void {
+    this.sidebarOpen = false;
   }
 }
