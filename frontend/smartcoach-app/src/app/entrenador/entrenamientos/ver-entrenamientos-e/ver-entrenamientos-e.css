@@ -118,75 +118,274 @@
   margin: 0;
 }
 
-.card {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+/* --- LISTA DE ENTRENAMIENTOS --- */
+.trainings-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: 18px;
+}
+
+.training-card {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px 22px;
+  padding: 22px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.training-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 5px;
+  border-radius: 18px 0 0 18px;
+  background: #2563eb;
+}
+
+.training-card:hover {
+  transform: translateY(-3px);
+  border-color: #bfdbfe;
+  box-shadow: 0 16px 34px rgba(15, 23, 42, 0.12);
+}
+
+.training-main {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1 1 220px;
+  min-width: 0;
+}
+
+.training-icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 16px;
+  background: #eff6ff;
+  color: #2563eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 54px;
+}
+
+.training-icon .material-symbols-outlined {
+  font-size: 28px;
+}
+
+.training-info {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.training-topline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 7px;
+}
+
+.training-team {
+  display: block;
+  max-width: 100%;
   overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #64748b;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
-.table-container {
-  overflow-x: auto;
+.training-info h2 {
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #0f172a;
+  font-size: 1.22rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
 }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
-  min-width: 680px;
+.training-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  margin-top: 10px;
+  color: #64748b;
+  font-size: 0.9rem;
 }
 
-th {
-  background: #f1f5f9;
-  padding: 1rem 1.5rem;
-  text-align: left;
-  font-weight: 600;
-  color: #374151;
-  border-bottom: 2px solid #e2e8f0;
+.training-details span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
-td {
-  padding: 1rem 1.5rem;
-  border-bottom: 1px solid #f1f5f9;
+.training-details .material-symbols-outlined {
+  color: #94a3b8;
+  font-size: 18px;
 }
 
-tr:hover {
+.training-result {
+  flex: 0 0 auto;
+  min-width: 104px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  text-align: center;
   background: #f8fafc;
 }
 
-.badge {
-  padding: 0.25rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 500;
+.result-label {
+  display: block;
+  margin-bottom: 4px;
+  color: #94a3b8;
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
-.estado-completado {
+.training-result strong {
+  display: block;
+  color: #2563eb;
+  font-size: 1.65rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.training-result small {
+  display: block;
+  margin-top: 5px;
+  color: #64748b;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.btn-details {
+  flex: 0 0 auto;
+  min-width: 130px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 16px;
+  border: none;
+  border-radius: 12px;
+  background: #2563eb;
+  color: #ffffff;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.btn-details:hover {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+}
+
+.btn-details .material-symbols-outlined {
+  font-size: 19px;
+}
+
+/* --- BADGES --- */
+.badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.pendiente {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.curso {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.finalizado {
   background: #dcfce7;
   color: #166534;
 }
 
-.estado-pendiente {
-  background: #fef3c7;
-  color: #d97706;
+.training-pending::before {
+  background: #f59e0b;
 }
 
-.action-buttons button {
-  background: #3b82f6;
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  cursor: pointer;
-  margin-left: 0.5rem;
-  transition: background 0.3s;
-}
-
-.action-buttons button:hover {
+.training-live::before {
   background: #2563eb;
 }
 
-.text-right {
-  text-align: right;
+.training-finished::before {
+  background: #22c55e;
+}
+
+.training-pending .training-icon {
+  background: #fffbeb;
+  color: #d97706;
+}
+
+.training-live .training-icon {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.training-finished .training-icon {
+  background: #ecfdf5;
+  color: #16a34a;
+}
+
+/* --- LOADING / EMPTY --- */
+.loading-container,
+.empty-state {
+  padding: 42px 20px;
+  text-align: center;
+  color: #64748b;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+.empty-state .material-symbols-outlined {
+  color: #2563eb;
+  font-size: 42px;
+}
+
+.empty-state h3 {
+  margin: 10px 0 4px;
+  color: #1e293b;
+}
+
+.empty-state p {
+  margin: 0;
+}
+
+.loading-spinner {
+  width: 34px;
+  height: 34px;
+  margin: 0 auto 12px;
+  border: 3px solid #dbeafe;
+  border-top-color: #2563eb;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @media (max-width: 768px) {
@@ -211,6 +410,29 @@ tr:hover {
 
   .btn-reset {
     align-self: flex-start;
+  }
+}
+
+@media (max-width: 900px) {
+  .trainings-list {
+    grid-template-columns: 1fr;
+  }
+
+  .training-card {
+    align-items: stretch;
+  }
+
+  .training-main {
+    flex-basis: 100%;
+  }
+
+  .training-result {
+    flex: 1 1 auto;
+    text-align: left;
+  }
+
+  .btn-details {
+    width: 100%;
   }
 }
 

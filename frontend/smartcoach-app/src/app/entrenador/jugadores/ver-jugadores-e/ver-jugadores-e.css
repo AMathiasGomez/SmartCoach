@@ -534,24 +534,29 @@ td .user-info span {
   white-space: nowrap;
 }
 
-.position-portero {
+.position-punta {
   background: #eff6ff;
   color: #1d4ed8;
 }
 
-.position-delantero {
+.position-opuesto {
   background: #faf5ff;
   color: #9333ea;
 }
 
-.position-defensa {
+.position-central {
   background: #fff7ed;
   color: #c2410c;
 }
 
-.position-mediocentro {
+.position-armador {
   background: #ecfdf5;
   color: #047857;
+}
+
+.position-libero {
+  background: #fef2f2;
+  color: #b91c1c;
 }
 
 .position-default {

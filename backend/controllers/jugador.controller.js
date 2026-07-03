@@ -4,9 +4,10 @@ const Jugador = require('../models/jugador');
 exports.getJugadores = async (req, res) => {
   try {
     const sql = `
-      SELECT 
+      SELECT
         jugador.id,
         jugador.nombre,
+        jugador.fecha_nacimiento,
         jugador.posicion,
         jugador.numero,
         jugador.equipo_id,

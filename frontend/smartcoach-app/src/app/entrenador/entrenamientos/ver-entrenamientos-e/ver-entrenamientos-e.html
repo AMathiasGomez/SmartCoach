@@ -38,10 +38,7 @@
       </a>
     </nav>
 
-    <button class="logout" (click)="logout()">
-      <span class="material-symbols-outlined">logout</span>
-      Cerrar sesión
-    </button>
+
   </aside>
 
   <main class="main-content">
@@ -118,61 +115,74 @@
       Mostrando {{ entrenamientosFiltrados.length }} de {{ entrenamientos.length }} entrenamientos
     </p>
 
-    <!-- TABLA -->
-    <section class="card table-container">
+    <div class="loading-container" *ngIf="loading">
+      <div class="loading-spinner"></div>
+      Cargando entrenamientos...
+    </div>
 
-      <table>
+    <div class="empty-state" *ngIf="!loading && entrenamientosFiltrados.length === 0">
+      <span class="material-symbols-outlined">fitness_center</span>
+      <h3>No hay entrenamientos registrados</h3>
+      <p>Cuando programes sesiones, aparecerán aquí con su estado y acceso al detalle.</p>
+    </div>
 
-        <thead>
-          <tr>
-            <th>Equipo</th>
-            <th>Fecha</th>
-            <th>Hora</th>
-            <th>Duración</th>
-            <th>Tipo</th>
-            <th>Estado</th>
-            <th class="text-right">Acciones</th>
-          </tr>
-        </thead>
+    <!-- LISTA DE ENTRENAMIENTOS -->
+    <section
+      class="trainings-list"
+      *ngIf="!loading && entrenamientosFiltrados.length > 0"
+    >
 
-        <tbody>
+      <article
+        class="training-card"
+        *ngFor="let entrenamiento of entrenamientosFiltrados"
+        [ngClass]="getEstadoClass(entrenamiento.estado)"
+      >
+        <div class="training-main">
+          <div class="training-icon">
+            <span class="material-symbols-outlined">fitness_center</span>
+          </div>
 
-          <tr *ngFor="let entrenamiento of entrenamientosFiltrados">
-
-            <td>{{ entrenamiento.equipo_nombre }}</td>
-
-            <td>{{ entrenamiento.fecha | date:'shortDate' }}</td>
-
-            <td>{{ entrenamiento.hora }}</td>
-
-            <td>{{ entrenamiento.duracion }} min</td>
-
-            <td>{{ entrenamiento.tipo }}</td>
-
-            <td>
-              <span [ngClass]="{
-                'estado-completado': entrenamiento.estado === 'completado',
-                'estado-pendiente': entrenamiento.estado === 'programado'
-              }" class="badge">
-                {{ entrenamiento.estado }}
+          <div class="training-info">
+            <div class="training-topline">
+              <span class="training-team">{{ entrenamiento.equipo_nombre || 'Equipo por asignar' }}</span>
+              <span class="badge" [ngClass]="{
+                'pendiente': entrenamiento.estado === 'programado',
+                'curso': entrenamiento.estado === 'en_curso',
+                'finalizado': entrenamiento.estado === 'completado'
+              }">
+                {{ getEstadoLabel(entrenamiento.estado) }}
               </span>
-            </td>
+            </div>
 
-            <td class="text-right">
-              <div class="action-buttons">
-                <a class="btn-icon"
-                   (click)="verDetalle(entrenamiento.id)"
-                   style="color:#2563eb; display:flex; align-items:center; justify-content:center;">
-                  <span class="material-symbols-outlined">visibility</span>
-                </a>
-              </div>
-            </td>
+            <h2>{{ entrenamiento.tipo || 'Entrenamiento' }}</h2>
 
-          </tr>
+            <div class="training-details">
+              <span>
+                <span class="material-symbols-outlined">calendar_month</span>
+                {{ entrenamiento.fecha | date:'shortDate' }}
+              </span>
+              <span>
+                <span class="material-symbols-outlined">schedule</span>
+                {{ entrenamiento.hora }}
+              </span>
+            </div>
+          </div>
+        </div>
 
-        </tbody>
+        <div class="training-result">
+          <span class="result-label">Duración</span>
+          <strong>{{ entrenamiento.duracion }}</strong>
+          <small>minutos</small>
+        </div>
 
-      </table>
+        <button
+          class="btn-details"
+          (click)="verDetalle(entrenamiento.id)"
+        >
+          <span class="material-symbols-outlined">visibility</span>
+          Ver detalles
+        </button>
+      </article>
 
     </section>
 

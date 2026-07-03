@@ -5,13 +5,12 @@ import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../services/auth/auth-service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
 import { catchError, forkJoin, of } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 
 interface PlayerClassificationLite {
   nivel: 'Alto' | 'Medio' | 'Bajo';
-  combined_score: number;
+  overall_score_100: number;
 }
 
 @Component({
@@ -41,8 +40,7 @@ export class VerJugadoresE implements OnInit {
     private jugadorService: JugadorService,
     public router: Router,
     private cd: ChangeDetectorRef,
-    private authService: AuthService,
-    private http: HttpClient
+    private authService: AuthService
   ) { }
 
   ngOnInit(): void {
@@ -125,32 +123,34 @@ export class VerJugadoresE implements OnInit {
   }
 
   cargarClasificaciones(jugadores: Jugador[]): void {
-    const teamIds = [...new Set(jugadores.map(j => j.equipo_id).filter((id): id is number => !!id))];
+    const jugadoresConId = jugadores.filter((j): j is Jugador & { id: number } => !!j.id);
 
-    if (!teamIds.length) {
+    if (!jugadoresConId.length) {
       return;
     }
 
     this.loadingClasificaciones = true;
 
     forkJoin(
-      teamIds.map(teamId =>
-        this.http.get<any>(`${environment.apiUrl}/analysis/classify-general?team_id=${teamId}`).pipe(
+      jugadoresConId.map(jugador =>
+        this.jugadorService.getPlayerAnalytics(jugador.id).pipe(
           catchError(() => of(null))
         )
       )
     ).subscribe({
-      next: (results) => {
+      next: (results: any[]) => {
         const map: Record<string, PlayerClassificationLite> = {};
 
-        results.forEach((res) => {
-          const players = res?.data?.classification || res?.classification || [];
-          players.forEach((player: any) => {
-            map[String(player.player_id)] = {
-              nivel: player.nivel,
-              combined_score: Number(player.combined_score) || 0
-            };
-          });
+        results.forEach((res, index) => {
+          const analysis = res?.analysis;
+          if (!analysis) return;
+
+          const score100 = analysis.overall_score_100 ?? (analysis.overall_score || 0) * 10;
+
+          map[String(jugadoresConId[index].id)] = {
+            nivel: this.mapNivelToTier(analysis.nivel, score100),
+            overall_score_100: Number(score100) || 0
+          };
         });
 
         this.clasificacionPorJugador = map;
@@ -163,6 +163,21 @@ export class VerJugadoresE implements OnInit {
         this.cd.detectChanges();
       }
     });
+  }
+
+  private mapNivelToTier(nivel: string, score100: number): 'Alto' | 'Medio' | 'Bajo' {
+    switch (nivel) {
+      case 'Excelente':
+      case 'Bueno':
+        return 'Alto';
+      case 'Regular':
+        return 'Medio';
+      case 'Bajo':
+      case 'Crítico':
+        return 'Bajo';
+      default:
+        return score100 >= 70 ? 'Alto' : score100 >= 40 ? 'Medio' : 'Bajo';
+    }
   }
 
   getFotoUrl(fotoUrl?: string): string {
@@ -193,7 +208,7 @@ export class VerJugadoresE implements OnInit {
 
   getJugadorScore(jugador: Jugador): number | null {
     if (!jugador.id) return null;
-    return this.clasificacionPorJugador[String(jugador.id)]?.combined_score ?? null;
+    return this.clasificacionPorJugador[String(jugador.id)]?.overall_score_100 ?? null;
   }
 
   getJugadorScorePercent(jugador: Jugador): number {
@@ -201,8 +216,7 @@ export class VerJugadoresE implements OnInit {
 
     if (score === null) return 0;
 
-    const normalizedScore = score <= 1 ? score * 100 : score;
-    return Math.max(0, Math.min(100, Math.round(normalizedScore)));
+    return Math.max(0, Math.min(100, Math.round(score)));
   }
 
   getJugadorEdad(jugador: Jugador): number | string {
@@ -238,10 +252,11 @@ export class VerJugadoresE implements OnInit {
   getPositionClass(posicion?: string): string {
     const normalizedPosition = (posicion || '').toLowerCase();
 
-    if (normalizedPosition.includes('port')) return 'position-portero';
-    if (normalizedPosition.includes('del')) return 'position-delantero';
-    if (normalizedPosition.includes('def')) return 'position-defensa';
-    if (normalizedPosition.includes('medio') || normalizedPosition.includes('centro')) return 'position-mediocentro';
+    if (normalizedPosition.includes('punta')) return 'position-punta';
+    if (normalizedPosition.includes('opuesto')) return 'position-opuesto';
+    if (normalizedPosition.includes('central')) return 'position-central';
+    if (normalizedPosition.includes('armador')) return 'position-armador';
+    if (normalizedPosition.includes('libero') || normalizedPosition.includes('líbero')) return 'position-libero';
     return 'position-default';
   }
 

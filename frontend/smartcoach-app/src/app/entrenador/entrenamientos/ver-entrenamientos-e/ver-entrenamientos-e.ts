@@ -121,6 +121,24 @@ export class VerEntrenamientosE implements OnInit {
     this.router.navigate(['/detalle-entrenamiento', id]);
   }
 
+  getEstadoLabel(estado: string): string {
+    switch (estado) {
+      case 'programado': return 'Programado';
+      case 'en_curso': return 'En curso';
+      case 'completado': return 'Completado';
+      default: return estado;
+    }
+  }
+
+  getEstadoClass(estado: string): string {
+    switch (estado) {
+      case 'programado': return 'training-pending';
+      case 'en_curso': return 'training-live';
+      case 'completado': return 'training-finished';
+      default: return '';
+    }
+  }
+
   logout() {
     this.authService.logOut();
     this.router.navigate(['/login']);

@@ -37,10 +37,7 @@
       </a>
     </nav>
 
-    <button class="logout" (click)="logout()">
-      <span class="material-symbols-outlined">logout</span>
-      Cerrar sesión
-    </button>
+
   </aside>
 
   <main class="main-content">
@@ -77,60 +74,70 @@
       Mostrando {{ equiposFiltrados.length }} de {{ equipos.length }} equipos
     </p>
 
-    <section class="card table-container">
-      <table>
-        <thead>
-          <tr>
-            <th>Equipo</th>
-            <th>Categoría</th>
-            <th>Fundación</th>
-            <th>Descripción</th>
-            <th class="text-right">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let equipo of equiposFiltrados">
+    <div class="loading-container" *ngIf="loading">
+      <div class="loading-spinner"></div>
+      Cargando equipos...
+    </div>
 
-            <td>
-              <div class="user-info">
-                <img *ngIf="equipo.foto_url; else avatarEquipo" [src]="getFotoEquipo(equipo.foto_url)"
-                  alt="{{ equipo.nombre }}" class="user-avatar-img" />
+    <div class="empty-state" *ngIf="!loading && equiposFiltrados.length === 0">
+      <span class="material-symbols-outlined">group</span>
+      <h3>No hay equipos registrados</h3>
+      <p>Cuando registres un club, aparecerá aquí con su información y acceso al detalle.</p>
+    </div>
 
-                <ng-template #avatarEquipo>
-                  <div class="user-avatar font-bold text-blue">
-                    {{ equipo.nombre | slice: 0:1 }}
-                  </div>
-                </ng-template>
+    <!-- LISTA DE EQUIPOS -->
+    <section
+      class="teams-list"
+      *ngIf="!loading && equiposFiltrados.length > 0"
+    >
 
-                <span class="font-bold text-blue">
-                  {{ equipo.nombre }}
-                </span>
-              </div>
-            </td>
+      <article
+        class="team-card"
+        *ngFor="let equipo of equiposFiltrados"
+      >
+        <div class="team-main">
+          <ng-container *ngIf="equipo.foto_url; else avatarEquipo">
+            <img
+              [src]="getFotoEquipo(equipo.foto_url)"
+              [alt]="equipo.nombre"
+              class="team-icon-img">
+          </ng-container>
 
-            <td>
-              <span class="badge">{{ equipo.categoria }}</span>
-            </td>
-            <td>{{ equipo.ano_fundacion }}</td>
-            <td class="text-muted">{{ equipo.descripcion }}</td>
+          <ng-template #avatarEquipo>
+            <div class="team-icon">
+              {{ equipo.nombre | slice: 0:1 }}
+            </div>
+          </ng-template>
 
-            <td class="text-right">
-              <div class="action-buttons">
-                <a class="btn-icon" title="Detalle" [routerLink]="['/detalle-equipo', equipo.id!]"
-                  style="color: #2563eb; display: inline-flex; align-items: center; justify-content: center;">
-                  <span class="material-symbols-outlined">visibility</span>
-                </a>
-              </div>
-            </td>
-          </tr>
+          <div class="team-info">
+            <div class="team-topline">
+              <span class="team-category">{{ equipo.categoria || 'Sin categoría' }}</span>
+            </div>
 
-          <tr *ngIf="equiposFiltrados.length === 0">
-            <td colspan="5" class="text-center text-muted">
-              No hay equipos que coincidan con los filtros.
-            </td>
-          </tr>
-        </tbody>
-      </table>
+            <h2>{{ equipo.nombre }}</h2>
+
+            <div class="team-details">
+              <span>
+                <span class="material-symbols-outlined">calendar_month</span>
+                Fundado en {{ equipo.ano_fundacion || 'N/D' }}
+              </span>
+              <span *ngIf="equipo.descripcion" class="team-description">
+                <span class="material-symbols-outlined">info</span>
+                {{ equipo.descripcion }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <button
+          class="btn-details"
+          [routerLink]="['/detalle-equipo', equipo.id!]"
+        >
+          <span class="material-symbols-outlined">visibility</span>
+          Ver detalles
+        </button>
+      </article>
+
     </section>
   </main>
 </div>
